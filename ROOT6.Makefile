@@ -98,5 +98,5 @@ clean:
 	@echo "Cleaning up"
 	@rm -rf build doc
 	@rm -f inc/*~ src/*~ *~
-
+	@rm -f scripts/*~  scripts/*_C.*
 
