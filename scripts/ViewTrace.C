@@ -11,9 +11,9 @@
 #include "TH2F.h"
 
 #include "/home/wimmer/programs/HrROOT/inc/Trace.hh"
-
+char* filename = "root/run0031.root";
 void CoreTraces(int firstevt=0, int lastevt=-1){
-  TFile *f = new TFile("test.root");
+  TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");
   Mode3Event *mode3 = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&mode3);
@@ -38,7 +38,7 @@ void CoreTraces(int firstevt=0, int lastevt=-1){
 }
 
 void ViewCoreTrace(int n){
-  TFile *f = new TFile("test.root");
+  TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");
   Mode3Event *mode3 = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&mode3);
@@ -78,7 +78,7 @@ void ViewCoreTrace(int n){
 }
 
 vector<TGraph*> ViewTrace(int n, int e){
-  TFile *f = new TFile("test.root");
+  TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");
   Mode3Event *mode3 = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&mode3);
@@ -86,6 +86,11 @@ vector<TGraph*> ViewTrace(int n, int e){
   Int_t status = tr->GetEvent(n);
   vector<TGraph*> g;
   TMultiGraph *mg = new TMultiGraph();
+  cout << "mult " << mode3->GetMult() << endl;
+  if(e>= mode3->GetMult()){
+    cout << "hit " << e << " not available, only " << mode3->GetMult() << " hits in event" << endl;
+    return vector<TGraph*>();;
+  }
   cout << "Hit length " << mode3->GetHit(e)->GetMult() << endl;
   for(int t=0;t<mode3->GetHit(e)->GetMult();t++){
     Trace *trace = mode3->GetHit(e)->GetTrace(t);
