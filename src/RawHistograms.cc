@@ -55,6 +55,7 @@ void RawHistograms::FillHistograms(Mode3Event* m3e, Gretina* gr){
 }
 void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
   //Mode 2 histograms
+  //static bool firstEvent = true;
 
   Fill("hraw_emult",30,0,30,m3e->GetMult());
   for(int i=0; i<m3e->GetMult(); i++){
@@ -66,6 +67,7 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
 	cout << "Trace " << j << " Length " << trace->GetLength() << 
 	  "\tEnergy " << trace->GetEnergy() <<
 	  "\tBoard " << trace->GetBoard() <<
+	  "\tSlot " << trace->GetSlot() <<
 	  "\tChannel " << trace->GetChn() <<
 	  "\tHole " << trace->GetHole() <<
 	  "\tCrystal " << trace->GetCrystal();
@@ -77,13 +79,13 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
 	  cout << endl;
       }
       Fill("hraw_bank",20,0,20,trace->GetHole());
-      Fill(Form("hraw_board_bank%02d",trace->GetHole()),10,0,10,trace->GetBoard());
-      Fill(Form("hraw_chn_bank%02d_board%02d",trace->GetHole(),trace->GetBoard()),10,0,10,trace->GetChn());
-      Fill(Form("hraw_en_bank%02d_board%02d_chn%02d",trace->GetHole(),trace->GetBoard(),trace->GetChn()),2000,0,5e6,trace->GetEnergy());
-      Fill(Form("hraw_en_vs_chn_bank%02d_board%02d",trace->GetHole(),trace->GetBoard()),10,0,10,trace->GetChn(),2000,0,5e6,trace->GetEnergy());
+      Fill(Form("hraw_slot_bank%02d",trace->GetHole()),10,0,10,trace->GetSlot());
+      Fill(Form("hraw_chan_bank%02d_slot%02d",trace->GetHole(),trace->GetSlot()),10,0,10,trace->GetChn());
+      Fill(Form("hraw_en_bank%02d_slot%02d_chan%02d",trace->GetHole(),trace->GetSlot(),trace->GetChn()),20000,0,5e6,trace->GetEnergy());
+      Fill(Form("hraw_en_vs_chn_bank%02d_slot%02d",trace->GetHole(),trace->GetSlot()),10,0,10,trace->GetChn(),1000,0,1e6,trace->GetEnergy());
       //for MB, SC only
       if(trace->GetChn()==9){
-	Fill(Form("hraw_core_bank%02d_board%02d",trace->GetHole(),trace->GetBoard()),2000,0,5e6,trace->GetEnergy());
+	Fill(Form("hraw_core_bank%02d_slot%02d",trace->GetHole(),trace->GetSlot()),2000,0,5e6,trace->GetEnergy());
       }
     }
   }
