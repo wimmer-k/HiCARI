@@ -343,7 +343,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     wBuf++;
 
 
-    if(fvl>2){
+    if(fvl>5){
       cout << "UnpackedEvent: " << i <<"\t"<< curTrace.GetTrace()[i] << endl;
       cout << "UnpackedEvent: " << i+1 <<"\t"<< curTrace.GetTrace()[i+1] << endl;
     }
@@ -362,6 +362,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   }
 
 
+  //needs to be modified for MB and SC !!
   if(curTrace.GetBoard() == 6 && curTrace.GetChn() == 9){ //board 3 = 10 , 6 = 5 MeV range
     if(fvl>1){
       cout << "UnpackedEvent: " << fctr << " core hit id: "<<id<<"\tts: " << curTrace.GetLED() << endl;
@@ -373,6 +374,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
       cout << "UnpackedEvent: " << fctr << " segm hit id: "<<id<<"\tts: " << curTrace.GetLED() << endl;
     }
   }
+  //end needs modification
 
   *wBuf_p = wBuf;
 
