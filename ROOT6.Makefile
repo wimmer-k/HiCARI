@@ -38,7 +38,7 @@ ifeq ($(USING_ROOT_6),1)
 	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm LISADictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHRArray.so  $(EXTRAS) SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHRArray.so  $(EXTRAS) Unpack Raw_histos #SimCalculate Sim_histos
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHRArray.so $(O_FILES)
 	@echo "Compiling $@"
@@ -51,6 +51,10 @@ Sim_histos: Sim_histos.cc $(LIB_DIR)/libHRArray.so $(HO_FILES)
 Unpack: Unpack.cc $(O_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
+
+Raw_histos: Raw_histos.cc $(LIB_DIR)/libHRArray.so $(HO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
 
 $(LIB_DIR)/libHRArray.so: $(LIB_O_FILES)

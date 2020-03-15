@@ -35,10 +35,57 @@ void RawHistograms::FillHistograms(Gretina* gr, Miniball* mb, ZeroDeg* zd, MINOS
   fentry++;
   //Determine which of the systems are present in the data.
   bool hasmode2 = gr->GetMult()!=0;
-
-
   if(hasmode2){
     FillMode2Histograms(gr);
+  }
+}
+void RawHistograms::FillHistograms(Mode3Event* m3e, Gretina* gr){
+  fentry++;
+  //Determine which of the systems are present in the data.
+  bool hasmode2 = gr->GetMult()!=0;
+  bool hasmode3 = m3e->GetMult()!=0;
+
+
+  if(hasmode3){
+    FillMode3Histograms(m3e);
+  }
+  if(hasmode2){
+    FillMode2Histograms(gr);
+  }
+}
+void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
+  //Mode 2 histograms
+
+  Fill("hraw_emult",30,0,30,m3e->GetMult());
+  for(int i=0; i<m3e->GetMult(); i++){
+    Mode3Hit* hit = m3e->GetHit(i);
+    Fill("hraw_hmult",30,0,30,hit->GetMult());
+    for(int j=0; j<hit->GetMult(); j++){
+      Trace * trace = hit->GetTrace(j);
+      if(fSett->VLevel()>1){
+	cout << "Trace " << j << " Length " << trace->GetLength() << 
+	  "\tEnergy " << trace->GetEnergy() <<
+	  "\tBoard " << trace->GetBoard() <<
+	  "\tChannel " << trace->GetChn() <<
+	  "\tHole " << trace->GetHole() <<
+	  "\tCrystal " << trace->GetCrystal();
+	if(trace->GetChn()==9)
+	  cout << " <- CC " << endl;
+	else if(trace->GetEnergy()>1000)
+	  cout << " <- with net energy " << endl;
+	else
+	  cout << endl;
+      }
+      Fill("hraw_bank",20,0,20,trace->GetHole());
+      Fill(Form("hraw_board_bank%02d",trace->GetHole()),10,0,10,trace->GetBoard());
+      Fill(Form("hraw_chn_bank%02d_board%02d",trace->GetHole(),trace->GetBoard()),10,0,10,trace->GetChn());
+      Fill(Form("hraw_en_bank%02d_board%02d_chn%02d",trace->GetHole(),trace->GetBoard(),trace->GetChn()),2000,0,5e6,trace->GetEnergy());
+      Fill(Form("hraw_en_vs_chn_bank%02d_board%02d",trace->GetHole(),trace->GetBoard()),10,0,10,trace->GetChn(),2000,0,5e6,trace->GetEnergy());
+      //for MB, SC only
+      if(trace->GetChn()==9){
+	Fill(Form("hraw_core_bank%02d_board%02d",trace->GetHole(),trace->GetBoard()),2000,0,5e6,trace->GetEnergy());
+      }
+    }
   }
 }
 
