@@ -3,5 +3,6 @@
 build
 *.d
 *.so
-*/LISA*
+inc/LISA*
+src/LISA*
 *Makefile
