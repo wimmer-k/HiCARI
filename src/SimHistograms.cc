@@ -2,12 +2,7 @@
 using namespace TMath;
 using namespace std;
 
-#ifdef USELISA
-void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, GammaSim* gs, LISA* li){
-#else
 void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, GammaSim* gs){
-#endif
-
   //-------------------------------------------------------------------------
   //*************************************************************************
   //Fill the histograms here.
@@ -31,20 +26,8 @@ void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
   Fill("mult_emitted",10,0,10,gs->GetMult());
   
   double betan;
-#ifdef USELISA
-  Fill("reactiontarget",MAXTARGETS,0,MAXTARGETS,li->GetReaction());
-  for(int t=0;t<li->GetNTargets();t++){
-    Fill(Form("deltaE_%d",t),fSett->DeltaEBins(),fSett->DeltaERange(0),fSett->DeltaERange(1),li->GetDeltaE(t));
-    Fill(Form("deltaE_%d_hit_%d",t,li->GetReaction()),fSett->DeltaEBins(),fSett->DeltaERange(0),fSett->DeltaERange(1),li->GetDeltaE(t));
-    if(li->GetReaction()>-1)
-      Fill(Form("deltaE_%d_vs_hit_%d",t,li->GetReaction()),fSett->DeltaEBins(),fSett->DeltaERange(0),fSett->DeltaERange(1),li->GetDeltaE(t),MAXTARGETS,0,MAXTARGETS,li->GetReaction());
-  }
-  if(li->GetReaction()>-1)
-    betan = fSett->TargetBeta(li->GetReaction())*(1 + (zd->GetBetaTA() - fSett->AverageAfterBeta())/fSett->AverageAfterBeta());
-  else betan =0;
-#else
+
   betan = fSett->TargetBeta()*(1 + (zd->GetBetaTA() - fSett->AverageAfterBeta())/fSett->AverageAfterBeta());
-#endif
   
   double beta_real = gs->GetEmittedGamma(0)->GetBeta();
   // gamma detected in gretina
@@ -83,13 +66,6 @@ void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
       Fill("egam",8000,0,8000,energy);
       Fill("egamdc",8000,0,8000,energy_dc);
       Fill("egamdc_fine",8000,0,4000,energy_dc);
-#ifdef USELISA
-      if(li->GetReaction()>-1){
-	Fill(Form("egamdc_mu%d",li->GetReaction()),8000,0,8000,energy_dc);
-	Fill(Form("egamdc_fine_mu%d",li->GetReaction()),8000,0,4000,energy_dc);
-	Fill(Form("egamdc_dettheta_mu%d",li->GetReaction()),4000,0,4000,energy_dc,360,0,180,hit->GetPosition().Theta()*180/3.14159);
-      }
-#endif
       Fill("egam_mult",40,0,40,gr->GetMult(),8000,0,8000,energy);
       Fill("egamdc_mult",40,0,40,gr->GetMult(),8000,0,8000,energy_dc);
       Fill("egam_highestemitted_detected",1000,0,4000,highestemitted,1000,0,4000,energy);     
@@ -126,11 +102,7 @@ void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
       TVector3 hitd = hit->GetPosition();
       hitd.SetX(hitd.X() - zd->GetXTA() - fSett->TargetX());
       hitd.SetY(hitd.Y() - zd->GetYTA() - fSett->TargetY());
-#ifdef USELISA
-      hitd.SetZ(hitd.Z() - fSett->TargetZ(0));
-#else
       hitd.SetZ(hitd.Z() - fSett->TargetZ());
-#endif
       Fill("posshift_phi_theta",360,-3.14159,3.14159,hitd.Phi(),180,0,3.14159,hitd.Theta());
       
       Fill("GRposxy",600,-300,300,hit->GetPosition().X(),600,-300,300,hit->GetPosition().Y());
@@ -154,13 +126,6 @@ void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
       Fill("egamAB",8000,0,8000,energy);
       Fill("egamABdc",8000,0,8000,energy_dc);
       Fill("egamABdc_fine",8000,0,4000,energy_dc);
-#ifdef USELISA
-      if(li->GetReaction()>-1){
-	Fill(Form("egamABdc_mu%d",li->GetReaction()),8000,0,8000,energy_dc);
-	Fill(Form("egamABdc_fine_mu%d",li->GetReaction()),8000,0,4000,energy_dc);
-	Fill(Form("egamABdc_dettheta_mu%d",li->GetReaction()),4000,0,4000,energy_dc,360,0,180,hit->GetPosition().Theta()*180/3.14159);
-      }
-#endif
       Fill("egamAB_mult",40,0,40,gr->GetMult(),8000,0,8000,energy);
       Fill("egamABdc_mult",40,0,40,gr->GetMult(),8000,0,8000,energy_dc);
       Fill("egamAB_highestemitted_detected",1000,0,4000,highestemitted,1000,0,4000,energy);     
@@ -300,11 +265,7 @@ void SimHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
       TVector3 hitd = hit->GetPosition();
       hitd.SetX(hitd.X() - zd->GetXTA() - fSett->TargetX());
       hitd.SetY(hitd.Y() - zd->GetYTA() - fSett->TargetY());
-#ifdef USELISA
-      hitd.SetZ(hitd.Z() - fSett->TargetZ(0));
-#else
       hitd.SetZ(hitd.Z() - fSett->TargetZ());
-#endif
       Fill("posshift_phi_theta",360,-3.14159,3.14159,hitd.Phi(),180,0,3.14159,hitd.Theta());
 
       Fill("MBposxy",600,-300,300,hit->GetPosition().X(),600,-300,300,hit->GetPosition().Y());

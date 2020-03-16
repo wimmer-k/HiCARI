@@ -22,11 +22,7 @@
 #include "Gretina.hh"
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
-#ifdef USELISA
-#include "LISA.hh"
-#else
 #include "MINOS.hh"
-#endif
 #include "Tracking.hh"
 
 using namespace std;
@@ -47,11 +43,7 @@ public:
   void ReadMBPositions(const char* filename);
 
   //! Construct all calibrated objects.
-#ifdef USELISA
-  void BuildAllCalc(Gretina* inGret, GretinaCalc* outGret, Miniball* inMB, MiniballCalc* outMB, ZeroDeg *zerodeg, LISA *lisa);
-#else
   void BuildAllCalc(Gretina* inGret, GretinaCalc* outGret, Miniball* inMB, MiniballCalc* outMB, ZeroDeg *zerodeg, MINOS *minos);
-#endif
   
   //! Build the MiniballCalc object, given a raw Miniball object.
   void BuildMiniballCalc(Miniball* in, MiniballCalc* out);
@@ -59,13 +51,8 @@ public:
   void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
   //! Build the ZeroDeg object.
   void BuildZeroDeg(ZeroDeg *zerodeg);
-#ifdef USELISA
-  //! Build the LISA object.
-  void BuildLISA(LISA *lisa);
-#else
   //! Build the MINOS object.
   void BuildMINOS(MINOS *minos);
-#endif
 
   void AddBackGretinaCrystal(GretinaCalc* gr);
   void AddBackGretinaCluster(GretinaCalc* gr);
@@ -97,12 +84,8 @@ private:
   Long64_t fgretactr;
   Long64_t fminiballctr;
   Long64_t fzerodegctr;
-#ifdef USELISA
-  Long64_t flisactr;
-#else
   Long64_t fminosctr;
   TF1* fMINOSZett;
-#endif
   
   Tracking* ftracking;
 

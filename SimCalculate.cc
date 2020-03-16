@@ -111,9 +111,6 @@ int main(int argc, char* argv[]){
 #ifdef USEMINOS
   MINOS_DATA inbuf_minos_physicsdata[1];
 #endif
-#ifdef USELISA
-  LISA_DATA inbuf_lisa_physicsdata[1];
-#endif
   ZD_PHYSICSDATA inbuf_zero_physicsdata[1];
   UnpackedEvent *evt = new UnpackedEvent(set);
   evt->SetWrite(wrawtree, wrawhist, wcaltree, wcalhist, wsimtree);
@@ -233,27 +230,6 @@ int main(int argc, char* argv[]){
 	error = evt->DecodeMINOSPhysicsData(&inbuf_minos_physicsdata[0], ts);
       if(error){
 	cout << "An error ("<<error<<") occured in DecodeMINOSPhysicsData() while processing file: " << InputFile << ". Continuing ..." << endl;
-	continue;
-      }
-
-    }
-#endif
-#ifdef USELISA
-    else if(header[0]==LISA_PHYSDATA_ID){
-      if(vl>0)
-	cout << "lisa timestamp:\t"<< ts << "\tlength: "<< header[1] << "\thex: " <<(hex) << ts << "\tlength: "<< header[1] <<(dec) << "\tsizeof(LISA_DATA): " << sizeof(LISA_DATA) << endl;
-      if(header[1]==sizeof(LISA_DATA)){
-	bsize = fread(&inbuf_lisa_physicsdata[0], sizeof(LISA_DATA), 1, infile);
-	bytes_read += sizeof(LISA_DATA);
-      }
-      else{
-	cout << "Unknown size for LISA_DATA event" << endl;
-	break;
-      }
-      if(bsize>0)
-	error = evt->DecodeLISAPhysicsData(&inbuf_lisa_physicsdata[0], ts);
-      if(error){
-	cout << "An error ("<<error<<") occured in DecodeLISAPhysicsData() while processing file: " << InputFile << ". Continuing ..." << endl;
 	continue;
       }
 

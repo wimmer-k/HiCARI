@@ -50,7 +50,7 @@ public:
   TList* GetHList(){return fhlist;}
   void Write();
   void FillHistograms(Gretina* gr, Miniball* mb, ZeroDeg* zd, MINOS* mi);
-  void FillHistograms(Mode3Event* m3e, Gretina* gr);
+  void FillHistograms(Mode3Event* m3e, Miniball* mb, Gretina* gr);
 
   void Fill(string name,int bins, double low, double high, double value){
     try{
@@ -82,6 +82,7 @@ public:
 protected:
   void FillMode2Histograms(Gretina* gr);
   void FillMode3Histograms(Mode3Event* m3e);
+  void FillMiniballHistograms(Miniball* mb);
 
   TList* fhlist;
   map<string,TH1*> fhmap;

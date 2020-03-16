@@ -9,11 +9,7 @@
 #include "TMath.h"
 #include "Gretinadefs.h"
 #include "ZeroDeg.hh"
-#ifdef USELISA
-#include "LISA.hh"
-#else
 #include "MINOS.hh"
-#endif
 #include "Settings.hh"
 
 using namespace std;
@@ -89,7 +85,7 @@ protected:
   TVector3 fposition;
   //! The segment number (0-35) of the interaction point.
   Int_t fseg;
-  //! The total energy deposited in this segment.  (May contain lisaple interaction points.)
+  //! The total energy deposited in this segment.  (May contain multiple interaction points.)
   Float_t fseg_en;
   ClassDef(IPoint, 1);
 };
@@ -208,7 +204,7 @@ public:
 protected:
   //! An integer whose n-th bit is 1 iff the detector in cluster n fired.
   int fhitpattern;
-  //! The crystal lisaplicity of the event.
+  //! The crystal multiplicity of the event.
   Short_t fmult;
   vector<Crystal*> fcrystals;
   ClassDef(Gretina, 1);
@@ -217,7 +213,7 @@ protected:
 //! A class to contain a single calibrated interaction.
 /*!
   The HitCalc class is meant to contain a single calibrated interaction.
-  This may be the result of lisaple addback from lisaple sources,
+  This may be the result of multiple addback from multiple sources,
     or may be the result of a single interaction point.
  */
 class HitCalc : public TObject {
@@ -358,17 +354,6 @@ public:
   //! Returns the Doppler-correction factor to correct the energy.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg);
 
-#ifdef USELISA
-  //! Apply the Doppler correction using the given settings, LISA, and ZeroDeg data.
-  /*!
-    Apply the Doppler correction using the given settings, LISA, and ZeroDeg data.
-    Uses the beta and the target position from the LISA reconstruction
-    Uses the Phi, Theta, YTA, and XTA from the ZeroDeg
-   */
-  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* lisa);
-  //! Returns the Doppler-correction factor to correct the energy including the LISA information.
-  static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, LISA* lisa);
-#else
   //! Apply the Doppler correction using the given settings, MINOS, and ZeroDeg data.
   /*!
     Apply the Doppler correction using the given settings, MINOS, and ZeroDeg data.
@@ -378,7 +363,7 @@ public:
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   //! Returns the Doppler-correction factor to correct the energy including the MINOS information.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
-#endif
+
   void Print(){
     cout << "cluster " << fcluster << "\tcrystal " << fcrystal << "\ten " << fen << "\tmax hit " << fMaxSingleHit << endl;//"\tipoints " << fipoints.size()<< endl;
     return;
@@ -488,11 +473,7 @@ public:
   }
   void DopplerCorrect(Settings* set);
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
-#ifdef USELISA
-  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* lisa);
-#else
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
-#endif
   void Print(){
     cout << " singles mult " <<fmult << endl;
     for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
@@ -579,7 +560,7 @@ public:
   }
 };
 
-//! Class to contain lisaple interaction points, used for tracking.
+//! Class to contain multiple interaction points, used for tracking.
 /*!
   Hold an ordered list of HitCalc objects,
     which can be ordered using Tracking::TrackCluster().
@@ -635,15 +616,9 @@ public:
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
     fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set,zerodeg);
   }
-#ifdef USELISA
-  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* lisa){
-    fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set,zerodeg,lisa);
-  }
-#else
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
     fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set,zerodeg,minos);
   }
-#endif
   void SetFOM(Double_t fom){ fFOM = fom; }
   void SetPermutation(Int_t perm){ fperm = perm; }
   void SetPermutation(vector<int> perm){ fpermlist = perm; }

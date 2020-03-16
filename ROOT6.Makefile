@@ -11,13 +11,12 @@ ROOTGLIBS   := $(shell root-config --glibs)
 ROOTINC     := -I$(shell root-config --incdir)
 
 CPP         = g++
-CFLAGS	    = -Wall -Wno-long-long -g -O3 $(ROOTCFLAGS) -fPIC -D_FILE_OFFSET_BITS=64 -MMD -std=c++11
+CFLAGS	    = -Wall -Wno-long-long -g -O3 $(ROOTCFLAGS) -fPIC -D_FILE_OFFSET_BITS=64 -MMD
 
 INCLUDES    = -I./inc 
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) 
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHRArray
 
-SWITCH = -DUSELISA
 #SWITCH = -DBACKGROUND
 
 LFLAGS	    = -g -fPIC -shared
@@ -28,14 +27,14 @@ CFLAGS 	    += -Wno-unused-variable -Wno-unused-but-set-variable -Wno-write-stri
 CLICFLAGS   = -g2 -O2 -fPIC
 CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed 
 
-LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o  build/LISA.o build/LISADictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o 
+LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o 
 
 O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
 HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
 ifeq ($(USING_ROOT_6),1)
-	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm LISADictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
+	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
 endif
 
 all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHRArray.so  $(EXTRAS) Unpack Raw_histos #SimCalculate Sim_histos

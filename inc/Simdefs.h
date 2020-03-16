@@ -6,11 +6,6 @@
 #define MINOS_PHYSDATA_ID       17     /* ID for minos data */
 #define ZEROPHYSDATA_TYPETAG    0x0de90de9
 #define MINOSXYZDATA_TYPETAG    0xaffec0c0
-#ifdef USELISA
-#define LISATARDATA_TAG        0x10ca7e17 //type identifier
-#define LISA_PHYSDATA_ID       18     /* ID for multi data */
-#define MAXTARGETS              20
-#endif
 #ifdef BACKGROUND
 #define MAX_SIM_GAMMAS 100       /* max. simulated gammas per event */
 #elif HIGHMULT
@@ -48,14 +43,5 @@ typedef struct MINOS_data {
   float x, y, z;   /* reaction vertex  */
 } MINOS_DATA;
 
-#ifdef USELISA
-typedef struct LISA_data {
-  int type;    /* defined affec0c0 for indicating this version */
-  int ntargets;
-  float deltaE[MAXTARGETS];    /* energy losses */
-  float x, y, z;   /* reaction vertex  */
-  int reaction;   /* which target made the reaction */
-} LISA_DATA;
-#endif
 
 #endif

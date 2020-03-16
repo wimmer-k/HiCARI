@@ -8,11 +8,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "ZeroDeg.hh"
-#ifdef USELISA
-#include "LISA.hh"
-#else
 #include "MINOS.hh"
-#endif
 #include "Settings.hh"
 #include "Miniballdefs.h"
 
@@ -35,8 +31,12 @@ public:
   MBCrystal();
   MBCrystal(MB_clust inbuf, long long int ts);
   MBCrystal(MBCrystal* old);
+  MBCrystal(int clu, int cry,  Short_t nr, double en,  long long int ts);
   ~MBCrystal();
   void Clear();
+  bool InsertCore(int clu, int cry, double en,  long long int ts);
+  bool InsertSegment(int clu, int cry, Short_t nr, Float_t en);
+
   void AddBackCrystal(MBCrystal* other);
   void AddSegment(Short_t segnr, Float_t segnen);
 
@@ -46,7 +46,7 @@ public:
   Float_t GetEnergy(){return fen;}
   void SetEnergy(Float_t val){fen = val;}
   void SetSegmentEn(int n, Float_t en){
-      fsegen[n] = n;
+      fsegen[n] = en;
   }
 
   Float_t GetSegmentSum();
@@ -112,11 +112,20 @@ public:
       return fcrystals[n];
     return NULL;
   }
+  MBCrystal* GetHit(int mod, int cry){
+    //cout << "trying to get " << mod << " , " << cry << endl;
+    for(vector<MBCrystal*>::iterator mbs=fcrystals.begin(); mbs!=fcrystals.end(); mbs++){
+      //cout << "finding " << (*mbs)->GetCluster() << " , " << (*mbs)->GetCrystal() << endl;
+      if((*mbs)->GetCluster() == mod && (*mbs)->GetCrystal() == cry)
+	return (*mbs);
+    }
+    return NULL;
+  }
   void PrintEvent();
 protected:
   //! An integer whose n-th bit is 1 iff the detector in cluster n fired.
   int fhitpattern;
-  //! The crystal lisaplicity of the event.
+  //! The crystal multiplicity of the event.
   Short_t fmult;
   vector<MBCrystal*> fcrystals;
   ClassDef(Miniball, 1);
@@ -177,19 +186,11 @@ public:
   //! Returns the Doppler-correction factor to correct the energy.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg);
   
-#ifdef USELISA
-  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* lisa){
-    fDCen = fen*MBHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,lisa);
-  }
-  //! Returns the Doppler-correction factor to correct the energy.
-  static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, LISA* lisa);
-#else
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
     fDCen = fen*MBHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,minos);
   }
   //! Returns the Doppler-correction factor to correct the energy.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
-#endif
   //static double DopplerCorrectionFactor(TVector3 PosToTarget, double beta, double z);
 
   void Print(){
@@ -250,11 +251,7 @@ public:
   }
   void DopplerCorrect(Settings* set);
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
-#ifdef USELISA
-  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* lisa);
-#else
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
-#endif
   void Print(){
     cout << " singles mult " <<fmult << endl;
     for(vector<MBHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){

@@ -135,11 +135,7 @@ double Tracking::FigureOfMerit(vector<HitCalc*> hits, int nperm, double esum){
     //single hit, calc distance in Ge
     //travel from source to hit 0;
     TVector3 p;
-#ifdef USELISA
-    p = in+fset->TargetPos(0);
-#else
     p = in+fset->TargetPos();
-#endif
 
     double alpha = p.Angle(in);
     double r = p.Mag()-fset->RadiusGE();

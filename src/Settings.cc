@@ -33,19 +33,8 @@ void Settings::ReadSettings(TEnv* set){
 
   ftargetX = set->GetValue("Target.X",0.0);
   ftargetY = set->GetValue("Target.Y",0.0);
-#ifdef USELISA
-  for(int t=0;t<MAXTARGETS;t++){
-    ftargetZ[t] = set->GetValue(Form("Target.%d.Z",t),0.0);
-    ftargetBeta[t] = set->GetValue(Form("Target.%d.Beta",t),0.0);
-  }
-  fdeltaErange[0] = set->GetValue("DeltaE.Range.Low",0.0);
-  fdeltaErange[1] = set->GetValue("DeltaE.Range.High",1000.0);
-  fdeltaEbins = set->GetValue("DeltaE.Bins",1000);
-#else
   ftargetZ = set->GetValue("Target.Z",0.0);
   ftargetBeta = set->GetValue("Target.Beta",0.0);
-#endif
-  
   fAveAfterBeta = set->GetValue("Average.Beta.After",0.0);
 
   fTargetAngleRes = set->GetValue("Target.Angle.Resolution",0.0);
@@ -76,13 +65,8 @@ void Settings::ReadSettings(TEnv* set){
   fdet2clu.clear();
   fclu2det.clear();
   
-#ifdef USELISA
-  for(int det=0; det<60; det++){
-    int clu = det+100;
-#else
   for(int det=0; det<20; det++){
     int clu = set->GetValue(Form("Detector.%d",det),-1);
-#endif
     if (clu!=-1){
       fdet2clu[det] = clu;
       fclu2det[clu] = det;
@@ -90,7 +74,9 @@ void Settings::ReadSettings(TEnv* set){
   }
 
   fTracking = set->GetValue("DoTracking",false);
-
+  fMBmapping = set->GetValue("Miniball.Mapping.Table",defaultfile);
+  ReadMiniballMappingTable();
+  PrintMiniballMappingTable();
 }
 
 int Settings::Det2Clu(int det){
@@ -119,18 +105,8 @@ void Settings::PrintSettings(){
 
   cout << "Target.X\t" << ftargetX << endl;
   cout << "Target.Y\t" << ftargetY << endl;
-#ifdef USELISA
-  for(int t=0;t<MAXTARGETS;t++){
-    cout << "Target."<<t<<".Z\t" << ftargetZ[t] << endl;
-    cout << "Target."<<t<<".Beta\t" << ftargetBeta[t] << endl;
-  }
-  cout << "DeltaE.Range.Low\t" << fdeltaErange[0] << endl;
-  cout << "DeltaE.Range.High\t" << fdeltaErange[1] << endl;
-  cout << "DeltaE.Bins\t" << fdeltaEbins << endl;
-#else
   cout << "Target.Z\t" << ftargetZ << endl;
   cout << "Target.Beta\t" << ftargetBeta << endl;
-#endif
   cout << "Average.Beta.After\t" << fAveAfterBeta << endl;
 
 
@@ -160,3 +136,38 @@ void Settings::PrintSettings(){
 }
 
 
+void Settings::ReadMiniballMappingTable(){
+  TEnv* mapenv = new TEnv(fMBmapping.c_str());
+  for(int h=0;h<20;h++){
+    for(int c=0;c<4;c++){
+      for(int s=0;s<4;s++){
+	fMBmap[h][c][s] = mapenv->GetValue(Form("Hole.%d.Crystal.%d.Slot.%d",h,c,s),-1);
+      }
+    }
+  }
+}
+
+void Settings::PrintMiniballMappingTable(){
+  // for accessing first map 
+  map<int, map<int, map<int, int> > >::iterator ftr;   
+  // for accessing second map 
+  map<int, map<int, int> >::iterator str; 
+  // for accessing inner map 
+  map<int, int>::iterator ptr;
+
+  if(fVerboseLevel>1){
+    char* abc = "ABC";
+    for(ftr = fMBmap.begin(); ftr != fMBmap.end(); ftr++) {   
+      for(str = ftr->second.begin(); str != ftr->second.end(); str++) { 
+	for(ptr = str->second.begin(); ptr != str->second.end(); ptr++) {
+	  if(ptr->second>-1)
+	    cout << "Hole " << ftr->first 
+		 << ", Crystal " << str->first 
+		 << ", Slot " << ptr->first 
+		 << " is MB " << ptr->second/10 << abc[ptr->second%10] << ", or " << fMBmap[ftr->first][str->first][ptr->first] << ", or " << MiniballModule(ftr->first,str->first,ptr->first)<< " and " << MiniballCrystal(ftr->first,str->first,ptr->first) << endl; 
+	  
+	} 
+      } 
+    }
+  }
+}

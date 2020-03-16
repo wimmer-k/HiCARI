@@ -7,13 +7,6 @@ using namespace std;
 
 #define uint unsigned int
 
-struct recal{
-  int Detector;
-  int Crystal;
-  double Slope;
-  double Offset;
-};
-
 Calibration::Calibration(){
   ResetCtrs();
   ftracking = new Tracking;
@@ -22,14 +15,12 @@ Calibration::Calibration(){
 Calibration::Calibration(Settings* setting, int event){
   ResetCtrs();
   fSett = setting;
-
   fevent =event;
 
 
   fverbose = fSett->VLevel();
   fAddBackType = fSett->AddBackType();
 
-#ifndef USELISA   
   ReadMBPositions(fSett->AveMBPos());
   if(fSett->UseMINOS()){
     fMINOSZett = new TF1("MINOSZett",inverted,fSett->TargetZ() - 200, fSett->TargetZ() + 200, 3);
@@ -38,7 +29,6 @@ Calibration::Calibration(Settings* setting, int event){
       cout << "fSett->MINOSBetaCoefficient("<<i<<") = " << fSett->MINOSBetaCoefficient(i) << endl;
     }
   }
-#endif
   
   ftracking = new Tracking((TrackSettings*)setting);
 }
@@ -81,67 +71,6 @@ void Calibration::ReadMBPositions(const char* filename){
   }
 }
 
-#ifdef USELISA
-/*!
-  First three parameters are the three raw data structures, Miniball, Gretina
-  Last three parameters are the three calibrated data structures to write to.
-  Internally, calls BuildMiniballCalc(), BuildGretinaCalc()
-  Additionally, performs calibrations that depend on lisaple systems, such as the doppler correction.
-  @param inGret The raw Gretina object as input
-  @param outGret A pointer to the GretinaCalc object to be built.
-  @param zerodeg pointer to the zerodeg data
-  @param lisa pointer to the LISA data
-*/
-void Calibration::BuildAllCalc(Gretina* inGret, GretinaCalc* outGret, Miniball* inMB, MiniballCalc* outMB, ZeroDeg* zerodeg, LISA* lisa){
-  if(fverbose>2)
-    cout <<__PRETTY_FUNCTION__ << endl;
-  //Determine which of the components are present in this event.
-  bool hasgret = inGret->GetMult()>0;
-  bool hasmini = inMB->GetMult()>0;
-  bool haszero = zerodeg->GetBetaTA()>0;
-  bool hasmult = lisa->GetNTargets()>0;
-
-  outGret->Clear();
-
-  if(haszero){
-    if(fverbose>2)
-      cout << "has zerodeg " << endl;
-    BuildZeroDeg(zerodeg);
-    fzerodegctr++;
-  }
-  if(hasmult){
-    if(fverbose>2)
-      cout << "has lisa " << endl;
-    BuildLISA(lisa);
-    flisactr++;
-  }
-  if(hasgret){
-    if(fverbose>2)
-      cout << "has tracking " << endl;
-    BuildGretinaCalc(inGret,outGret);
-    fgretactr++;
-    if(hasmult && haszero)
-      outGret->DopplerCorrect(fSett,zerodeg,lisa);
-    else if(haszero)
-      outGret->DopplerCorrect(fSett,zerodeg);
-    else
-      outGret->DopplerCorrect(fSett);
-  }
-  if(hasmini){
-    if(fverbose>2)
-      cout << "has miniball " << endl;
-    BuildMiniballCalc(inMB, outMB);
-    fminiballctr++;
-    if(hasmult && haszero)
-      outMB->DopplerCorrect(fSett,zerodeg,lisa);
-    else if(haszero)
-      outMB->DopplerCorrect(fSett,zerodeg);
-    else
-      outMB->DopplerCorrect(fSett);
-  }
-  fevent++;
-}
-#else
 /*!
   First three parameters are the three raw data structures, Miniball, Gretina
   Last three parameters are the three calibrated data structures to write to.
@@ -201,7 +130,6 @@ void Calibration::BuildAllCalc(Gretina* inGret, GretinaCalc* outGret, Miniball* 
   }
   fevent++;
 }
-#endif
 
 void Calibration::BuildMiniballCalc(Miniball* in, MiniballCalc* out){
   //cout <<__PRETTY_FUNCTION__ << endl;
@@ -438,24 +366,16 @@ void Calibration::BuildZeroDeg(ZeroDeg* zerodeg){
   zerodeg->SetEtot(gamma*AMU*fSett->EjectileMass());
   zerodeg->SetEkin((gamma-1)*AMU*fSett->EjectileMass());
 }
-#ifdef USELISA
-void Calibration::BuildLISA(LISA* lisa){
-}
-#else
 void Calibration::BuildMINOS(MINOS* minos){
   double beta = fMINOSZett->Eval(minos->GetZ());
   minos->SetBeta(beta);
 }
-#endif
+
 void Calibration::ResetCtrs(){
   fgretactr = 0;
   fminiballctr = 0;
   fzerodegctr = 0;
-#ifdef USELISA
-  flisactr = 0;
-#else
   fminosctr = 0;
-#endif
 }
 
 void Calibration::PrintCtrs(){
@@ -464,9 +384,5 @@ void Calibration::PrintCtrs(){
   cout << "fgretactr  \t" << fgretactr  << endl;
   cout << "fminiballctr  \t" << fminiballctr  << endl;
   cout << "fzerodegctr  \t" << fzerodegctr  << endl;
-#ifdef USELISA
-  cout << "flisactr  \t" << flisactr  << endl;
-#else
   cout << "fminosctr  \t" << fminosctr  << endl;
-#endif
 }

@@ -31,9 +31,6 @@
 #ifdef USEMINOS
 #include "MINOS.hh"
 #endif
-#ifdef USELISA
-#include "LISA.hh"
-#endif
 #include "Settings.hh"
 #include "RawHistograms.hh"
 #include "CalHistograms.hh"
@@ -67,9 +64,6 @@ public:
 #ifdef USEMINOS
     delete fMINOS;
 #endif    
-#ifdef USELISA
-    delete fLISA;
-#endif    
     delete frhist;
     delete fchist;
     delete fMiniball;
@@ -89,8 +83,8 @@ public:
     fwcalhist = wchist;
     fwsimtree = wstree;
   }
-  void SetRecalibrate(bool recalibrate){
-    frecalibrate = recalibrate;
+  void SetMakeMiniball(bool makeminiball){
+    fmakeminiball = makeminiball;
   }
   void SetWrite(bool wtree, bool whist){
     fwtree = wtree;
@@ -108,10 +102,6 @@ public:
 #ifdef USEMINOS
   //! Read the specified buffer and make the MINOSPhysicsData event.
   int DecodeMINOSPhysicsData(MINOS_DATA*, long long int);
-#endif
-#ifdef USELISA
-  //! Read the specified buffer and make the LISAPhysicsData event.
-  int DecodeLISAPhysicsData(LISA_DATA*, long long int);
 #endif
   //! Passed a gretina Crystal, make a new crystal in the Gretina object.
   int DecodeGretina(Crystal* cryst, long long int gts);
@@ -152,6 +142,8 @@ protected:
   void CloseEvent();
   //! Clears memory of current event.
   void ClearEvent();
+  //! Make Miniball objects from mode3 data
+  void MakeMiniball();
 
   TRandom* fRand;
   TTree *fsimtr;
@@ -161,9 +153,6 @@ protected:
   ZeroDeg*      fZeroDeg;
 #ifdef USEMINOS
   MINOS*        fMINOS;
-#endif
-#ifdef USELISA
-  LISA*        fLISA;
 #endif
   Gretina*      fGretina;
   GretinaCalc*  fGretinaCalc;
@@ -201,6 +190,7 @@ protected:
   vector<simresolution> fSimResolutions;
   vector<simthreshold>  fSimThresholds;
 
+  bool fmakeminiball;
 };
 
 #endif

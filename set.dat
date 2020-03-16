@@ -1,2 +1,7 @@
 VerboseLevel:	0
 EventTimeDiff:	500
+
+Miniball.Mapping.Table:	/home/daq/HiCARI/settings/MBmapping.dat
+Miniball.Calibration.File:	/home/daq/HiCARI/settings/MBcal.dat
+
+

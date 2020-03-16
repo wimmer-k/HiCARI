@@ -36,6 +36,8 @@ UnpackedEvent::UnpackedEvent(Settings* settings){
 }
 
 void UnpackedEvent::Init(){
+  fmakeminiball = false;
+
   frhist = new RawHistograms(fSett);
   fchist = new CalHistograms(fSett);
 
@@ -51,9 +53,6 @@ void UnpackedEvent::Init(){
   fZeroDeg = new ZeroDeg;
 #ifdef USEMINOS
   fMINOS = new MINOS;
-#endif
-#ifdef USELISA
-  fLISA = new LISA;
 #endif
   if(fwtree){
     //setting up tree
@@ -71,9 +70,6 @@ void UnpackedEvent::Init(){
     cout << "setting up calibrated tree " << endl;
     fcaltr = new TTree("caltr","calibrated and built events");
     fcaltr->Branch("zerodeg",&fZeroDeg, 320000);
-#ifdef USELISA
-    fcaltr->Branch("lisa",&fLISA, 320000);
-#endif
 #ifdef USEMINOS
     fcaltr->Branch("minos",&fMINOS, 320000);
 #endif
@@ -100,9 +96,6 @@ void UnpackedEvent::Init(){
   fGretina->Clear();
   fMiniball->Clear();
   fZeroDeg->Clear();
-#ifdef USELISA
-  fLISA->Clear();
-#endif
 #ifdef USEMINOS
   fMINOS->Clear();
 #endif
@@ -678,62 +671,6 @@ int UnpackedEvent::DecodeMINOSPhysicsData(MINOS_DATA* minospd, long long int ts)
   return 0;
 }
 #endif
-#ifdef USELISA
-int UnpackedEvent::DecodeLISAPhysicsData(LISA_DATA* lisapd, long long int ts){
-  if(fvl>0)
-    cout << __PRETTY_FUNCTION__  << " time stamp " << ts << endl;
-  // now check time stamps
-  long long int deltaEvent = ts - fcurrent_ts;
-  if(fcurrent_ts>-1 && deltaEvent < 0 )
-    cout << "UnpackedEvent: " << "Inconsistent Timestamp last time was " << fcurrent_ts << " this (lisa) " << ts << " difference " << deltaEvent<< endl;
-  if(fvl>1){
-    cout << "UnpackedEvent: " <<fnentries<< " this ts " << ts <<" current ts " << fcurrent_ts <<" difference " << deltaEvent <<endl;
-  }
-  
-  if(deltaEvent  < fEventTimeDiff){
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries<< " coincidence difference " << deltaEvent << endl;
-  } else {
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries << " zerodeg single event difference " << deltaEvent << endl;
-    if(fcurrent_ts>-1){
-      if(fvl>2)
-	cout << "UnpackedEvent: " << "Closing event due to timestamp in LISA." << endl;
-      fMode3Event->SetCounter(fctr);
-      fctr = 0;
-      this->CloseEvent();
-    }
-    this->ClearEvent();
-  }
-  //set the current timestamp
-  fcurrent_ts = ts;
-
-  if(fvl>0){
-    cout << "UnpackedEvent: LISA_DATA: ts = "  << ts
-      	 << " x = " << lisapd->x 
-	 << " y = "  << lisapd->y 
-	 << " z = "  << lisapd->z 
-	 << " nr = "  << lisapd->reaction
-	 << " nt = "  << lisapd->ntargets << endl;
-    for(Short_t t=0;t<lisapd->ntargets;t++)
-      cout << "e("<<t<<") = " << lisapd->deltaE[t] << endl;
-  }
-  // for(Short_t t=0;t<lisapd->ntargets;t++)
-  //   cout << lisapd->deltaE[t] << "\t";
-  // cout << int(lisapd->z+11)/10 << endl;
-
-  fLISA->SetTimeStamp(ts);
-  fLISA->SetVertex(lisapd->x,lisapd->y,lisapd->z);
-  for(Short_t t=0;t<lisapd->ntargets;t++)
-    fLISA->AddTarget(lisapd->deltaE[t]);
-  fLISA->SetReaction(lisapd->reaction);
-  
-  if(fvl>2){
-    cout << "UnpackedEvent: LISAPhysicsData event found with timestamp " << ts << endl;
-  }
-  return 0;
-}
-#endif
 
 void UnpackedEvent::ReadSimResolution(const char* filename){
   TEnv* env = new TEnv(filename);
@@ -914,9 +851,6 @@ void UnpackedEvent::ClearEvent(){
 #ifdef USEMINOS
   fMINOS->Clear();
 #endif
-#ifdef USELISA
-  fLISA->Clear();
-#endif
   return;
 }
 
@@ -931,16 +865,23 @@ void UnpackedEvent::ClearEvent(){
   Note that calibrations are only performed in GrROOT if either "ct" or "ch" are given as flags.
 */
 void UnpackedEvent::CloseEvent(){
+  //cout << __PRETTY_FUNCTION__ << endl;
   SimResolution(fGretina);
   SimThresholds(fGretina);
   SimResolution(fMiniball);
   SimThresholds(fMiniball);
   if(fwtree || fwhist){
-    //Perform mode 2 recalibrations, addback.
+    if(fmakeminiball){
+      //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << endl;   
+      MakeMiniball();
+      //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << "-----------after " << endl;   
+    }
+
+
     if (fwhist){
 #ifdef USEMINOS
       frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,fMINOS);
-#else
+#else 
       frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,NULL);
 #endif
     }
@@ -951,21 +892,18 @@ void UnpackedEvent::CloseEvent(){
     fnentries++;
   }
   if(fwcaltree||fwcalhist){
+    
 
     //Build all of the calibrated objects, using the calibration in cal.
     //Use the data from the first three parameters, output into the last three parameters.
     //cout << "calculation BuildAllCalc called" << endl;
-#ifdef USELISA
-    fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,fLISA);
     //    if(trackMe)
     //      fcal->GammaTrack(fgretinaCalc,fgretinaEvent);
 
-#else
 #ifdef USEMINOS
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,fMINOS);
 #else
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
-#endif
 #endif
     if(fwcaltree){
       fcaltr->Fill();
@@ -1002,4 +940,56 @@ void UnpackedEvent::WriteLastEvent(){
   }
   if(fvl>1)
     fcal->PrintCtrs();
+}
+/*! 
+  Create Miniball object from mode3 data
+*/
+void UnpackedEvent::MakeMiniball(){
+  fMiniball->Clear();
+  //cout << __PRETTY_FUNCTION__ << endl;
+  //cout << " mult " << fMode3Event->GetMult() << endl;
+  for(int i=0; i<fMode3Event->GetMult(); i++){
+    Mode3Hit* hit = fMode3Event->GetHit(i);
+    //cout << "hit " << i << " mult " << hit->GetMult() << endl;
+    for(int j=0; j<hit->GetMult(); j++){
+      Trace * trace = hit->GetTrace(j);
+      if(fSett->VLevel()>1){
+	cout << "Trace " << j << " Length " << trace->GetLength() << 
+	  "\tEnergy " << trace->GetEnergy() <<
+	  "\tBoard " << trace->GetBoard() <<
+	  "\tSlot " << trace->GetSlot() <<
+	  "\tChannel " << trace->GetChn() <<
+	  "\tHole " << trace->GetHole() <<
+	  "\tCrystal " << trace->GetCrystal() << 
+	  "\tTimeStamp " << trace->GetTS();
+	if(trace->GetChn()==9)
+	  cout << " <- CC " << endl;
+	else if(trace->GetEnergy()>1000)
+	  cout << " <- with net energy " << endl;
+	else
+	  cout << endl;
+	cout << fSett->MiniballModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->MiniballCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
+	
+      }
+      int mod = fSett->MiniballModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int cry = fSett->MiniballCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int chn = trace->GetChn();
+      if(mod<0 || cry<0){
+	cout << "invalid MB module or crystal " << endl;
+	continue;
+      }
+      MBCrystal* mbhit = fMiniball->GetHit(mod,cry);
+      if(mbhit){
+	if(chn==9)
+	  mbhit->InsertCore(mod, cry, trace->GetEnergy(), trace->GetTS());
+	else
+	  mbhit->InsertSegment(mod, cry, chn, trace->GetEnergy());	  
+      }      
+      else{
+	fMiniball->AddHit(new MBCrystal(mod, cry, chn, trace->GetEnergy(), trace->GetTS()));
+      }      
+    }//traces
+  }//hits
+  if(fSett->VLevel()>1)
+    fMiniball->PrintEvent();
 }

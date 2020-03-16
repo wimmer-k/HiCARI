@@ -36,17 +36,9 @@ public:
   double EjectileMass(){return fEjectileMass;}
   Float_t TargetX(){return ftargetX;}
   Float_t TargetY(){return ftargetY;}
-#ifdef USELISA
-  Float_t TargetZ(Short_t t){return ftargetZ[t];}
-  TVector3 TargetPos(Short_t t){return TVector3(ftargetX,ftargetY,ftargetZ[t]);}
-  Float_t TargetBeta(Short_t t){return ftargetBeta[t];}
-  Float_t DeltaERange(Short_t i){return fdeltaErange[i];}
-  Int_t DeltaEBins(){return fdeltaEbins;}
-#else
   Float_t TargetZ(){return ftargetZ;}
   TVector3 TargetPos(){return TVector3(ftargetX,ftargetY,ftargetZ);}
   Float_t TargetBeta(){return ftargetBeta;}
-#endif
   Float_t AverageAfterBeta(){return fAveAfterBeta;}
 
   double TargetAngleResolution(){return fTargetAngleRes;}
@@ -77,6 +69,13 @@ public:
   void SetTracking(bool tracking){fTracking = tracking;}
   bool GetTracking(){return fTracking;}
 
+  const char* MiniballMappingTable(){return fMBmapping.c_str();}
+  void ReadMiniballMappingTable();
+  void PrintMiniballMappingTable();
+  int MiniballModule(int hole, int cry, int slot){return fMBmap[hole][cry][slot]/10;}
+  int MiniballCrystal(int hole, int cry, int slot){return fMBmap[hole][cry][slot]%10;}
+  //const char* MiniballCalibrationFile(){return fMBmapping.c_str();}
+
 protected:
   int fEventTimeDiff;
   vector<string> fInputFiles;
@@ -85,15 +84,8 @@ protected:
 
   Float_t ftargetX;
   Float_t ftargetY;
-#ifdef USELISA
-  Float_t ftargetZ[MAXTARGETS];
-  Float_t ftargetBeta[MAXTARGETS];
-  Float_t fdeltaErange[2];
-  Int_t fdeltaEbins;
-#else
   Float_t ftargetZ;
   Float_t ftargetBeta;
-#endif
   Float_t fAveAfterBeta;
   double fTargetAngleRes;
   double fTargetPosRes;
@@ -122,6 +114,10 @@ protected:
   int fStoreAllIPoints;
   double fOverflowThreshold;
   bool fTracking;
+
+  string fMBmapping;
+  map<int, map<int, map<int, int> > > fMBmap;
+ 
 
   ClassDef(Settings, 1)
 };

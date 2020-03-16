@@ -17,8 +17,6 @@ INCLUDES    = -I./inc
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) 
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHRArray
 
-SWITCH = -DUSELISA
-
 LFLAGS	    = -g -fPIC -shared
 CFLAGS 	    += -Wl,--no-as-needed $(SWITCH)
 LFLAGS 	    += -Wl,--no-as-needed 
@@ -27,7 +25,7 @@ CFLAGS 	    += -Wno-unused-variable -Wno-unused-but-set-variable -Wno-write-stri
 CLICFLAGS   = -g2 -O2 -fPIC
 CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed 
 
-LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o  build/LISA.o build/LISADictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o
+LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o  build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o
 
 O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
 HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 

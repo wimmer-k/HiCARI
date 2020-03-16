@@ -43,6 +43,7 @@ int main(int argc, char* argv[]){
   bool wrawhist = false;
   bool wcaltree = false;
   bool wcalhist = false;
+  bool makeminiball = true;
   
   //Read in the command line arguments
   CommandLineInterface* interface = new CommandLineInterface();
@@ -51,6 +52,7 @@ int main(int argc, char* argv[]){
   interface->Add("-o", "output file", &RootFile);
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-rt", "write raw tree", &wrawtree);
+  interface->Add("-m", "make the miniball", &makeminiball);
   interface->CheckFlags(argc, argv);
 
   //Complain about missing mandatory arguments
@@ -101,10 +103,12 @@ int main(int argc, char* argv[]){
   long long int bytes_read = 0;
   UnpackedEvent *evt = new UnpackedEvent(set);
   evt->SetWrite(wrawtree, wrawhist, wcaltree, wcalhist,false);
+
   Calibration *cal = new Calibration(set);
   evt->SetCalibration(cal);
   evt->SetVL(vl);
   evt->Init();
+  evt->SetMakeMiniball(makeminiball);
   
   //Loop over the entirety of the input file.
   while(!feof(infile) && !signal_received){

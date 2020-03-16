@@ -29,9 +29,6 @@
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
 #include "GammaSim.hh"
-#ifdef USELISA
-#include "LISA.hh"
-#endif
 
 using namespace std;
 
@@ -62,11 +59,7 @@ public:
     fhlist->Write();
   }
 
-#ifdef USELISA
-  void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, GammaSim* gs, LISA* li);
-#else
   void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, GammaSim* gs);
-#endif
 
   void Fill(string name,int bins, double low, double high, double value){
     try{

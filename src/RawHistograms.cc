@@ -39,11 +39,12 @@ void RawHistograms::FillHistograms(Gretina* gr, Miniball* mb, ZeroDeg* zd, MINOS
     FillMode2Histograms(gr);
   }
 }
-void RawHistograms::FillHistograms(Mode3Event* m3e, Gretina* gr){
+void RawHistograms::FillHistograms(Mode3Event* m3e, Miniball* mb, Gretina* gr){
   fentry++;
   //Determine which of the systems are present in the data.
   bool hasmode2 = gr->GetMult()!=0;
   bool hasmode3 = m3e->GetMult()!=0;
+  bool hasminib = mb->GetMult()!=0;
 
 
   if(hasmode3){
@@ -51,6 +52,9 @@ void RawHistograms::FillHistograms(Mode3Event* m3e, Gretina* gr){
   }
   if(hasmode2){
     FillMode2Histograms(gr);
+  }
+  if(hasminib){
+    FillMiniballHistograms(mb);
   }
 }
 void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
@@ -89,6 +93,16 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
 	Fill(Form("hraw_core_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),2000,0,5e6,trace->GetEnergy());
       }
     }
+  }
+}
+
+void RawHistograms::FillMiniballHistograms(Miniball* mb){
+  Fill("hmb_mult",30,0,30,mb->GetMult());
+  for(int i=0; i<mb->GetMult(); i++){
+    MBCrystal* cr = mb->GetHit(i);
+    Fill("hmb_cluster",20,0,20,cr->GetCluster());
+    Fill("hmb_crystal",4,0,4,cr->GetCrystal());
+    Fill("hmb_crystal_vs_cluster",4,0,4,cr->GetCrystal(),20,0,20,cr->GetCluster());
   }
 }
 

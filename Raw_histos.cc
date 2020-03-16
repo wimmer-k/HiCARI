@@ -24,6 +24,7 @@
 
 #include "CommandLineInterface.hh"
 #include "Gretina.hh"
+#include "Miniball.hh"
 #include "Trace.hh"
 #include "RawHistograms.hh"
 using namespace TMath;
@@ -86,8 +87,10 @@ int main(int argc, char* argv[]){
     return 3;
   }
   Gretina* gr = new Gretina;
+  Miniball* mb = new Miniball;
   Mode3Event* m3r = new Mode3Event;
   tr->SetBranchAddress("gretina",&gr);
+  tr->SetBranchAddress("miniball",&mb);
   tr->SetBranchAddress("mode3Event",&m3r);
 
   Double_t nentries = tr->GetEntries();
@@ -118,6 +121,7 @@ int main(int argc, char* argv[]){
       break;
     }
     gr->Clear();
+    mb->Clear();
     m3r->Clear();
 
     if(vl>2)
@@ -135,7 +139,7 @@ int main(int argc, char* argv[]){
     }
     nbytes += status;
 
-    hists->FillHistograms(m3r,gr);
+    hists->FillHistograms(m3r,mb,gr);
 
     if(i%10000 == 0){
       double time_end = get_time();

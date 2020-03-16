@@ -4,6 +4,40 @@ MBCrystal::MBCrystal(){
   Clear();
 }
 
+MBCrystal::MBCrystal(int clu, int cry, Short_t nr, double en,  long long int ts){
+  Clear();
+  fcluster = clu;
+  fcrystalid = cry;
+  if(nr==9){
+    fen = en;
+    fmaxsinglecrystal = fen;
+    ftimestamp = ts;
+  }
+  else{
+    AddSegment(nr,en);
+  }
+}
+
+bool MBCrystal::InsertCore(int clu, int cry, double en,  long long int ts){
+  if(fcluster != clu || fcrystalid != cry){
+    cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystalid <<"!="<< cry << endl;
+    return false;
+  }
+  fen = en;
+  fmaxsinglecrystal = fen;
+  ftimestamp = ts;
+  return true;
+}
+
+bool MBCrystal::InsertSegment(int clu, int cry, Short_t nr, Float_t en){
+  if(fcluster != clu || fcrystalid != cry){
+    cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystalid <<"!="<< cry << endl;
+    return false;
+  }
+  AddSegment(nr,en);
+  return true;
+}
+
 MBCrystal::MBCrystal(MB_clust inbuf, long long int ts){
   Clear();
   if (inbuf.type!=(int)MINIBALL_TAG){
@@ -177,20 +211,11 @@ double MBHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 
   PosToTarget.SetX(PosToTarget.X() - set->TargetX());
   PosToTarget.SetY(PosToTarget.Y() - set->TargetY());
-#ifdef USELISA
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ(0));
-#else
   PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ());
-#endif
-  
   double CosDop = cos(PosToTarget.Theta());
 
   double beta;
-#ifdef USELISA
-  beta = set->TargetBeta(0);
-#else
   beta = set->TargetBeta();
-#endif
   double gamma = 1/sqrt(1.0 - beta*beta);
   return gamma*(1-beta*CosDop);
 
@@ -209,11 +234,7 @@ double MBHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, Z
 
   PosToTarget.SetX(PosToTarget.X() - zerodeg->GetXTA() - set->TargetX());
   PosToTarget.SetY(PosToTarget.Y() - zerodeg->GetYTA() - set->TargetY());
-#ifdef USELISA
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ(0));
-#else
   PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ());
-#endif
   
   TVector3 BeamDir;
   BeamDir.SetMagThetaPhi(1,zerodeg->GetTheta(),zerodeg->GetPhi());
@@ -221,11 +242,7 @@ double MBHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, Z
   double CosDop = cos(PosToTarget.Angle(BeamDir));
 
   double beta;
-#ifdef USELISA
-  beta = set->TargetBeta(0) * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-#else
   beta = set->TargetBeta() * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-#endif
   double gamma = 1/sqrt(1.0 - beta*beta);
   return gamma*(1-beta*CosDop);
 
@@ -240,34 +257,6 @@ void MiniballCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
   }
 }
   
-#ifdef USELISA
-double MBHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, LISA* multi){
-  PosToTarget.SetX(PosToTarget.X() - zerodeg->GetXTA() - set->TargetX());
-  PosToTarget.SetY(PosToTarget.Y() - zerodeg->GetYTA() - set->TargetY());
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ(multi->GetReaction()));
- 
-  TVector3 BeamDir;
-  BeamDir.SetMagThetaPhi(1,zerodeg->GetTheta(),zerodeg->GetPhi());
-
-  double CosDop = cos(PosToTarget.Angle(BeamDir));
-
-  double beta;
-  beta = set->TargetBeta(multi->GetReaction()) * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-  double gamma = 1/sqrt(1.0 - beta*beta);
-  return gamma*(1-beta*CosDop);
-  
-}
-
-void MiniballCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* multi){
-  for(vector<MBHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg,multi);
-  }
-  for(vector<MBHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg,multi);
-  }
-}
-
-#else
   
 double MBHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos){
 
@@ -293,5 +282,3 @@ void MiniballCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos)
     (*hit)->DopplerCorrect(set,zerodeg,minos);
   }
 }
-#endif
-

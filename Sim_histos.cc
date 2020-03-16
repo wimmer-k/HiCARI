@@ -30,9 +30,6 @@
 #include "GammaSim.hh"
 #include "SimHistograms.hh"
 #include "Settings.hh"
-#ifdef USELISA
-#include "LISA.hh"
-#endif
 
 using namespace TMath;
 using namespace std;
@@ -109,10 +106,6 @@ int main(int argc, char* argv[]){
   tr->SetBranchAddress("gretinacalc",&gr);
   tr->SetBranchAddress("miniballcalc",&mb);
   tr->SetBranchAddress("zerodeg",&zd);
-#ifdef USELISA
-  LISA* li = new LISA;
-  tr->SetBranchAddress("multi",&li);
-#endif
 
   if(str == NULL){
     cout << "could not find tree str in file " << endl;
@@ -151,9 +144,6 @@ int main(int argc, char* argv[]){
       break;
     }
     gr->Clear(); mb->Clear(); zd->Clear(); gs->Clear();
-#ifdef USELISA
-    li->Clear();
-#endif
     if(vl>2)
       cout << "getting entry " << i << endl;
     status = str->GetEvent(i);
@@ -184,12 +174,7 @@ int main(int argc, char* argv[]){
     }
 
     hists->AddEntry();
-#ifdef USELISA
-    hists->FillHistograms(gr, mb, zd, gs, li);
-#else
     hists->FillHistograms(gr, mb, zd, gs);
-#endif
-    
     
     bool grhit = gr->GetHit(0) && gr->GetHit(0)->GetTS() == gs->GetTimeStamp();
     bool mbhit = mb->GetHit(0) && mb->GetHit(0)->GetTS() == gs->GetTimeStamp();

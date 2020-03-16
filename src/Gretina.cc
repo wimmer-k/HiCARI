@@ -239,20 +239,12 @@ double HitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 
   PosToTarget.SetX(PosToTarget.X() - set->TargetX());
   PosToTarget.SetY(PosToTarget.Y() - set->TargetY());
-#ifdef USELISA
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ(0));
-#else
   PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ());
-#endif
 
   double CosDop = cos(PosToTarget.Theta());
 
   double beta;
-#ifdef USELISA
-  beta = set->TargetBeta(0);
-#else
   beta = set->TargetBeta();
-#endif
   double gamma = 1/sqrt(1.0 - beta*beta);
   return gamma*(1-beta*CosDop);
 
@@ -276,11 +268,7 @@ double HitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, Zer
 
   PosToTarget.SetX(PosToTarget.X() - zerodeg->GetXTA() - set->TargetX());
   PosToTarget.SetY(PosToTarget.Y() - zerodeg->GetYTA() - set->TargetY());
-#ifdef USELISA
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ(0));
-#else
   PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ());
-#endif
 
   TVector3 BeamDir;
   BeamDir.SetMagThetaPhi(1,zerodeg->GetTheta(),zerodeg->GetPhi());
@@ -288,11 +276,7 @@ double HitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, Zer
   double CosDop = cos(PosToTarget.Angle(BeamDir));
 
   double beta;
-#ifdef USELISA
-  beta = set->TargetBeta(0) * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-#else
   beta = set->TargetBeta() * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-#endif
   double gamma = 1/sqrt(1.0 - beta*beta);
   return gamma*(1-beta*CosDop);
 
@@ -306,40 +290,6 @@ void GretinaCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
   }
 }
 
-#ifdef USELISA
-void HitCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* multi){
-  fDCen = fen*HitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,multi);
-  fDCen_simcheat = fen*HitCalc::DopplerCorrectionFactor(fTrueFirst,set,zerodeg,multi);
-}
-
-double HitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, LISA* multi){
-
-  PosToTarget.SetX(PosToTarget.X() - zerodeg->GetXTA() - set->TargetX());
-  PosToTarget.SetY(PosToTarget.Y() - zerodeg->GetYTA() - set->TargetY());
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ(multi->GetReaction()));
- 
-  TVector3 BeamDir;
-  BeamDir.SetMagThetaPhi(1,zerodeg->GetTheta(),zerodeg->GetPhi());
-
-  double CosDop = cos(PosToTarget.Angle(BeamDir));
-
-  double beta;
-  beta = set->TargetBeta(multi->GetReaction()) * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-  double gamma = 1/sqrt(1.0 - beta*beta);
-  return gamma*(1-beta*CosDop);
-
-}
-void GretinaCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, LISA* multi){
-  for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg,multi);
-  }
-  for(vector<HitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg,multi);
-  }
-}
-
-#else
- 
 void HitCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
   fDCen = fen*HitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,minos);
   fDCen_simcheat = fen*HitCalc::DopplerCorrectionFactor(fTrueFirst,set,zerodeg,minos);
@@ -369,4 +319,3 @@ void GretinaCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
     (*hit)->DopplerCorrect(set,zerodeg,minos);
   }
 }
-#endif
