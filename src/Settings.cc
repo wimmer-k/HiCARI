@@ -4,8 +4,10 @@ Settings::Settings(const char* filename){
   fInputFiles.push_back(filename);
   TEnv set(filename);
   ReadSettings(&set);
-  if(fVerboseLevel>1)
+  if(fVerboseLevel>1){
     PrintSettings();
+    PrintMiniballMappingTable();
+  }
 }
 
 Settings::Settings(vector<char*> files){
@@ -16,8 +18,11 @@ Settings::Settings(vector<char*> files){
     fInputFiles.push_back(*it);
   }
   ReadSettings(&set);
-  if(fVerboseLevel>1)
+  if(fVerboseLevel>1){
     PrintSettings();
+    PrintMiniballMappingTable();
+  }
+
 }
 
 void Settings::ReadSettings(TEnv* set){
@@ -76,7 +81,6 @@ void Settings::ReadSettings(TEnv* set){
   fTracking = set->GetValue("DoTracking",false);
   fMBmapping = set->GetValue("Miniball.Mapping.Table",defaultfile);
   ReadMiniballMappingTable();
-  PrintMiniballMappingTable();
 }
 
 int Settings::Det2Clu(int det){
@@ -132,7 +136,8 @@ void Settings::PrintSettings(){
   cout << "OverflowThreshold\t"<< fOverflowThreshold << endl;
 
   cout << "DoTracking\t"<< fTracking << endl;
-
+  cout << "Miniball.Mapping.Table\t"<< fMBmapping << endl;
+  
 }
 
 
@@ -155,19 +160,17 @@ void Settings::PrintMiniballMappingTable(){
   // for accessing inner map 
   map<int, int>::iterator ptr;
 
-  if(fVerboseLevel>1){
-    char* abc = "ABC";
-    for(ftr = fMBmap.begin(); ftr != fMBmap.end(); ftr++) {   
-      for(str = ftr->second.begin(); str != ftr->second.end(); str++) { 
-	for(ptr = str->second.begin(); ptr != str->second.end(); ptr++) {
-	  if(ptr->second>-1)
-	    cout << "Hole " << ftr->first 
-		 << ", Crystal " << str->first 
-		 << ", Slot " << ptr->first 
-		 << " is MB " << ptr->second/10 << abc[ptr->second%10] << ", or " << fMBmap[ftr->first][str->first][ptr->first] << ", or " << MiniballModule(ftr->first,str->first,ptr->first)<< " and " << MiniballCrystal(ftr->first,str->first,ptr->first) << endl; 
+  char* abc = "ABC";
+  for(ftr = fMBmap.begin(); ftr != fMBmap.end(); ftr++) {   
+    for(str = ftr->second.begin(); str != ftr->second.end(); str++) { 
+      for(ptr = str->second.begin(); ptr != str->second.end(); ptr++) {
+	if(ptr->second>-1)
+	  cout << "Hole " << ftr->first 
+	       << ", Crystal " << str->first 
+	       << ", Slot " << ptr->first 
+	       << " is MB " << ptr->second/10 << abc[ptr->second%10] << ", or " << fMBmap[ftr->first][str->first][ptr->first] << ", or " << MiniballModule(ftr->first,str->first,ptr->first)<< " and " << MiniballCrystal(ftr->first,str->first,ptr->first) << endl; 
 	  
-	} 
       } 
-    }
+    } 
   }
 }
