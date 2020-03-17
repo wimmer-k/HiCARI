@@ -102,13 +102,13 @@ void RawHistograms::FillMiniballHistograms(Miniball* mb){
     MBCrystal* cr = mb->GetHit(i);
     Fill("hmb_cluster",20,0,20,cr->GetCluster());
     Fill("hmb_crystal",4,0,4,cr->GetCrystal());
-    Fill("hmb_crystal_vs_cluster",4,0,4,cr->GetCrystal(),20,0,20,cr->GetCluster());
+    Fill("hmb_crystal_vs_cluster",10,0,10,cr->GetCluster(),4,0,4,cr->GetCrystal());
     Fill(Form("hmb_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy());
-    Fill(Form("hmb_en_vs_segsum_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy(),1000,0,1e6,cr->GetSegmentSum());
+    Fill(Form("hmb_segsum_vs_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy(),1000,0,1e6,cr->GetSegmentSum());
     Fill(Form("hmb_segmult_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),6,0,6,cr->GetMult());
     
     for(int j=0; j<cr->GetMult(); j++){
-      Fill(Form("hmb_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetSegmentEn(j),6,0,6,cr->GetSegmentNr(j));
+      Fill(Form("hmb_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),6,0,6,cr->GetSegmentNr(j),1000,0,1e6,cr->GetSegmentEn(j));
     }
   }
 }

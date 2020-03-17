@@ -36,7 +36,7 @@ UnpackedEvent::UnpackedEvent(Settings* settings){
 }
 
 void UnpackedEvent::Init(){
-  fmakeminiball = false;
+  fmakemode2 = false;
 
   frhist = new RawHistograms(fSett);
   fchist = new CalHistograms(fSett);
@@ -871,9 +871,9 @@ void UnpackedEvent::CloseEvent(){
   SimResolution(fMiniball);
   SimThresholds(fMiniball);
   if(fwtree || fwhist){
-    if(fmakeminiball){
+    if(fmakemode2){
       //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << endl;   
-      MakeMiniball();
+      MakeMode2();
       //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << "-----------after " << endl;   
     }
 
@@ -944,8 +944,9 @@ void UnpackedEvent::WriteLastEvent(){
 /*! 
   Create Miniball object from mode3 data
 */
-void UnpackedEvent::MakeMiniball(){
+void UnpackedEvent::MakeMode2(){
   fMiniball->Clear();
+  fGretina->Clear();
   //cout << __PRETTY_FUNCTION__ << endl;
   //cout << " mult " << fMode3Event->GetMult() << endl;
   for(int i=0; i<fMode3Event->GetMult(); i++){
@@ -971,8 +972,16 @@ void UnpackedEvent::MakeMiniball(){
 	cout << fSett->MiniballModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->MiniballCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	
       }
+      bool tracking = false;
       int mod = fSett->MiniballModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
       int cry = fSett->MiniballCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      // for tracking detectors, channel will be 0-39 = chn+slot*10
+      if(mod>9){
+	mod-=10;
+	tracking =true;
+	continue;
+      }
+
       int chn = trace->GetChn();
       if(mod<0 || cry<0){
 	cout << "invalid MB module or crystal " << endl;

@@ -15,9 +15,10 @@ CFLAGS	    = -Wall -Wno-long-long -g -O3 $(ROOTCFLAGS) -fPIC -D_FILE_OFFSET_BITS
 
 INCLUDES    = -I./inc 
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) 
-LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHRArray
+LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI
 
 #SWITCH = -DBACKGROUND
+SWITCH = -USIMULATION
 
 LFLAGS	    = -g -fPIC -shared
 CFLAGS 	    += -Wl,--no-as-needed $(SWITCH)
@@ -27,7 +28,14 @@ CFLAGS 	    += -Wno-unused-variable -Wno-unused-but-set-variable -Wno-write-stri
 CLICFLAGS   = -g2 -O2 -fPIC
 CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed 
 
-LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o 
+ifeq ($(SWITCH),-DSIMULATION)
+    LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/Minib\allDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o
+else
+    LIB_O_FILES = build/Settings.o build/Sett\ingsDictionary.o build/Trace.o build/TraceDictionary.o
+
+endif
+
+#LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o 
 
 O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
 HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
@@ -37,13 +45,13 @@ ifeq ($(USING_ROOT_6),1)
 	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHRArray.so  $(EXTRAS) Unpack Raw_histos #SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so  $(EXTRAS) Unpack Raw_histos #SimCalculate Sim_histos
 
-SimCalculate: SimCalculate.cc $(LIB_DIR)/libHRArray.so $(O_FILES)
+SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
 
-Sim_histos: Sim_histos.cc $(LIB_DIR)/libHRArray.so $(HO_FILES)
+Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
@@ -51,14 +59,14 @@ Unpack: Unpack.cc $(O_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
 
-Raw_histos: Raw_histos.cc $(LIB_DIR)/libHRArray.so $(HO_FILES)
+Raw_histos: Raw_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
 
-$(LIB_DIR)/libHRArray.so: $(LIB_O_FILES)
+$(LIB_DIR)/libHiCARI.so: $(LIB_O_FILES)
 	@echo "Making $@"
-	@$(CPP) $(LFLAGS) -o $@ $^ -lc
+	$(CPP) $(LFLAGS) -o $@ $^ -lc
 
 $(LIB_DIR)/libCommandLineInterface.so: build/CommandLineInterface.o  
 	@echo "Making $@"

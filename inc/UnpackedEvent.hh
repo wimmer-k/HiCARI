@@ -83,8 +83,8 @@ public:
     fwcalhist = wchist;
     fwsimtree = wstree;
   }
-  void SetMakeMiniball(bool makeminiball){
-    fmakeminiball = makeminiball;
+  void SetMakeMode2(bool makemode2){
+    fmakemode2 = makemode2;
   }
   void SetWrite(bool wtree, bool whist){
     fwtree = wtree;
@@ -143,7 +143,7 @@ protected:
   //! Clears memory of current event.
   void ClearEvent();
   //! Make Miniball objects from mode3 data
-  void MakeMiniball();
+  void MakeMode2();
 
   TRandom* fRand;
   TTree *fsimtr;
@@ -190,7 +190,7 @@ protected:
   vector<simresolution> fSimResolutions;
   vector<simthreshold>  fSimThresholds;
 
-  bool fmakeminiball;
+  bool fmakemode2;
 };
 
 #endif

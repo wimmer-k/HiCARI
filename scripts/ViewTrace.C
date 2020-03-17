@@ -10,26 +10,28 @@
 #include "TLine.h"
 #include "TH2F.h"
 
-#include "/home/wimmer/programs/HrROOT/inc/Trace.hh"
+#include "/home/gamma20/HiCARI/inc/Trace.hh"
 char* filename = "root/run0031.root";
-void CoreTraces(int firstevt=0, int lastevt=-1){
+void CoreTraces(int firstevt=0, int lastevt=-1, int crystal = -1){
   TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");
   Mode3Event *mode3 = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&mode3);
-  TH2F *traces = new TH2F("traces","traces", 200,0,200,1100,-10000,1000);
+  TH2F *traces = new TH2F("traces","traces", 200,0,200,1200,-10000,2000);
   if(lastevt<0)
     lastevt = tr->GetEntries();
   for(int i=firstevt; i<lastevt; i++){ 
     Int_t status = tr->GetEvent(i);
     for(int e=0;e<mode3->GetMult();e++){
       Trace *trace = mode3->GetHit(e)->GetCoreTrace();
+      if(crystal>-1 && trace->GetCrystal() != crystal)
+	continue;
       if (trace==NULL){
 	cout << "Null core trace, aborting" << endl;
 	continue;
       }
-      for(int i=0;i<trace->GetLength();i++){
-	traces->Fill(i,(int)trace->GetTrace()[i]);
+      for(int j=0;j<trace->GetLength();j++){
+	traces->Fill(j,(int)trace->GetTrace()[j]);
       }
       
     }

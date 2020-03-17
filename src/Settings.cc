@@ -146,7 +146,7 @@ void Settings::ReadMiniballMappingTable(){
   for(int h=0;h<20;h++){
     for(int c=0;c<4;c++){
       for(int s=0;s<4;s++){
-	fMBmap[h][c][s] = mapenv->GetValue(Form("Hole.%d.Crystal.%d.Slot.%d",h,c,s),-1);
+	fMBmap[h][c][s] = mapenv->GetValue(Form("Hole.%02d.Crystal.%d.Slot.%d",h,c,s),-1);
       }
     }
   }

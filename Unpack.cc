@@ -43,7 +43,7 @@ int main(int argc, char* argv[]){
   bool wrawhist = false;
   bool wcaltree = false;
   bool wcalhist = false;
-  bool makeminiball = true;
+  int makemode2 = 1;
   
   //Read in the command line arguments
   CommandLineInterface* interface = new CommandLineInterface();
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
   interface->Add("-o", "output file", &RootFile);
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-rt", "write raw tree", &wrawtree);
-  interface->Add("-m", "make the miniball", &makeminiball);
+  interface->Add("-m", "make mode2 data, no decomp", &makemode2);
   interface->CheckFlags(argc, argv);
 
   //Complain about missing mandatory arguments
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]){
   evt->SetCalibration(cal);
   evt->SetVL(vl);
   evt->Init();
-  evt->SetMakeMiniball(makeminiball);
+  evt->SetMakeMode2(makemode2);
   
   //Loop over the entirety of the input file.
   while(!feof(infile) && !signal_received){
