@@ -49,6 +49,8 @@ public:
 #else
   //! Read the Germanium coordinates, average first interactions from file
   void ReadGePositions(const char* filename);
+  //! Read the Germanium calibration parameters
+  void ReadGeCalibration(const char* filename);
 #endif
 
 #ifdef SIMULATION
@@ -75,6 +77,11 @@ public:
 
   //! Construct tracked gamma events
   void GammaTrack(GretinaCalc* gr, GretinaEvent* gt);
+#else
+  //! Build the GermaniumCalc object, given a raw Germanium object.
+  void BuildGermaniumCalc(Germanium* in, GermaniumCalc* out);
+  void AddBackGermaniumCluster(GermaniumCalc* gr);
+  void AddBackGermaniumEverything(GermaniumCalc* gr);
 #endif
 
   void PrintCtrs();
@@ -92,8 +99,13 @@ private:
   //! averaged miniball first interaction positions
   TVector3 fMBpositions[MBCLUST+CLOVERS][CRYST][SEGS];//cluster, crystal, segment
 #else
+  TRandom* fRand;
   //! averaged miniball first interaction positions
-  TVector3 fGepositions[12][4][36];//cluster, crystal, segment
+  TVector3 fGepositions[12][4][40];//cluster, crystal, segment
+  double fGeCoreGain[12][4];
+  double fGeCoreOffs[12][4];
+  double fGeSegGain[12][4][40];
+  double fGeSegOffs[12][4][40];
 #endif
 
   int fAddBackType;

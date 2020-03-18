@@ -124,12 +124,12 @@ void RawHistograms::FillGermaniumHistograms(Germanium* ge){
     Fill("h_cluster",12,0,12,cr->GetCluster());
     Fill("h_crystal",4,0,4,cr->GetCrystal());
     Fill("h_crystal_vs_cluster",12,0,12,cr->GetCluster(),4,0,4,cr->GetCrystal());
-    Fill(Form("h_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy());
+    Fill(Form("h_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),5000,0,1e6,cr->GetEnergy());
     Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy(),1000,0,1e6,cr->GetSegmentSum());
     Fill(Form("h_segmult_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetMult());
     
     for(int j=0; j<cr->GetMult(); j++){
-      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetSegmentNr(j),1000,0,1e6,cr->GetSegmentEn(j));
+      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetSegmentNr(j),5000,0,1e6,cr->GetSegmentEn(j));
     }
   }
 }

@@ -80,8 +80,8 @@ void Settings::ReadSettings(TEnv* set){
   fAveGePos = set->GetValue("Average.GePositions",defaultfile);
   fGemapping = set->GetValue("Germanium.Mapping.Table",defaultfile);
   fRawThresh = set->GetValue("Germanium.Raw.Thresh",0);
-
   ReadGermaniumMappingTable();
+  fGecalfile = set->GetValue("Germanium.Calibration.File",defaultfile);
 #endif
   
 

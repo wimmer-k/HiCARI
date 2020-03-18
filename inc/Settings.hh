@@ -77,7 +77,7 @@ public:
   int GermaniumModule(int hole, int cry, int slot){return fGemap[hole][cry][slot]/10;}
   int GermaniumCrystal(int hole, int cry, int slot){return fGemap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
-//const char* GermaniumCalibrationFile(){return fGemapping.c_str();}
+  const char* GermaniumCalibrationFile(){return fGecalfile.c_str();}
 #endif
 
 protected:
@@ -126,6 +126,7 @@ protected:
   string fGemapping;
   map<int, map<int, map<int, int> > > fGemap;
   int fRawThresh;
+  string fGecalfile;
 #endif 
 
   ClassDef(Settings, 1)

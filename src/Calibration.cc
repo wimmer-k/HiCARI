@@ -36,7 +36,9 @@ Calibration::Calibration(Settings* setting, int event){
   }
   ftracking = new Tracking((TrackSettings*)setting);
 #else
+  fRand = new TRandom();
   ReadGePositions(fSett->AveGePos());
+  ReadGeCalibration(fSett->GermaniumCalibrationFile());
 #endif
   
 }
@@ -84,7 +86,7 @@ void Calibration::ReadGePositions(const char* filename){
   TEnv *averagePos = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
-      for(int s=0;s<36;s++){
+      for(int s=0;s<40;s++){
 	// double theta, phi;
 	// theta = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Theta",m,c,s),0.0);
 	// phi   = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Phi",m,c,s),0.0);
@@ -99,6 +101,22 @@ void Calibration::ReadGePositions(const char* filename){
     }
   }
 }
+void Calibration::ReadGeCalibration(const char* filename){
+  //cout << "filename " << filename << endl;
+  TEnv *calF = new TEnv(filename);
+  for(int m=0;m<12;m++){
+    for(int c=0;c<4;c++){
+      fGeCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),0.0);
+      fGeCoreOffs[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",m,c),0.0);      
+      for(int s=0;s<40;s++){
+	fGeSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),0.0);
+	fGeSegOffs[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Offset",m,c,s),0.0);
+      }
+      //cout << fGeCoreGain[m][c] << "\t" << fGeCoreOffs[m][c] << endl;
+    }
+  }
+}
+
 #endif
 
 #ifdef SIMULATION
@@ -191,8 +209,6 @@ void Calibration::BuildMiniballCalc(Miniball* in, MiniballCalc* out){
   } else {
     cout << "unknown addback type: " << fAddBackType << endl;
   }
-  
-  //Perform the addback, which fills the add-backed vector.
 }
 
 void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
@@ -400,6 +416,73 @@ void Calibration::BuildZeroDeg(ZeroDeg* zerodeg){
 void Calibration::BuildMINOS(MINOS* minos){
   double beta = fMINOSZett->Eval(minos->GetZ());
   minos->SetBeta(beta);
+}
+#else
+void Calibration::BuildGermaniumCalc(Germanium* in, GermaniumCalc* out){
+  //cout <<__PRETTY_FUNCTION__ << endl;
+  out->Clear();
+  if(fverbose)
+    in->PrintEvent();
+  if(in->GetMult()==0){
+    return;
+  }
+  vector<GeCrystal*> cr= in->GetHits();
+  for(vector<GeCrystal*>::iterator hit = cr.begin(); hit!=cr.end(); hit++){
+    Short_t clu = (*hit)->GetCluster();
+    Short_t cry = (*hit)->GetCrystal();
+    Short_t seg = (*hit)->GetMaxSegNr();
+    long long int ts = (*hit)->GetTS();
+    double en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
+    en = en*fGeCoreGain[clu][cry] + fGeCoreOffs[clu][cry];
+    out->AddHit(new GeHitCalc(clu,cry,seg,fGepositions[clu][cry][seg],en,ts));
+
+  }
+  if(fverbose)
+    out->Print();
+  //Perform the addback, which fills the add-backed vector.
+  if (fAddBackType == 0){
+    // do nothing
+  } else if (fAddBackType == 1){
+    AddBackGermaniumCluster(out);
+  } else if (fAddBackType == 2 || fAddBackType == 3){
+    AddBackGermaniumEverything(out);
+  } else {
+    cout << "unknown addback type: " << fAddBackType << endl;
+  }
+}
+void Calibration::AddBackGermaniumCluster(GermaniumCalc* gr){
+  //All hits within a cluster 
+  vector<GeHitCalc*> hits= gr->GetHits();
+  for(vector<GeHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
+    GeHitCalc* hit = *iter;
+    bool addbacked = false;
+    for (int j=0; j<gr->GetMultAB(); j++){
+      if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster()){
+	gr->GetHitAB(j)->AddBackGeHitCalc(hit);
+	addbacked = true;
+	break;
+      }
+    }
+    if (!addbacked){
+      gr->AddHitAB(new GeHitCalc(*hit));
+    }
+  }
+}
+
+void Calibration::AddBackGermaniumEverything(GermaniumCalc* gr){
+  //All hits within Gretina are summed.
+  vector<GeHitCalc*> hits = gr->GetHits();
+  if(hits.size() < 1)
+    return;
+  for(vector<GeHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
+    GeHitCalc* hit = *iter;
+    if(iter==hits.begin()){
+      gr->AddHitAB(new GeHitCalc(*hit));
+    } else {
+      gr->GetHitAB(0)->AddBackGeHitCalc(hit);
+    }
+  }
+
 }
 #endif
 void Calibration::ResetCtrs(){

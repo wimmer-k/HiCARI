@@ -43,8 +43,6 @@ void UnpackedEvent::Init(){
 
   fEventTimeDiff = fSett->EventTimeDiff();
 
-  fMode3Event = new Mode3Event;
-  fGermanium = new Germanium;
 #ifdef SIMULATION  
   fRand = new TRandom();
   fGammaSim = new GammaSim;
@@ -56,16 +54,21 @@ void UnpackedEvent::Init(){
 #ifdef USEMINOS
   fMINOS = new MINOS;
 #endif
+#else
+  fMode3Event = new Mode3Event;
+  fGermanium = new Germanium;
+  fGermaniumCalc = new GermaniumCalc;
 #endif
   if(fwtree){
     //setting up tree
     cout << "setting up raw tree " << endl;
     ftr = new TTree("build","built events");
-    ftr->Branch("mode3Event",&fMode3Event, 320000);
-    ftr->Branch("germanium",&fGermanium, 320000);
 #ifdef SIMULATION
     ftr->Branch("gretina",&fGretina, 320000);
     ftr->Branch("miniball",&fMiniball, 320000);
+#else
+    ftr->Branch("mode3Event",&fMode3Event, 320000);
+    ftr->Branch("germanium",&fGermanium, 320000);
 #endif
     ftr->BranchRef();
     if(fvl>1)
@@ -74,7 +77,7 @@ void UnpackedEvent::Init(){
   if(fwcaltree){
     //setting up tree
     cout << "setting up calibrated tree " << endl;
-    fcaltr = new TTree("caltr","calibrated and built events");
+    fcaltr = new TTree("calib","calibrated and built events");
 #ifdef SIMULATION
     fcaltr->Branch("zerodeg",&fZeroDeg, 320000);
 #ifdef USEMINOS
@@ -82,6 +85,8 @@ void UnpackedEvent::Init(){
 #endif
     fcaltr->Branch("gretinacalc",&fGretinaCalc, 320000);
     fcaltr->Branch("miniballcalc",&fMiniballCalc, 320000);
+#else
+    fcaltr->Branch("germaniumcalc",&fGermaniumCalc, 320000);
 #endif
     fcaltr->BranchRef();
     if(fvl>1)
@@ -104,8 +109,6 @@ void UnpackedEvent::Init(){
   fMBhits = 0;
 #endif
   fstrangehits = 0;
-  fMode3Event->Clear();
-  fGermanium->Clear();
 #ifdef SIMULATION
   fGretina->Clear();
   fMiniball->Clear();
@@ -113,6 +116,9 @@ void UnpackedEvent::Init(){
 #ifdef USEMINOS
   fMINOS->Clear();
 #endif
+#else
+  fMode3Event->Clear();
+  fGermanium->Clear();
 #endif
   fhasdata = false;
   fcurrent_ts = 0;
@@ -127,9 +133,11 @@ void UnpackedEvent::Init(){
   ReadSimResolution(fSett->SimResolutionFile());
   ReadSimThresholds(fSett->SimThresholdFile());
   fGammaSim->Clear();
+#else
+  fGermaniumCalc->Clear();
 #endif
 }
-
+#ifndef SIMULATION
 int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
   if(ffirst_ts<1){
     if(fvl>1)
@@ -389,7 +397,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
 
   return curTrace;
 }
-#ifdef SIMULATION
+#else
 int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
   if(fvl>0)
     cout << __PRETTY_FUNCTION__  << " time stamp " << gts << endl;
@@ -870,6 +878,8 @@ void UnpackedEvent::ClearEvent(){
 #ifdef USEMINOS
   fMINOS->Clear();
 #endif
+#else
+  fGermaniumCalc->Clear();
 #endif
   return;
 }
@@ -930,6 +940,8 @@ void UnpackedEvent::CloseEvent(){
 #else
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
 #endif
+#else
+    fcal->BuildGermaniumCalc(fGermanium,fGermaniumCalc);
 #endif
 
     if(fwcaltree){
@@ -1013,7 +1025,7 @@ void UnpackedEvent::MakeMode2(){
       }
 
       if(mod<0 || cry<0){
-	cout << "invalid module or crystal for t = " << trace->GetHole()<<", c = "<<trace->GetCrystal()<<", s = "<<trace->GetSlot()<< endl;
+	cout << "invalid module or crystal for hole = " << trace->GetHole()<<", crys = "<<trace->GetCrystal()<<", slot = "<<trace->GetSlot()<< endl;
 	continue;
       }
       if(fSett->VLevel()>1){

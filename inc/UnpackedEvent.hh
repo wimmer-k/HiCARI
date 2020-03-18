@@ -24,7 +24,6 @@
 
 #include "Calibration.hh"
 #include "Trace.hh"
-#include "Germanium.hh"
 #ifdef SIMULATION
 #include "Gretina.hh"
 #include "Miniball.hh"
@@ -33,6 +32,8 @@
 #ifdef USEMINOS
 #include "MINOS.hh"
 #endif
+#else
+#include "Germanium.hh"
 #endif
 #include "Settings.hh"
 #include "RawHistograms.hh"
@@ -62,8 +63,6 @@ public:
   UnpackedEvent(){};
   UnpackedEvent(Settings* settings = NULL);
   ~UnpackedEvent(){
-    delete fMode3Event;
-    delete fGermanium;
 #ifdef SIMULATION
     delete fGretina;
     delete fGretinaCalc;
@@ -73,6 +72,10 @@ public:
 #endif    
     delete fMiniball;
     delete fMiniballCalc;
+#else
+    delete fMode3Event;
+    delete fGermanium;
+    delete fGermaniumCalc;
 #endif
     delete frhist;
     delete fchist;
@@ -154,10 +157,11 @@ public:
 #endif  
   TTree* GetTree(){return ftr;}
   TTree* GetCalTree(){return fcaltr;}
-  TTree* GetTraceTree(){return ftr;}
 #ifdef SIMULATION
   //! The tree containing the simulated data
   TTree* GetSimTree(){return fsimtr;}
+#else
+  TTree* GetTraceTree(){return ftr;}
 #endif
 
 protected:
@@ -167,8 +171,10 @@ protected:
   void CloseEvent();
   //! Clears memory of current event.
   void ClearEvent();
+#ifndef SIMULATION
   //! Make Germanium objects from mode3 data
   void MakeMode2();
+#endif
 
   TRandom* fRand;
 #ifdef SIMULATION
@@ -187,9 +193,11 @@ protected:
   Miniball*     fMiniball;
   MiniballCalc* fMiniballCalc;
   GammaSim*     fGammaSim;
-#endif
+#else
   Mode3Event *fMode3Event;
   Germanium *fGermanium;
+  GermaniumCalc *fGermaniumCalc;
+#endif
 
   bool fhasdata;
   long long int fcurrent_ts;

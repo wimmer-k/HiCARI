@@ -52,6 +52,7 @@ int main(int argc, char* argv[]){
   interface->Add("-o", "output file", &RootFile);
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-rt", "write raw tree", &wrawtree);
+  interface->Add("-ct", "write cal tree", &wcaltree);
   interface->Add("-m", "make mode2 data, no decomp", &makemode2);
   interface->CheckFlags(argc, argv);
 
@@ -172,6 +173,9 @@ int main(int argc, char* argv[]){
   //Final cleanup and writing of files.
   if(wrawtree){
     evt->GetTree()->Write("",TObject::kOverwrite);
+  }
+  if(wcaltree){
+    evt->GetCalTree()->Write("",TObject::kOverwrite);
   }
   double time_end = get_time();
   cout << "Program Run time " << time_end - time_start << " s." << endl;
