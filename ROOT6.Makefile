@@ -29,20 +29,23 @@ CLICFLAGS   = -g2 -O2 -fPIC
 CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed 
 
 ifeq ($(SWITCH),-DSIMULATION)
-    LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/Minib\allDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o
+    LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o
+    O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
+    HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
 else
-    LIB_O_FILES = build/Settings.o build/Sett\ingsDictionary.o build/Trace.o build/TraceDictionary.o
-
+    LIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/Trace.o build/TraceDictionary.o build/Germanium.o build/GermaniumDictionary.o
+    O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o 
+    HO_FILES = build/RawHistograms.o build/CalHistograms.o 
 endif
 
-#LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o 
-
-O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
-HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
 ifeq ($(USING_ROOT_6),1)
+ifeq ($(SWITCH),-DSIMULATION)
 	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
+else
+	EXTRAS = GermaniumDictionary_rdict.pcm SettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
+endif
 endif
 
 all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so  $(EXTRAS) Unpack Raw_histos #SimCalculate Sim_histos
@@ -66,7 +69,7 @@ Raw_histos: Raw_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 
 $(LIB_DIR)/libHiCARI.so: $(LIB_O_FILES)
 	@echo "Making $@"
-	$(CPP) $(LFLAGS) -o $@ $^ -lc
+	@$(CPP) $(LFLAGS) -o $@ $^ -lc
 
 $(LIB_DIR)/libCommandLineInterface.so: build/CommandLineInterface.o  
 	@echo "Making $@"

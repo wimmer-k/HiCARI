@@ -26,10 +26,14 @@
 #include <stdexcept>
 
 #include "Settings.hh"
+#ifdef SIMULATION
 #include "Gretina.hh"
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
+#else
+#include "Germanium.hh"
+#endif
 #include "Trace.hh"
 
 using namespace std;
@@ -49,8 +53,13 @@ public:
   
   TList* GetHList(){return fhlist;}
   void Write();
+
+#ifdef SIMULATION
   void FillHistograms(Gretina* gr, Miniball* mb, ZeroDeg* zd, MINOS* mi);
   void FillHistograms(Mode3Event* m3e, Miniball* mb, Gretina* gr);
+#else
+  void FillHistograms(Mode3Event* m3e, Germanium* ge);
+#endif
 
   void Fill(string name,int bins, double low, double high, double value){
     try{
@@ -80,9 +89,11 @@ public:
   }
 
 protected:
+#ifdef SIMULATION
   void FillMode2Histograms(Gretina* gr);
+#endif
   void FillMode3Histograms(Mode3Event* m3e);
-  void FillMiniballHistograms(Miniball* mb);
+  void FillGermaniumHistograms(Germanium* ge);
 
   TList* fhlist;
   map<string,TH1*> fhmap;

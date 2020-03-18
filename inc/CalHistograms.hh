@@ -27,10 +27,14 @@
 #include <stdexcept>
 
 #include "Settings.hh"
+#ifdef SIMULATION
 #include "Gretina.hh"
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
+#else
+#include "Germanium.hh"
+#endif
 
 using namespace std;
 
@@ -40,13 +44,13 @@ class GretinaCalc;
 
 class CalHistograms {
 public:
-  CalHistograms(Settings* set = NULL,int tac=0, int cal = 0, char* cutfile=NULL, int nentries=100000){
-    Init(set,tac,cal,cutfile,nentries);
+  CalHistograms(Settings* set = NULL, int nentries=100000){
+    Init(set,nentries);
   }
   ~CalHistograms(){
     delete fhlist;
   }
-  void Init(Settings* set,int tac, int cal, char* cutfile,int nentries){
+  void Init(Settings* set,int nentries){
     if (set!=NULL){
       fSett = set;
     } else {
@@ -64,8 +68,11 @@ public:
     fhlist->Sort();
     fhlist->Write();
   }
-
+#ifdef SIMULATION
   void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi);
+#else
+  void FillHistograms(GermaniumCalc* ge);
+#endif
 
   void FillI(string name,int bins, double low, double high, double value){
     try{

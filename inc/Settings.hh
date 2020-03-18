@@ -30,16 +30,17 @@ public:
 
   int VLevel(){return fVerboseLevel;}
   int EventTimeDiff(){return fEventTimeDiff;}
-  const char* SimResolutionFile(){return fResFile.c_str();}
-  const char* SimThresholdFile(){return fThreshFile.c_str();}
-  double SimGretinaPositionResolution(){return fGretPosRes;}
-  double EjectileMass(){return fEjectileMass;}
   Float_t TargetX(){return ftargetX;}
   Float_t TargetY(){return ftargetY;}
   Float_t TargetZ(){return ftargetZ;}
   TVector3 TargetPos(){return TVector3(ftargetX,ftargetY,ftargetZ);}
   Float_t TargetBeta(){return ftargetBeta;}
   Float_t AverageAfterBeta(){return fAveAfterBeta;}
+#ifdef SIMULATION
+  const char* SimResolutionFile(){return fResFile.c_str();}
+  const char* SimThresholdFile(){return fThreshFile.c_str();}
+  double SimGretinaPositionResolution(){return fGretPosRes;}
+  double EjectileMass(){return fEjectileMass;}
 
   double TargetAngleResolution(){return fTargetAngleRes;}
   double TargetPosResolution(){return fTargetPosRes;}
@@ -68,13 +69,16 @@ public:
 
   void SetTracking(bool tracking){fTracking = tracking;}
   bool GetTracking(){return fTracking;}
-
-  const char* MiniballMappingTable(){return fMBmapping.c_str();}
-  void ReadMiniballMappingTable();
-  void PrintMiniballMappingTable();
-  int MiniballModule(int hole, int cry, int slot){return fMBmap[hole][cry][slot]/10;}
-  int MiniballCrystal(int hole, int cry, int slot){return fMBmap[hole][cry][slot]%10;}
-  //const char* MiniballCalibrationFile(){return fMBmapping.c_str();}
+#else
+  const char* AveGePos(){return fAveGePos.c_str();}
+  const char* GermaniumMappingTable(){return fGemapping.c_str();}
+  void ReadGermaniumMappingTable();
+  void PrintGermaniumMappingTable();
+  int GermaniumModule(int hole, int cry, int slot){return fGemap[hole][cry][slot]/10;}
+  int GermaniumCrystal(int hole, int cry, int slot){return fGemap[hole][cry][slot]%10;}
+  int RawThresh(){return fRawThresh;}
+//const char* GermaniumCalibrationFile(){return fGemapping.c_str();}
+#endif
 
 protected:
   int fEventTimeDiff;
@@ -87,6 +91,8 @@ protected:
   Float_t ftargetZ;
   Float_t ftargetBeta;
   Float_t fAveAfterBeta;
+
+#ifdef SIMULATION
   double fTargetAngleRes;
   double fTargetPosRes;
   double fTargetBetaRes;
@@ -115,9 +121,12 @@ protected:
   double fOverflowThreshold;
   bool fTracking;
 
-  string fMBmapping;
-  map<int, map<int, map<int, int> > > fMBmap;
- 
+#else
+  string fAveGePos;
+  string fGemapping;
+  map<int, map<int, map<int, int> > > fGemap;
+  int fRawThresh;
+#endif 
 
   ClassDef(Settings, 1)
 };

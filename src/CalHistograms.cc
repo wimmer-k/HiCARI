@@ -29,6 +29,7 @@ using namespace std;
 static TCutG* TimeCut;
 static bool foundTCut = false;
 
+#ifdef SIMULATION
 void CalHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi){
 
   bool hasgret = gr->GetMult()>0;
@@ -71,3 +72,7 @@ void CalHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
    }
 
 }
+#else
+void CalHistograms::FillHistograms(GermaniumCalc* ge){
+}
+#endif

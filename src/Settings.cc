@@ -6,7 +6,6 @@ Settings::Settings(const char* filename){
   ReadSettings(&set);
   if(fVerboseLevel>1){
     PrintSettings();
-    PrintMiniballMappingTable();
   }
 }
 
@@ -20,7 +19,6 @@ Settings::Settings(vector<char*> files){
   ReadSettings(&set);
   if(fVerboseLevel>1){
     PrintSettings();
-    PrintMiniballMappingTable();
   }
 
 }
@@ -31,16 +29,17 @@ void Settings::ReadSettings(TEnv* set){
   fVerboseLevel = set->GetValue("VerboseLevel",0);
   fEventTimeDiff = set->GetValue("EventTimeDiff", 500);
 
-  fResFile = set->GetValue("Sim.Resolution.File",defaultfile);
-  fThreshFile = set->GetValue("Sim.Threshold.File",defaultfile);
-  fGretPosRes = set->GetValue("Sim.Gretina.Position.Resolution",0.0);
-  fEjectileMass = set->GetValue("Ejectile.Mass",0.0);
-
   ftargetX = set->GetValue("Target.X",0.0);
   ftargetY = set->GetValue("Target.Y",0.0);
   ftargetZ = set->GetValue("Target.Z",0.0);
   ftargetBeta = set->GetValue("Target.Beta",0.0);
   fAveAfterBeta = set->GetValue("Average.Beta.After",0.0);
+
+#ifdef SIMULATION
+  fResFile = set->GetValue("Sim.Resolution.File",defaultfile);
+  fThreshFile = set->GetValue("Sim.Threshold.File",defaultfile);
+  fGretPosRes = set->GetValue("Sim.Gretina.Position.Resolution",0.0);
+  fEjectileMass = set->GetValue("Ejectile.Mass",0.0);
 
   fTargetAngleRes = set->GetValue("Target.Angle.Resolution",0.0);
   fTargetPosRes   = set->GetValue("Target.Pos.Resolution",0.0);
@@ -57,7 +56,6 @@ void Settings::ReadSettings(TEnv* set){
   
   
   fAveMBPos = set->GetValue("Average.MBPositions",defaultfile);
-  
   fAddBackType = set->GetValue("AddBackType",0);
   fClusterAngle = set->GetValue("ClusterAngle",20);
   fStoreAllIPoints = set->GetValue("StoreAllIPoints",0);
@@ -77,12 +75,19 @@ void Settings::ReadSettings(TEnv* set){
       fclu2det[clu] = det;
     }
   }
-
   fTracking = set->GetValue("DoTracking",false);
-  fMBmapping = set->GetValue("Miniball.Mapping.Table",defaultfile);
-  ReadMiniballMappingTable();
+#else
+  fAveGePos = set->GetValue("Average.GePositions",defaultfile);
+  fGemapping = set->GetValue("Germanium.Mapping.Table",defaultfile);
+  fRawThresh = set->GetValue("Germanium.Raw.Thresh",0);
+
+  ReadGermaniumMappingTable();
+#endif
+  
+
 }
 
+#ifdef SIMULATION
 int Settings::Det2Clu(int det){
   if (fdet2clu.count(det)==1){
     return fdet2clu[det];
@@ -98,21 +103,21 @@ int Settings::Clu2Det(int clu){
     return -1;
   }
 }
+#endif
 
 void Settings::PrintSettings(){
-  cout << __PRETTY_FUNCTION__ << endl;
-  cout << "Sim.Resolution.File\t" << fResFile << endl;
-  cout << "Sim.Threshold.File\t" << fThreshFile << endl;
-  cout << "Sim.Gretina.Position.Resolution\t" << fGretPosRes << endl;
-  cout << "Ejectile.Mass\t" << fEjectileMass << endl;
-
-
+  //cout << __PRETTY_FUNCTION__ << endl;
   cout << "Target.X\t" << ftargetX << endl;
   cout << "Target.Y\t" << ftargetY << endl;
   cout << "Target.Z\t" << ftargetZ << endl;
   cout << "Target.Beta\t" << ftargetBeta << endl;
   cout << "Average.Beta.After\t" << fAveAfterBeta << endl;
 
+#ifdef SIMULATION
+  cout << "Sim.Resolution.File\t" << fResFile << endl;
+  cout << "Sim.Threshold.File\t" << fThreshFile << endl;
+  cout << "Sim.Gretina.Position.Resolution\t" << fGretPosRes << endl;
+  cout << "Ejectile.Mass\t" << fEjectileMass << endl;
 
   cout << "MINOS.XY.Resolution\t" << fMINOSXYRes << endl;
   cout << "MINOS.Z.Resolution\t" << fMINOSZRes << endl;
@@ -136,23 +141,28 @@ void Settings::PrintSettings(){
   cout << "OverflowThreshold\t"<< fOverflowThreshold << endl;
 
   cout << "DoTracking\t"<< fTracking << endl;
-  cout << "Miniball.Mapping.Table\t"<< fMBmapping << endl;
-  
+#else
+  cout << "Average.GePositions\t" << fAveGePos << endl;
+  cout << "Germanium.Mapping.Table\t"<< fGemapping << endl;
+  PrintGermaniumMappingTable();
+  cout << "Germanium.Raw.Thresh\t"<< fRawThresh << endl;
+
+#endif
+
 }
-
-
-void Settings::ReadMiniballMappingTable(){
-  TEnv* mapenv = new TEnv(fMBmapping.c_str());
+#ifndef SIMULATION
+void Settings::ReadGermaniumMappingTable(){
+  TEnv* mapenv = new TEnv(fGemapping.c_str());
   for(int h=0;h<20;h++){
     for(int c=0;c<4;c++){
       for(int s=0;s<4;s++){
-	fMBmap[h][c][s] = mapenv->GetValue(Form("Hole.%02d.Crystal.%d.Slot.%d",h,c,s),-1);
+	fGemap[h][c][s] = mapenv->GetValue(Form("Hole.%02d.Crystal.%d.Slot.%d",h,c,s),-1);
       }
     }
   }
 }
 
-void Settings::PrintMiniballMappingTable(){
+void Settings::PrintGermaniumMappingTable(){
   // for accessing first map 
   map<int, map<int, map<int, int> > >::iterator ftr;   
   // for accessing second map 
@@ -161,16 +171,17 @@ void Settings::PrintMiniballMappingTable(){
   map<int, int>::iterator ptr;
 
   char* abc = "ABC";
-  for(ftr = fMBmap.begin(); ftr != fMBmap.end(); ftr++) {   
+  for(ftr = fGemap.begin(); ftr != fGemap.end(); ftr++) {   
     for(str = ftr->second.begin(); str != ftr->second.end(); str++) { 
       for(ptr = str->second.begin(); ptr != str->second.end(); ptr++) {
 	if(ptr->second>-1)
 	  cout << "Hole " << ftr->first 
 	       << ", Crystal " << str->first 
 	       << ", Slot " << ptr->first 
-	       << " is MB " << ptr->second/10 << abc[ptr->second%10] << ", or " << fMBmap[ftr->first][str->first][ptr->first] << ", or " << MiniballModule(ftr->first,str->first,ptr->first)<< " and " << MiniballCrystal(ftr->first,str->first,ptr->first) << endl; 
+	       << " is Ge " << ptr->second/10 << abc[ptr->second%10] << ", or " << fGemap[ftr->first][str->first][ptr->first] << ", or " << GermaniumModule(ftr->first,str->first,ptr->first)<< " and " << GermaniumCrystal(ftr->first,str->first,ptr->first) << endl; 
 	  
       } 
     } 
   }
 }
+#endif

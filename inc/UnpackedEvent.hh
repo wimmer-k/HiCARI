@@ -24,6 +24,8 @@
 
 #include "Calibration.hh"
 #include "Trace.hh"
+#include "Germanium.hh"
+#ifdef SIMULATION
 #include "Gretina.hh"
 #include "Miniball.hh"
 #include "GammaSim.hh"
@@ -31,10 +33,12 @@
 #ifdef USEMINOS
 #include "MINOS.hh"
 #endif
+#endif
 #include "Settings.hh"
 #include "RawHistograms.hh"
 #include "CalHistograms.hh"
 
+#ifdef SIMULATION
 struct simresolution{
   // resolution = A*sqrt(1 + B*Energy)
   int Detector;
@@ -51,23 +55,27 @@ struct simthreshold{
   double E;
   double dE;
 };
+#endif
 
 class UnpackedEvent {
 public:
   UnpackedEvent(){};
   UnpackedEvent(Settings* settings = NULL);
   ~UnpackedEvent(){
+    delete fMode3Event;
+    delete fGermanium;
+#ifdef SIMULATION
     delete fGretina;
     delete fGretinaCalc;
     delete fZeroDeg;
-    delete fMode3Event;
 #ifdef USEMINOS
     delete fMINOS;
 #endif    
-    delete frhist;
-    delete fchist;
     delete fMiniball;
     delete fMiniballCalc;
+#endif
+    delete frhist;
+    delete fchist;
   }
   
   void SetVL(int vl){
@@ -76,6 +84,7 @@ public:
   void SetCalibration(Calibration* cal){
     fcal = cal;
   }
+#ifdef SIMULATION
   void SetWrite(bool wtree, bool whist, bool wctree, bool wchist, bool wstree){
     fwtree = wtree;
     fwhist = whist;
@@ -83,6 +92,14 @@ public:
     fwcalhist = wchist;
     fwsimtree = wstree;
   }
+#else
+  void SetWrite(bool wtree, bool whist, bool wctree, bool wchist){
+    fwtree = wtree;
+    fwhist = whist;
+    fwcaltree = wctree;
+    fwcalhist = wchist;
+  }
+#endif
   void SetMakeMode2(bool makemode2){
     fmakemode2 = makemode2;
   }
@@ -91,6 +108,7 @@ public:
     fwhist = whist;
   }
   void Init();
+#ifdef SIMULATION
   //! Read the resolutions to be applied to the simulated data
   void ReadSimResolution(const char* filename);
   //! Read the energy thresholds to be applied to the simulated data
@@ -107,19 +125,24 @@ public:
   int DecodeGretina(Crystal* cryst, long long int gts);
   //! Passed a miniball Crystal, make a new crystal in the Miniball object.
   int DecodeMiniball(MBCrystal* cryst, long long int gts);
+#endif
+
   //! Read the specified buffer and make the Mode3Event.
   int DecodeMode3(char* cBuf, int len, long long int ts);
 
   //! Write the last event to file.
   void WriteLastEvent();
+#ifdef SIMULATION
   void PrintHit(struct crys_ips_abcd1234 inbuf);
   void PrintHit(struct crys_ips_abcd5678 inbuf);
+#endif
 
   int NrOfEvents(){return fnentries;}
   int NrOfCalEvents(){return fncalentries;}
+  int NrOfStrangeHits(){return fstrangehits;}
+#ifdef SIMULATION
   int NrOfGRHits(){return fGRhits;}
   int NrOfMBHits(){return fMBhits;}
-  int NrOfStrangeHits(){return fstrangehits;}
   //! The number of simulated events
   int NrOfSimEvents(){return fnsimentries;}
 
@@ -128,12 +151,14 @@ public:
   
   bool SimResolution(Miniball* mb);
   bool SimThresholds(Miniball* mb);
-  
+#endif  
   TTree* GetTree(){return ftr;}
   TTree* GetCalTree(){return fcaltr;}
   TTree* GetTraceTree(){return ftr;}
+#ifdef SIMULATION
   //! The tree containing the simulated data
   TTree* GetSimTree(){return fsimtr;}
+#endif
 
 protected:
   //! Create a single trace
@@ -142,14 +167,17 @@ protected:
   void CloseEvent();
   //! Clears memory of current event.
   void ClearEvent();
-  //! Make Miniball objects from mode3 data
+  //! Make Germanium objects from mode3 data
   void MakeMode2();
 
   TRandom* fRand;
+#ifdef SIMULATION
   TTree *fsimtr;
+#endif
   TTree *ftr;
   TTree *fcaltr;
 
+#ifdef SIMULATION
   ZeroDeg*      fZeroDeg;
 #ifdef USEMINOS
   MINOS*        fMINOS;
@@ -159,7 +187,9 @@ protected:
   Miniball*     fMiniball;
   MiniballCalc* fMiniballCalc;
   GammaSim*     fGammaSim;
+#endif
   Mode3Event *fMode3Event;
+  Germanium *fGermanium;
 
   bool fhasdata;
   long long int fcurrent_ts;
@@ -167,15 +197,19 @@ protected:
   int fvl;
   int fnentries;
   int fncalentries;
+#ifdef SIMULATION
   int fnsimentries;
   int fGRhits;
   int fMBhits;
+#endif
   int fctr;
   bool fwtree;
   bool fwhist;
   bool fwcaltree;
   bool fwcalhist;
+#ifdef SIMULATION
   bool fwsimtree;
+#endif
   int fstrangehits;
   int frecalibrate;
   int fEventTimeDiff;
@@ -187,8 +221,10 @@ protected:
 
   Settings* fSett;
 
+#ifdef SIMULATION
   vector<simresolution> fSimResolutions;
   vector<simthreshold>  fSimThresholds;
+#endif
 
   bool fmakemode2;
 };

@@ -1,7 +1,9 @@
 #include "Calibration.hh"
+#ifdef SIMULATION
 Double_t inverted(Double_t *x, Double_t *p){
   return ( -p[1] - sqrt(p[1]*p[1] - 4*p[0]*(p[2]-x[0])) ) / (2*p[0]);
 }
+#endif
 
 using namespace std;
 
@@ -9,7 +11,9 @@ using namespace std;
 
 Calibration::Calibration(){
   ResetCtrs();
+#ifdef SIMULATION
   ftracking = new Tracking;
+#endif
 }
 
 Calibration::Calibration(Settings* setting, int event){
@@ -19,8 +23,9 @@ Calibration::Calibration(Settings* setting, int event){
 
 
   fverbose = fSett->VLevel();
-  fAddBackType = fSett->AddBackType();
 
+#ifdef SIMULATION
+  fAddBackType = fSett->AddBackType();
   ReadMBPositions(fSett->AveMBPos());
   if(fSett->UseMINOS()){
     fMINOSZett = new TF1("MINOSZett",inverted,fSett->TargetZ() - 200, fSett->TargetZ() + 200, 3);
@@ -29,12 +34,16 @@ Calibration::Calibration(Settings* setting, int event){
       cout << "fSett->MINOSBetaCoefficient("<<i<<") = " << fSett->MINOSBetaCoefficient(i) << endl;
     }
   }
-  
   ftracking = new Tracking((TrackSettings*)setting);
+#else
+  ReadGePositions(fSett->AveGePos());
+#endif
+  
 }
 
 Calibration::~Calibration(){}
 
+#ifdef SIMULATION
 void Calibration::ReadMBPositions(const char* filename){
   TEnv *averagePos = new TEnv(filename);
   for(int m=0;m<MBCLUST;m++){
@@ -70,7 +79,29 @@ void Calibration::ReadMBPositions(const char* filename){
     }
   }
 }
+#else
+void Calibration::ReadGePositions(const char* filename){
+  TEnv *averagePos = new TEnv(filename);
+  for(int m=0;m<12;m++){
+    for(int c=0;c<4;c++){
+      for(int s=0;s<36;s++){
+	// double theta, phi;
+	// theta = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Theta",m,c,s),0.0);
+	// phi   = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Phi",m,c,s),0.0);
+	// fGepositions[m][c][s].SetMagThetaPhi(1,theta,phi);
+	//changed to x,y,z, makes it easier to deal with MINOS and position resolutions
+	double x,y,z;
+	x = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.X",m,c,s),0.0);
+	y = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Y",m,c,s),0.0);
+	z = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Z",m,c,s),0.0);
+	fGepositions[m][c][s].SetXYZ(x,y,z);
+      }
+    }
+  }
+}
+#endif
 
+#ifdef SIMULATION
 /*!
   First three parameters are the three raw data structures, Miniball, Gretina
   Last three parameters are the three calibrated data structures to write to.
@@ -370,19 +401,27 @@ void Calibration::BuildMINOS(MINOS* minos){
   double beta = fMINOSZett->Eval(minos->GetZ());
   minos->SetBeta(beta);
 }
-
+#endif
 void Calibration::ResetCtrs(){
+#ifdef SIMULATION
   fgretactr = 0;
   fminiballctr = 0;
   fzerodegctr = 0;
   fminosctr = 0;
+#else
+  fgectr = 0;
+#endif
 }
 
 void Calibration::PrintCtrs(){
   cout << "event counters in" << __PRETTY_FUNCTION__ << endl;
   cout << "fevent\t" << fevent << endl;
+#ifdef SIMULATION
   cout << "fgretactr  \t" << fgretactr  << endl;
   cout << "fminiballctr  \t" << fminiballctr  << endl;
   cout << "fzerodegctr  \t" << fzerodegctr  << endl;
   cout << "fminosctr  \t" << fminosctr  << endl;
+#else
+  cout << "fgectr  \t" << fgectr  << endl;
+#endif
 }

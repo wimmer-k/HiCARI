@@ -42,10 +42,12 @@ void UnpackedEvent::Init(){
   fchist = new CalHistograms(fSett);
 
   fEventTimeDiff = fSett->EventTimeDiff();
-  fRand = new TRandom();
-  fGammaSim = new GammaSim;
 
   fMode3Event = new Mode3Event;
+  fGermanium = new Germanium;
+#ifdef SIMULATION  
+  fRand = new TRandom();
+  fGammaSim = new GammaSim;
   fGretina = new Gretina;
   fGretinaCalc = new GretinaCalc;
   fMiniball = new Miniball;
@@ -54,13 +56,17 @@ void UnpackedEvent::Init(){
 #ifdef USEMINOS
   fMINOS = new MINOS;
 #endif
+#endif
   if(fwtree){
     //setting up tree
     cout << "setting up raw tree " << endl;
     ftr = new TTree("build","built events");
     ftr->Branch("mode3Event",&fMode3Event, 320000);
+    ftr->Branch("germanium",&fGermanium, 320000);
+#ifdef SIMULATION
     ftr->Branch("gretina",&fGretina, 320000);
     ftr->Branch("miniball",&fMiniball, 320000);
+#endif
     ftr->BranchRef();
     if(fvl>1)
       cout << "done setting up raw tree" << endl;
@@ -69,16 +75,19 @@ void UnpackedEvent::Init(){
     //setting up tree
     cout << "setting up calibrated tree " << endl;
     fcaltr = new TTree("caltr","calibrated and built events");
+#ifdef SIMULATION
     fcaltr->Branch("zerodeg",&fZeroDeg, 320000);
 #ifdef USEMINOS
     fcaltr->Branch("minos",&fMINOS, 320000);
 #endif
     fcaltr->Branch("gretinacalc",&fGretinaCalc, 320000);
     fcaltr->Branch("miniballcalc",&fMiniballCalc, 320000);
+#endif
     fcaltr->BranchRef();
     if(fvl>1)
       cout << "done setting up calibrated tree" << endl;
   }
+#ifdef SIMULATION
   if(fwsimtree){
     cout << "setting up simulation tree " << endl;
     fsimtr = new TTree("simtr","Geant4 emitted gamma rays");
@@ -87,17 +96,23 @@ void UnpackedEvent::Init(){
     if(fvl>1)
       cout << "done setting up simulation tree" << endl;
   }
+#endif
   
   fnentries = 0;
+#ifdef SIMULATION
   fGRhits = 0;
   fMBhits = 0;
+#endif
   fstrangehits = 0;
   fMode3Event->Clear();
+  fGermanium->Clear();
+#ifdef SIMULATION
   fGretina->Clear();
   fMiniball->Clear();
   fZeroDeg->Clear();
 #ifdef USEMINOS
   fMINOS->Clear();
+#endif
 #endif
   fhasdata = false;
   fcurrent_ts = 0;
@@ -105,13 +120,14 @@ void UnpackedEvent::Init(){
   fctr = 0;
 
   fncalentries = 0;
+#ifdef SIMULATION
   fGretinaCalc->Clear();
   fMiniballCalc->Clear();
 
   ReadSimResolution(fSett->SimResolutionFile());
   ReadSimThresholds(fSett->SimThresholdFile());
   fGammaSim->Clear();
-
+#endif
 }
 
 int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
@@ -373,7 +389,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
 
   return curTrace;
 }
-
+#ifdef SIMULATION
 int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
   if(fvl>0)
     cout << __PRETTY_FUNCTION__  << " time stamp " << gts << endl;
@@ -492,7 +508,7 @@ int UnpackedEvent::DecodeMiniball(MBCrystal* cryst, long long int gts){
   // now check time stamps
   long long int deltaEvent = gts - fcurrent_ts;
   if(fcurrent_ts>-1 && deltaEvent < 0 )
-    cout << "UnpackedEvent: " << "Inconsistent Timestamp last time was " << fcurrent_ts << " this (gretina) " << gts << " difference " << deltaEvent<< endl;
+    cout << "UnpackedEvent: " << "Inconsistent Timestamp last time was " << fcurrent_ts << " this (miniball) " << gts << " difference " << deltaEvent<< endl;
 
   if(fvl>1){
     cout << "UnpackedEvent: " <<fnentries<< "this ts " << gts <<" current ts " << fcurrent_ts <<" difference " << deltaEvent <<endl;
@@ -507,7 +523,7 @@ int UnpackedEvent::DecodeMiniball(MBCrystal* cryst, long long int gts){
       cout << "UnpackedEvent: " <<fnentries << " miniball single time difference " << deltaEvent << endl;
     if(fcurrent_ts>-1){
       if(fvl>2)
-	cout << "UnpackedEvent: " << "Closing event due to timestamp in Gretina." << endl;
+	cout << "UnpackedEvent: " << "Closing event due to timestamp in Miniball." << endl;
       fMode3Event->SetCounter(fctr);
       fctr = 0;
       this->CloseEvent();
@@ -840,9 +856,12 @@ bool UnpackedEvent::SimThresholds(Miniball* mb){
 
   return true;
 }
+#endif
 void UnpackedEvent::ClearEvent(){
   fhasdata = false;
   fMode3Event->Clear();
+  fGermanium->Clear();
+#ifdef SIMULATION
   fGretina->Clear();
   fGretinaCalc->Clear();
   fMiniball->Clear();
@@ -850,6 +869,7 @@ void UnpackedEvent::ClearEvent(){
   fZeroDeg->Clear();
 #ifdef USEMINOS
   fMINOS->Clear();
+#endif
 #endif
   return;
 }
@@ -866,10 +886,12 @@ void UnpackedEvent::ClearEvent(){
 */
 void UnpackedEvent::CloseEvent(){
   //cout << __PRETTY_FUNCTION__ << endl;
+#ifdef SIMULATION
   SimResolution(fGretina);
   SimThresholds(fGretina);
   SimResolution(fMiniball);
   SimThresholds(fMiniball);
+#endif
   if(fwtree || fwhist){
     if(fmakemode2){
       //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << endl;   
@@ -879,10 +901,12 @@ void UnpackedEvent::CloseEvent(){
 
 
     if (fwhist){
+#ifdef SIMULATION
 #ifdef USEMINOS
       frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,fMINOS);
 #else 
       frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,NULL);
+#endif
 #endif
     }
     //Write the raw tree.
@@ -900,20 +924,25 @@ void UnpackedEvent::CloseEvent(){
     //    if(trackMe)
     //      fcal->GammaTrack(fgretinaCalc,fgretinaEvent);
 
+#ifdef SIMULATION
 #ifdef USEMINOS
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,fMINOS);
 #else
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
 #endif
+#endif
+
     if(fwcaltree){
       fcaltr->Fill();
       fncalentries++;
     }
     if(fwcalhist){
+#ifdef SIMULATION
 #ifdef USEMINOS
       fchist->FillHistograms(fGretinaCalc, fMiniballCalc,fZeroDeg,fMINOS);
 #else
       fchist->FillHistograms(fGretinaCalc, fMiniballCalc,fZeroDeg,NULL);
+#endif
 #endif
     }
   }
@@ -942,11 +971,10 @@ void UnpackedEvent::WriteLastEvent(){
     fcal->PrintCtrs();
 }
 /*! 
-  Create Miniball object from mode3 data
+  Create Germanium object from mode3 data
 */
 void UnpackedEvent::MakeMode2(){
-  fMiniball->Clear();
-  fGretina->Clear();
+  fGermanium->Clear();
   //cout << __PRETTY_FUNCTION__ << endl;
   //cout << " mult " << fMode3Event->GetMult() << endl;
   for(int i=0; i<fMode3Event->GetMult(); i++){
@@ -969,36 +997,43 @@ void UnpackedEvent::MakeMode2(){
 	  cout << " <- with net energy " << endl;
 	else
 	  cout << endl;
-	cout << fSett->MiniballModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->MiniballCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
+	cout << fSett->GermaniumModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->GermaniumCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	
       }
+      if(trace->GetEnergy()<fSett->RawThresh())
+	continue;
       bool tracking = false;
-      int mod = fSett->MiniballModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
-      int cry = fSett->MiniballCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int mod = fSett->GermaniumModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int cry = fSett->GermaniumCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int chn = trace->GetChn();
       // for tracking detectors, channel will be 0-39 = chn+slot*10
       if(mod>9){
-	mod-=10;
 	tracking =true;
-	continue;
+	chn+=trace->GetSlot()*10;
       }
 
-      int chn = trace->GetChn();
       if(mod<0 || cry<0){
-	cout << "invalid MB module or crystal " << endl;
+	cout << "invalid module or crystal for t = " << trace->GetHole()<<", c = "<<trace->GetCrystal()<<", s = "<<trace->GetSlot()<< endl;
 	continue;
       }
-      MBCrystal* mbhit = fMiniball->GetHit(mod,cry);
-      if(mbhit){
-	if(chn==9)
-	  mbhit->InsertCore(mod, cry, trace->GetEnergy(), trace->GetTS());
+      if(fSett->VLevel()>1){
+	cout << "mod = " << mod << ", cry = " << cry << ", chn = " << chn;
+	if(tracking)
+	  cout << " is tracking ";
+	cout << endl;
+      }
+      GeCrystal* gehit = fGermanium->GetHit(mod,cry);
+      if(gehit){
+	if((!tracking&&chn==9) || (tracking&&chn==39))
+	  gehit->InsertCore(mod, cry, trace->GetEnergy(), trace->GetTS());
 	else
-	  mbhit->InsertSegment(mod, cry, chn, trace->GetEnergy());	  
+	  gehit->InsertSegment(mod, cry, chn, trace->GetEnergy());	  
       }      
       else{
-	fMiniball->AddHit(new MBCrystal(mod, cry, chn, trace->GetEnergy(), trace->GetTS()));
+	fGermanium->AddHit(new GeCrystal(mod, cry, chn, trace->GetEnergy(), trace->GetTS(), tracking));
       }      
     }//traces
   }//hits
   if(fSett->VLevel()>1)
-    fMiniball->PrintEvent();
+    fGermanium->PrintEvent();
 }

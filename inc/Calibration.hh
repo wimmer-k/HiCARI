@@ -19,11 +19,15 @@
 #include "TF1.h"
 
 #include "Settings.hh"
+#ifdef SIMULATION
 #include "Gretina.hh"
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
 #include "Tracking.hh"
+#else
+#include "Germanium.hh"
+#endif
 
 using namespace std;
 
@@ -39,9 +43,15 @@ public:
  */
   Calibration(Settings*, int event =0);
   ~Calibration();
+#ifdef SIMULATION
   //! Read the Miniball coordinates, average first interactions from file
   void ReadMBPositions(const char* filename);
+#else
+  //! Read the Germanium coordinates, average first interactions from file
+  void ReadGePositions(const char* filename);
+#endif
 
+#ifdef SIMULATION
   //! Construct all calibrated objects.
   void BuildAllCalc(Gretina* inGret, GretinaCalc* outGret, Miniball* inMB, MiniballCalc* outMB, ZeroDeg *zerodeg, MINOS *minos);
   
@@ -65,6 +75,7 @@ public:
 
   //! Construct tracked gamma events
   void GammaTrack(GretinaCalc* gr, GretinaEvent* gt);
+#endif
 
   void PrintCtrs();
 
@@ -77,10 +88,16 @@ private:
 
   int fevent;
 
+#ifdef SIMULATION
   //! averaged miniball first interaction positions
   TVector3 fMBpositions[MBCLUST+CLOVERS][CRYST][SEGS];//cluster, crystal, segment
+#else
+  //! averaged miniball first interaction positions
+  TVector3 fGepositions[12][4][36];//cluster, crystal, segment
+#endif
 
   int fAddBackType;
+#ifdef SIMULATION
   Long64_t fgretactr;
   Long64_t fminiballctr;
   Long64_t fzerodegctr;
@@ -88,7 +105,9 @@ private:
   TF1* fMINOSZett;
   
   Tracking* ftracking;
-
+#else
+  Long64_t fgectr;
+#endif
 };
 
 #endif

@@ -20,8 +20,9 @@
 #include "TMath.h"
 #include "TString.h"
 
+#ifdef SIMULATION
 #include "Gretina.hh"
-
+#endif
 using namespace TMath;
 using namespace std;
 
@@ -31,6 +32,7 @@ void RawHistograms::Write(){
 
 }
 
+#ifdef SIMULATION
 void RawHistograms::FillHistograms(Gretina* gr, Miniball* mb, ZeroDeg* zd, MINOS* mi){
   fentry++;
   //Determine which of the systems are present in the data.
@@ -57,6 +59,22 @@ void RawHistograms::FillHistograms(Mode3Event* m3e, Miniball* mb, Gretina* gr){
     FillMiniballHistograms(mb);
   }
 }
+#else
+void RawHistograms::FillHistograms(Mode3Event* m3e, Germanium* ge){
+  fentry++;
+  //Determine which of the systems are present in the data.
+  bool hasmode3 = m3e->GetMult()!=0;
+  bool hasgerma = ge->GetMult()!=0;
+
+
+  if(hasmode3){
+    FillMode3Histograms(m3e);
+  }
+  if(hasgerma){
+    FillGermaniumHistograms(ge);
+  }
+}
+#endif
 void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
   //Mode 2 histograms
   //static bool firstEvent = true;
@@ -96,23 +114,27 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
   }
 }
 
-void RawHistograms::FillMiniballHistograms(Miniball* mb){
-  Fill("hmb_mult",30,0,30,mb->GetMult());
-  for(int i=0; i<mb->GetMult(); i++){
-    MBCrystal* cr = mb->GetHit(i);
-    Fill("hmb_cluster",20,0,20,cr->GetCluster());
-    Fill("hmb_crystal",4,0,4,cr->GetCrystal());
-    Fill("hmb_crystal_vs_cluster",10,0,10,cr->GetCluster(),4,0,4,cr->GetCrystal());
-    Fill(Form("hmb_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy());
-    Fill(Form("hmb_segsum_vs_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy(),1000,0,1e6,cr->GetSegmentSum());
-    Fill(Form("hmb_segmult_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),6,0,6,cr->GetMult());
+void RawHistograms::FillGermaniumHistograms(Germanium* ge){
+  Fill("h_mult",30,0,30,ge->GetMult());
+  for(int i=0; i<ge->GetMult(); i++){
+    int segs = 6;
+    GeCrystal* cr = ge->GetHit(i);
+    if(cr->IsTracking())
+      segs = 40;
+    Fill("h_cluster",12,0,12,cr->GetCluster());
+    Fill("h_crystal",4,0,4,cr->GetCrystal());
+    Fill("h_crystal_vs_cluster",12,0,12,cr->GetCluster(),4,0,4,cr->GetCrystal());
+    Fill(Form("h_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy());
+    Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy(),1000,0,1e6,cr->GetSegmentSum());
+    Fill(Form("h_segmult_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetMult());
     
     for(int j=0; j<cr->GetMult(); j++){
-      Fill(Form("hmb_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),6,0,6,cr->GetSegmentNr(j),1000,0,1e6,cr->GetSegmentEn(j));
+      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetSegmentNr(j),1000,0,1e6,cr->GetSegmentEn(j));
     }
   }
 }
 
+#ifdef SIMULATION
 void RawHistograms::FillMode2Histograms(Gretina* gr){
   //Mode 2 histograms
 
@@ -176,3 +198,4 @@ void RawHistograms::FillMode2Histograms(Gretina* gr){
     }
   }
 }
+#endif

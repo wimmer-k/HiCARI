@@ -3,4 +3,5 @@
 build
 *.d
 *.so
-*Makefile
+scripts/rootlogon.C
+scripts/FitWindow
