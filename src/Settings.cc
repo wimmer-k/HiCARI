@@ -82,6 +82,8 @@ void Settings::ReadSettings(TEnv* set){
   fRawThresh = set->GetValue("Germanium.Raw.Thresh",0);
   ReadGermaniumMappingTable();
   fGecalfile = set->GetValue("Germanium.Calibration.File",defaultfile);
+  fBaselineLength = set->GetValue("BaseLine.Length",60);
+  fTracePlots = set->GetValue("TracePlots",0);
 #endif
   
 
@@ -146,6 +148,9 @@ void Settings::PrintSettings(){
   cout << "Germanium.Mapping.Table\t"<< fGemapping << endl;
   PrintGermaniumMappingTable();
   cout << "Germanium.Raw.Thresh\t"<< fRawThresh << endl;
+  cout << "Germanium.Calibration.File\t"<< fGecalfile << endl;
+  cout << "BaseLine.Length\t"<< fBaselineLength << endl;
+  cout << "Trace.Plots\t"<< fTracePlots << endl;
 
 #endif
 

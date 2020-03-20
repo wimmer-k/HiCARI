@@ -11,7 +11,64 @@
 #include "TH2F.h"
 
 #include "/home/gamma20/HiCARI/inc/Trace.hh"
-char* filename = "root/run0031.root";
+char* filename = "~/rootfiles/run0301.root";
+int verbose = 0;
+int frontBL = 70;
+void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
+  TFile *f = new TFile(filename);
+  TTree* tr = (TTree*)f->Get("build");
+  Mode3Event *mode3 = new Mode3Event;
+  tr->SetBranchAddress("mode3Event",&mode3);
+  TCanvas *c = new TCanvas("c","c",900,400);
+  c->Divide(2,1);
+  TH2F *traces = new TH2F("traces","traces", 200,0,200,1200,-10000,2000);
+  TH2F *smokep = new TH2F("smokep","smokep", 2000,0,5e5,1000,0,1000);
+  if(lastevt<0)
+    lastevt = tr->GetEntries();
+  int ctr = 0;
+  for(int i=firstevt; i<lastevt; i++){ 
+    Int_t status = tr->GetEvent(i);
+    for(int e=0;e<mode3->GetMult();e++){
+      for(int t=0;t<mode3->GetHit(e)->GetMult();t++){
+	Trace *trace = mode3->GetHit(e)->GetTrace(t);
+	if (trace==NULL || trace->GetLength()<1){
+	  cout << "bad trace, aborting" << endl;
+	  continue;
+	}
+	if(trace->GetHole()!=hole || trace->GetCrystal()!=cry || trace->GetSlot()!=slot || trace->GetChn()!=9)
+	  continue;
+	if(verbose){
+	  cout << "Trace " << ctr++ << " Length " << trace->GetLength() << 
+	    "\tEnergy " << trace->GetEnergy() <<
+	    "\tBoard " << trace->GetBoard() <<
+	    "\tChannel " << trace->GetChn() <<
+	    "\tHole " << trace->GetHole() <<
+	    "\tCrystal " << trace->GetCrystal();
+	  if(trace->GetChn()==9)
+	    cout << " <- CC " << endl;
+	  else if(trace->GetEnergy()>1000)
+	    cout << " <- with net energy " << endl;
+	  else
+	    cout << endl;
+	}//verbose
+	double baseline =0;
+	for(int j=0;j<trace->GetLength();j++){
+	  traces->Fill(j,(int)trace->GetTrace()[j]);
+	  if(j<frontBL)
+	    baseline+=trace->GetTrace()[j];
+	}
+	baseline/=frontBL;
+	smokep->Fill(trace->GetEnergy(),baseline);
+      }//traces
+    }//hits
+  }//events
+  c->cd(1);
+  traces->Draw("colz");
+  c->cd(2);
+  smokep->Draw("colz");
+}
+
+
 void CoreTraces(int firstevt=0, int lastevt=-1, int crystal = -1){
   TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");

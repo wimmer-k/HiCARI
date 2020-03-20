@@ -39,10 +39,10 @@ int main(int argc, char* argv[]){
   char *RootFile = NULL;
   vector<char*> SettingFile;
   int denom = 10000;
-  bool wrawtree = true;
-  bool wrawhist = false;
-  bool wcaltree = false;
-  bool wcalhist = false;
+  int wrawtree = 1;
+  int wrawhist = 0;
+  int wcaltree = 0;
+  int wcalhist = 0;
   int makemode2 = 1;
   
   //Read in the command line arguments

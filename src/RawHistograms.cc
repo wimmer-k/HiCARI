@@ -104,11 +104,21 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
       Fill(Form("hraw_crys_hole%02d",trace->GetHole()),10,0,10,trace->GetCrystal());
       Fill(Form("hraw_slot_hole%02d_crys%02d",trace->GetHole(),trace->GetCrystal()),10,0,10,trace->GetSlot());
       Fill(Form("hraw_chan_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn());
-      Fill(Form("hraw_en_hole%02d_crys%02d_slot%02d_chan%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot(),trace->GetChn()),20000,0,5e6,trace->GetEnergy());
+      Fill(Form("hraw_en_hole%02d_crys%02d_slot%02d_chan%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot(),trace->GetChn()),20000,0,1e6,trace->GetEnergy());
       Fill(Form("hraw_en_vs_chn_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn(),1000,0,1e6,trace->GetEnergy());
       //for MB, SC only
       if(trace->GetChn()==9){
-	Fill(Form("hraw_core_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),2000,0,5e6,trace->GetEnergy());
+	Fill(Form("hraw_core_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),2000,0,1e6,trace->GetEnergy());
+	if(fSett->TracePlots()){
+	  double baseline =0;
+	  for(int j=0;j<trace->GetLength();j++){
+	    Fill(Form("hraw_coretraces_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),200,0,200,j,1200,-10000,2000,(int)trace->GetTrace()[j]);
+	    if(j<fSett->BaselineLength())
+	      baseline+=trace->GetTrace()[j];
+	  }
+	  baseline/=fSett->BaselineLength();
+	  Fill(Form("hraw_smoke_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),1000,0,1e6,trace->GetEnergy(),1000,0,1000,baseline);
+	}
       }
     }
   }

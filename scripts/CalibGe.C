@@ -20,6 +20,7 @@
 
 using namespace std;
 vector<double> defreturn;
+vector <vector<double> > defreturn2;
 const int banks = 20;
 const int slots = 12;
 const int chans = 10;
@@ -28,39 +29,155 @@ double resolution = 2;
 double frange = 5000;
 double range[2] = {150000,450000};
 TCanvas *ca;
-char* filen = (char*)"/home/gamma20/rootfiles/hist0268.root";
+char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
+char* fileEu = (char*)"/home/gamma20/rootfiles/Eu_281_282.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
 Double_t fgammastep(Double_t *x, Double_t *par);
 Double_t fgammagaus(Double_t *x, Double_t *par);
-vector<double> fit(TH1F* h, bool bg = true, bool draw = false);
+Double_t flinear(Double_t *x, Double_t *par);
+vector<double> fitCo(TH1F* h, bool bg = true, bool draw = false);
+vector <vector<double> > fitEu(TH1F* h, double roguh, bool bg = true, bool draw = false);
 
 void SetRange(double low, double hig){
   range[0] = low;
   range[1] = hig;
 }
 void test(int b=11, int s = 3, int c =9){
-  TFile *f = new TFile(filen);
+  TFile *f = new TFile(fileCo);
   TH1F* h = (TH1F*)f->Get(Form("hraw_en_bank%02d_slot%02d_chan%02d",b,s,c));
-  fit(h,1,1);
+  fitCo(h,1,1);
 }
 void core(int m=0, int c =0){
-  TFile *f = new TFile(filen);
+  TFile *f = new TFile(fileCo);
   TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
     return;
-  fit(h,1,1);
+  vector<double> v = fitCo(h,1,1);
+  cout << v[0] << "\t" << v[1] << endl;
+  f = new TFile(fileEu);
+  h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
+  frange = 3000;
+  if(m==4)
+    frange = 5000;
+  fitEu(h,v[0],1,1);
 }
 void segment(int m=0, int c =0, int s =0){
   resolution = 5;
-  TFile *f = new TFile(filen);
+  TFile *f = new TFile(fileCo);
   TH2F* h2 = (TH2F*)f->Get(Form("h_segen_vs_nr_clus%02d_crys%02d",m,c));
   TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
   if(h==NULL || h->Integral()<100)
     return;
-  fit(h,0,1);
+  fitCo(h,0,1);
 }
-vector<double> fit(TH1F* h, bool bg, bool draw){
+
+vector <vector<double> > fitEu(TH1F* h, double rough, bool bg, bool draw){
+  defreturn2.resize(4);
+  defreturn2[0].push_back(-1);
+  if(h->Integral() < 10)
+    return defreturn2;
+  TSpectrum *sp = new TSpectrum(2,resolution);
+  sp->SetResolution(resolution);
+  const int n = 10;
+  ifstream intensity;
+  intensity.open("/home/gamma20/HiCARI/scripts/Eudecay.dat");
+  intensity.ignore(1000,'\n');
+  double en[n], inten[n];//, eff[n];
+  if(draw){
+    ca = new TCanvas("ca","ca",600,600);
+    ca->Divide(4,3);
+  }
+  vector< vector<double> > peaks;
+  peaks.resize(8);
+  for(int i=0;i<8;i++)
+    peaks.at(i).clear();
+  for(int p=0; p<n; p++){
+    intensity >> en[p] >> inten[p];
+    //cout << en[p] << "\t" << en[p]/rough-frange << "\t" << en[p]/rough+frange << endl;
+    h->GetXaxis()->SetRangeUser(en[p]/rough-frange,en[p]/rough+frange);
+    Int_t nfound = 0;
+    if(draw){
+      ca->cd(1+p);
+      nfound = sp->Search(h,resolution,"nobackground",0.7);
+    }
+    else
+      nfound = sp->Search(h,resolution,"nobackgroundgoff",0.7);
+    if(draw){
+      ca->cd(1+p);
+      h->DrawCopy();
+    }
+    if(nfound!=1){
+      cout << "Found " << nfound << " peaks in spectrum, not 1" << endl;
+      continue;
+    }
+    Float_t *xpeaks = sp->GetPositionX();
+    TF1 *fu;
+    TF1 *fus[3];
+    h->GetXaxis()->SetRangeUser(xpeaks[0]-frange,xpeaks[0]+frange);
+    fu = new TF1(Form("f%s_p%d",h->GetName(),p),fgammagaussbg,xpeaks[0]-frange,xpeaks[0]+frange,6);
+    fu->SetLineColor(3);
+    fu->SetLineWidth(1);
+    fu->SetParameter(0,0);//bg const
+    fu->SetParameter(1,0);//bg slope
+    if(!bg){
+      fu->FixParameter(0,0);//bg const
+      fu->FixParameter(1,0);//bg slope
+    }
+    fu->SetParameter(2,h->Integral(xpeaks[0]-frange,xpeaks[0]+frange));//norm
+    fu->SetParameter(3,xpeaks[0]);//mean
+    fu->SetParLimits(3,xpeaks[0]-500,xpeaks[0]+500);//mean
+    fu->SetParameter(4,200);//sigma
+    fu->SetParLimits(4,100,2000);//sigma
+    fu->SetParameter(5,h->GetBinContent(h->FindBin(xpeaks[0]-frange)));//step
+    if(draw)
+      h->Fit(fu,"Rn");
+    else
+      h->Fit(fu,"Rqn");
+
+    //draw results.
+    if(draw){
+      ca->cd(1+p);
+      h->DrawCopy();
+      fu->Draw("same");
+      fus[0] = new TF1(Form("f%s_p%d_bg",h->GetName(),p),fgammabg,xpeaks[0]-frange,xpeaks[0]+frange,6);
+      fus[1] = new TF1(Form("f%s_p%d_st",h->GetName(),p),fgammastep,xpeaks[0]-frange,xpeaks[0]+frange,6);
+      fus[2] = new TF1(Form("f%s_p%d_ga",h->GetName(),p),fgammagaus,xpeaks[0]-frange,xpeaks[0]+frange,6);
+	
+
+      fus[0]->SetLineColor(5);
+      fus[1]->SetLineColor(4);
+      fus[2]->SetLineColor(2);
+      for(int k=0;k<3;k++){
+	fus[k]->SetLineWidth(1);
+	for(int l=0;l<6;l++)
+	  fus[k]->SetParameter(l,fu->GetParameter(l));
+	fus[k]->Draw("same");
+      }
+    }// draw
+    //cout << (peaks.at(0)).size() << "\t" << fu->GetParameter(3) << endl;
+    (peaks.at(0)).push_back(fu->GetParameter(3)); // mean
+    (peaks.at(1)).push_back(fu->GetParError(3));  // error mean
+    (peaks.at(2)).push_back(fu->GetParameter(4)); // sigma
+    (peaks.at(3)).push_back(fu->GetParameter(2)/h->GetBinWidth(1)); // content
+    (peaks.at(4)).push_back(fu->GetParError(2)/h->GetBinWidth(1)); // content error 
+    (peaks.at(5)).push_back(en[p]);
+    (peaks.at(6)).push_back(fu->GetParameter(2)/h->GetBinWidth(1)/inten[p]);
+    (peaks.at(7)).push_back(fu->GetParError(2)/h->GetBinWidth(1)/inten[p]);
+  }// peaks
+  if(draw){
+    //cout << (peaks.at(0)).size() << endl;
+    ca->cd(n+1);
+    TGraphErrors *g = new TGraphErrors(peaks.at(0).size(),&peaks.at(0)[0],&peaks.at(5)[0],&peaks.at(1)[0]);
+    g->Draw("AP*");
+    g->Fit("pol1");    
+    ca->cd(n+2);
+    TGraphErrors *ge = new TGraphErrors(peaks.at(0).size(),&peaks.at(5)[0],&peaks.at(6)[0],0,&peaks.at(7)[0]);
+    ge->Draw("AP*");
+  }
+  return peaks;
+}
+vector<double> fitCo(TH1F* h, bool bg, bool draw){
   defreturn.push_back(-1);
   h->GetXaxis()->SetRangeUser(range[0],range[1]);
   if(h->Integral() < 10)
@@ -158,7 +275,7 @@ vector<double> fit(TH1F* h, bool bg, bool draw){
       }
 
     }// draw
-  }// peaks
+  }// peaksfu->GetParameter(2)/h->GetBinWidth(1)
   if(draw){
     ca->cd(nfound+2);
     double y[2] = {1173.2,1332.5};
@@ -180,10 +297,70 @@ vector<double> fit(TH1F* h, bool bg, bool draw){
   rv.push_back(a*fu[1]->GetParameter(4));
   return rv;
 }
-void CalibGe(){
+void CalibGeEu(){
+  string abc[3] = {"A","B","C"};
   frange = 3000;
-  TEnv *cf = new TEnv(Form("%s.cal",filen));
-  TFile *f = new TFile(filen);
+  TFile *fco = new TFile(fileCo);                                                  
+  TFile *feu = new TFile(fileEu);                                                  
+  TEnv *cf = new TEnv(Form("%s.cal",fileEu));
+  vector <double> gain;
+  vector <double> offs;
+
+  ca = new TCanvas("ca","ca",1200,800);
+  ca->Divide(6,3);
+  TCanvas *ca2 = new TCanvas("ca2","ca2",1200,800);
+  ca2->Divide(6,3);
+  TCanvas *ca3 = new TCanvas("ca3","ca3",1200,800);
+  ca3->Divide(6,3);
+  for(int clu=0;clu<6;clu++){
+    for(int cry=0;cry<3;cry++){
+      TH1F* h = (TH1F*)fco->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
+      if(h==NULL)
+	return;
+      vector<double> vco = fitCo(h,1,0);
+      if(vco[0]<0)
+	continue;
+      h = (TH1F*)feu->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
+      frange = 3000;
+      if(cry==4)
+	frange = 5000;
+      vector< vector<double> > veu = fitEu(h,vco[0],1,0);
+      cout << clu << "\t" << cry << "\t" << abc[cry] << "\t" << veu[0][0] << endl;
+      ca->cd(cry*6+1+clu);
+      TGraphErrors* gc = new TGraphErrors(veu.at(0).size(), &veu.at(0)[0], &veu.at(5)[0], &veu.at(1)[0]);
+      gc->SetTitle(Form("MB%d%s Core calibration",clu,(char*)abc[cry].c_str()));
+      gc->Draw("AP*");
+      TF1 *fl = new TF1("fl",flinear,0,500000,2);
+      fl->SetParameters(0.004,1);
+      gc->Fit(fl);
+      ca2->cd(cry+1+clu*3);
+      TGraphErrors* ge = new TGraphErrors(veu.at(0).size(), &veu.at(5)[0], &veu.at(6)[0],0, &veu.at(7)[0]);
+      ge->SetTitle(Form("MB%d%s Core efficiency",clu,(char*)abc[cry].c_str()));
+      ge->Draw("AP*");
+      //ge->Fit("pol1");
+      ca3->cd(cry+1+clu*3);
+      TGraphErrors* gr = new TGraphErrors(veu.at(0).size(), &veu.at(5)[0], &veu.at(2)[0],0, 0);
+      gr->SetTitle(Form("MB%d%s Core resolution",clu,(char*)abc[cry].c_str()));
+      gr->Draw("AP*");
+      
+      //pritn calibration parameters
+      cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",clu,cry),fl->GetParameter(0));
+      cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",clu,cry),fl->GetParameter(1));
+      gain.push_back(fl->GetParameter(0));
+      offs.push_back(fl->GetParameter(1));
+    }// crystal
+  }//clu
+  cf->SaveLevel(kEnvLocal);
+  TCanvas *ca4 = new TCanvas("ca4","ca4",600,300);
+  ca4->cd();
+  TGraph* g = new TGraph(gain.size(),&gain[0],&offs[0]);
+  g->Draw("AP*");
+
+}
+void CalibGeCo(){
+  frange = 3000;
+  TEnv *cf = new TEnv(Form("%s.cal",fileCo));
+  TFile *f = new TFile(fileCo);
   vector <double> gain;
   vector <double> offs;
   vector <double> res0;
@@ -195,7 +372,7 @@ void CalibGe(){
       TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
       if(h==NULL)
 	continue;
-      vector<double> r = fit(h,1);
+      vector<double> r = fitCo(h,1);
       //cout << " fitted " << r[0]<< endl;
       if(r[0]<0)
 	continue;
@@ -247,7 +424,7 @@ void CalibGe(){
        	  frange = 2000;
 	if(clu==3 && cry==0 && s==3)
        	  frange = 2000;
-	vector<double> r = fit(h,0);
+	vector<double> r = fitCo(h,0);
 	//cout << " fitted " << r[0]<< endl;
 	if(r[0]<0)
 	  continue;
@@ -277,7 +454,7 @@ void CalibGe(){
   cf->SaveLevel(kEnvLocal);
 }
 void CalibMode3(){
-  TFile *f = new TFile(filen);
+  TFile *f = new TFile(fileCo);
   vector <double> gain;
   vector <double> offs;
   vector <double> res0;
@@ -298,7 +475,7 @@ void CalibMode3(){
 	else
 	  SetRange(250000,500000);
 	//cout << h->GetName() << "\t"<< h->GetEntries() << endl;
-	vector<double> r = fit(h);
+	vector<double> r = fitCo(h);
 	//cout << " fitted " << r[0]<< endl;
 	if(r[0]<0)
 	  continue;
@@ -378,5 +555,9 @@ Double_t fgammagaus(Double_t *x, Double_t *par){
   Double_t result = 1/(sqrt2pi*sigma) * norm * exp(-arg*arg);
 
   return result;
+
+}
+Double_t flinear(Double_t *x, Double_t *par){
+  return x[0]*par[0] + par[1];
 
 }

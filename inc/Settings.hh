@@ -78,6 +78,8 @@ public:
   int GermaniumCrystal(int hole, int cry, int slot){return fGemap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
   const char* GermaniumCalibrationFile(){return fGecalfile.c_str();}
+  int BaselineLength(){return fBaselineLength;}
+  bool TracePlots(){return fTracePlots;}
 #endif
 
 protected:
@@ -127,6 +129,8 @@ protected:
   map<int, map<int, map<int, int> > > fGemap;
   int fRawThresh;
   string fGecalfile;
+  int fBaselineLength;
+  bool fTracePlots;
 #endif 
 
   ClassDef(Settings, 1)
