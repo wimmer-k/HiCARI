@@ -1,6 +1,6 @@
 using namespace std;
 
-void rootlogon() {
+void rootlogonKW() {
   gSystem->Load("libHiCARI");
   gROOT->ProcessLine(".L ~/HiCARI/scripts/FitWindow/fitwindow.C+");
   cout<<"loaded mouseclick fitting / "<<flush;

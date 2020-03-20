@@ -332,52 +332,23 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     cout << "UnpackedEvent: " << "cfd points " << curTrace.GetCFD(0) << " and " << curTrace.GetCFD(1) << endl;
 
   //cout << "UnpackedEvent: " << curTrace.GetTrace().size() << " size" << endl;
-  //  int bg =0;
-  //  int sig =0;
   for(int i=0; i<(length-16); i+=2){
     //cout << "UnpackedEvent: " << i <<"\t"<< *(wBuf) << endl;
     curTrace.SetTrace(i ,-(short) *(wBuf+1)+512 );
     curTrace.SetTrace(i+1 ,-(short) *(wBuf)+512 );
-    // if(id==124){
-    //   curTrace.SetLaBrTrace(i ,-(short) *(wBuf+1)+512 );
-    //   curTrace.SetLaBrTrace(i+1 ,-(short) *(wBuf)+512 );
-    //   if(i>19&&i<71){
-
-    // 	bg+=-(short) *(wBuf)+512;
-    // 	bg+=-(short) *(wBuf+1)+512;
-    // 	if(fvl>2)
-    // 	  cout << "UnpackedEvent: " << "labr bg " << bg << endl;
-    //   }
-    //   if(i>69&&i<121){
-
-    // 	sig+=-(short) *(wBuf)+512;
-    // 	sig+=-(short) *(wBuf+1)+512;
-    // 	if(fvl>2)
-    // 	  cout << "UnpackedEvent: " << "labr sig " << sig << endl;
-    //   }
-    // }
     wBuf++;
     wBuf++;
-
-
     if(fvl>5){
       cout << "UnpackedEvent: " << i <<"\t"<< curTrace.GetTrace()[i] << endl;
       cout << "UnpackedEvent: " << i+1 <<"\t"<< curTrace.GetTrace()[i+1] << endl;
     }
   }
-  // if(id==124){
-  //   if(fvl>1){
-  //     cout << "UnpackedEvent: " << "end fof trace bg " << bg << " sig " << sig << endl;
-  //     cout << "UnpackedEvent: " << " energy " << sig-bg << endl;
-  //   }
-  //   curTrace.SetLaBr(sig-bg);
-  // }
+
   if(fvl>2){
     cout << " these next ones should be aaaa and aaaa again " << endl;
     cout << "UnpackedEvent: " << *wBuf << " " << (hex) << *wBuf << (dec) << endl;
     cout << "UnpackedEvent: " << *(wBuf+1) << " " << (hex) << *(wBuf+1) << (dec) << endl;
   }
-
 
   //needs to be modified for MB and SC !!
   if(curTrace.GetBoard() == 6 && curTrace.GetChn() == 9){ //board 3 = 10 , 6 = 5 MeV range

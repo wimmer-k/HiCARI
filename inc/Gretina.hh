@@ -60,7 +60,6 @@ struct crys_ips_abcd5678 {
   ip ips[MAX_INTPTS];
 };
 
-
 class IPoint : public TObject {
 public:
   IPoint();

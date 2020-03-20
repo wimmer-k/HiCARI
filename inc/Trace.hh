@@ -33,16 +33,13 @@ public:
     fCFD[1] = -1;
     fts = -1;
     ftrace.clear();
-    flabrtrace.clear();
     fcore = false;
-    flabren = -1;
     ftdiff = -1;
   }
   void SetTS(long long int ts){fts = ts;}
   void SetLength(int length){
     flength = length;
     ftrace.resize(length);
-    flabrtrace.resize(length);
   }
   void SetBoard(int boardid){fboard = boardid;}
   void SetChn(int chnid){fchn = chnid;}
@@ -56,10 +53,8 @@ public:
   void SetCFD(long long int cfd){fCFD_ts = cfd;}
   void SetCFD(int n, int cfd){fCFD[n] = cfd;}
   void SetTrace(int n, short v){ftrace[n] = v;}
-  void SetLaBrTrace(int n, short v){flabrtrace[n] = v;}
   void SetCore(bool core){fcore = core;}
   void SetTDiff(long long int tdiff){ftdiff = tdiff;}
-  void SetLaBr(int en){flabren = en;}
 
   long long int GetTS(){return fts;}
   int GetLength(){return flength;}
@@ -76,10 +71,8 @@ public:
   long long int GetCFD(){return fCFD_ts;}
   int GetCFD(int n){return fCFD[n];}
   vector <short> GetTrace(){return ftrace;}
-  vector <short> GetLaBrTrace(){return flabrtrace;}
   bool GetCore(){return fcore;}
   long long int GetTDiff(){return ftdiff;}
-  int GetLaBr(){return flabren;}
 
   //int GetSegNum(Settings*);
 protected:
@@ -104,8 +97,6 @@ protected:
   long long int fts;
   long long int ftdiff;
   bool fcore;
-  int flabren;
-  vector <short> flabrtrace;
   ClassDef(Trace, 1);
 };
 

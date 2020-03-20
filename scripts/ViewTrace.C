@@ -14,6 +14,7 @@
 char* filename = "~/rootfiles/run0301.root";
 int verbose = 0;
 int frontBL = 70;
+Double_t flinear(Double_t *x, Double_t *par);
 void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
   TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");
@@ -157,43 +158,77 @@ vector<TGraph*> ViewTrace(int n, int e){
       cout << "bad trace, aborting" << endl;
       continue;
     }
-    cout << "Trace " << g.size() << " Length " << trace->GetLength() << 
-      "\tEnergy " << trace->GetEnergy() <<
-      "\tBoard " << trace->GetBoard() <<
-      "\tChannel " << trace->GetChn() <<
-      "\tHole " << trace->GetHole() <<
-      "\tCrystal " << trace->GetCrystal();
-    if(trace->GetChn()==9)
-      cout << " <- CC " << endl;
-    else if(trace->GetEnergy()>1000)
-      cout << " <- with net energy " << endl;
-    else
-      cout << endl;
+    // cout << "Trace " << g.size() << " Length " << trace->GetLength() << 
+    //   "\tEnergy " << trace->GetEnergy() <<
+    //   "\tBoard " << trace->GetBoard() <<
+    //   "\tChannel " << trace->GetChn() <<
+    //   "\tHole " << trace->GetHole() <<
+    //   "\tCrystal " << trace->GetCrystal();
+    // if(trace->GetChn()==9)
+    //   cout << " <- CC " << endl;
+    // else if(trace->GetEnergy()>1000)
+    //   cout << " <- with net energy " << endl;
+    // else
+    //   cout << endl;
     
     int data[200];
+    int cfd[200];
     int x[200];
-      
+    int length = 1;
+    int delay = 10;
+    float fraction = 0.3;
+    float baseline = 0;
+    int baselinelength = 50;
+    float led = -20;
+    bool negative = false;
+    int crossing = -1;
+    for(int i=0;i<baselinelength;i++){
+      baseline+=(int)trace->GetTrace()[i];
+    }
+    baseline/=baselinelength;
     for(int i=0;i<trace->GetLength();i++){
       x[i] = i;
-      data[i] = (int)trace->GetTrace()[i];
+      data[i] = (int)trace->GetTrace()[i]-baseline;
+      if(trace->GetChn()==9){
+	cfd[i] = 0;
+	if(i>baselinelength){
+	  for(int j=0;j<length;j++)
+	    cfd[i] += fraction*data[i-j] - data[i-j-delay]; 
+	}
+	if(data[i]<led){
+	  if(negative && cfd[i]>0){
+	    cout << "crossing " << i << endl;
+	    crossing = i;
+	    negative = false;
+	  }
+	  negative = cfd[i]<0;
+	}
+      }
     }
     g.push_back(new TGraph(trace->GetLength(),x,data));
     mg->Add(g.back(),"LP");
-    // if(g.size()==1){
-    //   g.back()->Draw("APL");
-    // } else {
-    //   g.back()->Draw("PL");
-    // }
-    if(trace->GetChn()==9)
+    if(trace->GetChn()==9){
       g.back()->SetLineColor(2);
-
+      g.back()->SetMarkerColor(2);
+      g.push_back(new TGraph(trace->GetLength(),x,cfd));
+      mg->Add(g.back(),"LP");
+      g.back()->SetLineColor(3);
+      g.back()->SetMarkerColor(3);
+      if(crossing>baselinelength){
+	TF1 *ff = new TF1("f",flinear,crossing-3,crossing+3,2);
+	ff->SetParameters(10,0);
+	g.back()->Fit(ff,"R");
+	cout << -ff->GetParameter(1)/ff->GetParameter(0);
+      }
+    }
   }
   mg->Draw("a");
   return g;
 }
 void ViewTrace(int n, int e, int p){
   vector<TGraph*> g = ViewTrace(n,e);
-  
   g[p]->Draw("APL");
-
+}
+Double_t flinear(Double_t *x, Double_t *par){
+  return x[0]*par[0] + par[1];
 }
