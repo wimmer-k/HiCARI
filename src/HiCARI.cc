@@ -179,7 +179,7 @@ void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
   fHitsAdded += hit->GetHitsAdded();
  
 }
-
+/*
 double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 
   PosToTarget.SetX(PosToTarget.X() - set->TargetX());
@@ -202,7 +202,7 @@ void HiCARICalc::DopplerCorrect(Settings* set){
     (*hit)->DopplerCorrect(set);
   }
 }
-/*  
+  
 double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg){
 
   PosToTarget.SetX(PosToTarget.X() - zerodeg->GetXTA() - set->TargetX());

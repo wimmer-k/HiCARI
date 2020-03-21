@@ -8,6 +8,7 @@
 #include "Beam.hh"
 #include "FocalPlane.hh"
 #include "HiCARI.hh"
+#include "Settings.hh"
 #include "Globaldefs.h"
 
 

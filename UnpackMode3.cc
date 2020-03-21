@@ -44,6 +44,7 @@ int main(int argc, char* argv[]){
   int wcaltree = 0;
   int wcalhist = 0;
   int makemode2 = 1;
+  bool noHFC = false;
   
   //Read in the command line arguments
   CommandLineInterface* interface = new CommandLineInterface();
@@ -54,6 +55,7 @@ int main(int argc, char* argv[]){
   interface->Add("-rt", "write raw tree", &wrawtree);
   interface->Add("-ct", "write cal tree", &wcaltree);
   interface->Add("-m", "make mode2 data, no decomp", &makemode2);
+  interface->Add("--no-HFC","do not use HFC as an intermediate step",&noHFC);
   interface->CheckFlags(argc, argv);
 
   //Complain about missing mandatory arguments
@@ -70,23 +72,38 @@ int main(int argc, char* argv[]){
     return 3;
   }
 
+  //get the run number from the filename
+  int run;
+  TString ifname(InputFile);
+  ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/Global.dat.gz but works also for Global.dat
+  sscanf(ifname.Data(),"%*sRun%04d/%*s",&run);
+
   //Open the input and output files.
   TFile *ofile = new TFile(RootFile,"RECREATE");
   cout<<"input file: "<<InputFile<< endl;
+  cout<<"run number " << run << endl;
   cout<<"writing to output file: "<<RootFile<< endl;
   cout << "------------------------------------" << endl;
   FILE *infile;
+
   string infilestr = string(InputFile);
   char extension[20];
   strcpy(extension, infilestr.substr(infilestr.find_last_of(".")+1).c_str());
-  if(strcmp(extension,"dat")==0){
+  if((strcmp(extension,"gz")==0 || strcmp(extension,"gzip")==0)
+     && !noHFC){
+    infile = popen(Form("zcat %s | GEB_HFC -p ", InputFile),"r");
+  } else if (strcmp(extension,"dat")==0 && !noHFC){
+    infile = popen(Form("GEB_HFC -p %s ", InputFile),"r");
+  } else if ((strcmp(extension,"gz")==0 || strcmp(extension,"gzip")==0)
+	     && noHFC){
+    infile = popen(Form("zcat %s ", InputFile),"r");
+  } else if (strcmp(extension,"dat")==0 && noHFC){
     infile = fopen(InputFile,"r");
-  } 
-  else{
-    cout << "Unknown file type. Aborting" << endl;
-    ofile->Close();
-    return 7;
+  } else {
+    cout << "Unknown file type.  Will try to open as a .dat file, using HFC" << endl;
+    infile = popen(Form("GEB_HFC -p %s ", InputFile),"r");
   }
+
   if(infile == NULL){
     cout << "Sorry I couldn't find the file: " << InputFile << ". Aborting ..." << endl;
     ofile->Close();

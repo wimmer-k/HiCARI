@@ -7,7 +7,7 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "TMath.h"
-#include "Settings.hh"
+//#include "Settings.hh"
 
 using namespace std;
 
@@ -159,14 +159,14 @@ public:
   int GetHitsAdded(){return fHitsAdded;}
   long long int GetTS(){return ftimestamp;}
 
-  //void DopplerCorrect(double beta, double z = 0){
-  //  fDCen = fen * HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
-  //}
-  void DopplerCorrect(Settings* set){
-    fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set);
-  }
-  //! Returns the Doppler-correction factor to correct the energy.
-  static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
+  // void DopplerCorrect(double beta, double z = 0){
+  //   fDCen = fen * HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
+  // }
+  // void DopplerCorrect(Settings* set){
+  //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set);
+  // }
+  // //! Returns the Doppler-correction factor to correct the energy.
+  // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
 
   // void DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
   //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg);
@@ -241,7 +241,7 @@ public:
     fhits_ab.push_back(cry);
     fmult_ab++;
   }
-  void DopplerCorrect(Settings* set);
+//  void DopplerCorrect(Settings* set);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   void Print(){

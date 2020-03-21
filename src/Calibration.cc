@@ -106,10 +106,10 @@ void Calibration::ReadHiCARICalibration(const char* filename){
   TEnv *calF = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
-      fCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),0.0);
+      fCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),1.0);
       fCoreOffs[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",m,c),0.0);      
       for(int s=0;s<40;s++){
-	fSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),0.0);
+	fSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),1.0);
 	fSegOffs[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Offset",m,c,s),0.0);
       }
       //cout << fCoreGain[m][c] << "\t" << fCoreOffs[m][c] << endl;

@@ -286,7 +286,7 @@ bool BuildEvents::Merge(){
     fcurrentts = fBRts;
     fdetectors.erase(fdetectors.begin());
     if(!ReadBigRIPS()&&fBRtsjump==false)
-      cout << endl <<"failed to read BigRIPS, end of file" << endl;
+      cout << endl << MAGENTA << "failed to read BigRIPS, end of file" << DEFCOLOR << endl;
     break;
   case 1: //HiCARI
     if(flocalHIts - fcurrentts > fwindow){
@@ -300,24 +300,24 @@ bool BuildEvents::Merge(){
     fcurrentts = fHIts;
     fdetectors.erase(fdetectors.begin());
     if(!ReadHiCARI()&&fHItsjump==false)
-      cout << endl << "failed to read HiCARI, end of file" << endl;
+      cout << endl << MAGENTA << "failed to read HiCARI, end of file" << DEFCOLOR << endl;
     break;
   default:
     break;
   }
   if(flastevent>0 && flastevent == (int)(fBRentry + fHIentry)){
-    cout << endl << "last event reached " << endl;
+    cout << endl << BLUE << "last event reached " << DEFCOLOR << endl;
     return false;
   }
 
   if(fdetectors.size()==0){
     if(fhasBR && fhasHI && fBRtsjump==true && fHItsjump==true){
-      cout << "both timestamps jumped" << endl;
+      cout << RED << "both timestamps jumped" << DEFCOLOR << endl;
       fBRtsjump = false;
       fHItsjump = false;
       return ReadEach();
     }
-    cout << "all files finished " << endl;
+    cout << endl << BLUE << "all files finished " << DEFCOLOR << endl;
     return false;
   }
   return true;

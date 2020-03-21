@@ -10,13 +10,8 @@
 #include "TStopwatch.h"
 
 #include "CommandLineInterface.hh"
-#include "Settings.hh"
 #include "BuildEvents.hh"
 
-#include "FocalPlane.hh"
-#include "PPAC.hh"
-#include "Beam.hh"
-#include "HiCARI.hh"
 #include "Globaldefs.h"
 using namespace TMath;
 using namespace std;
@@ -92,7 +87,6 @@ int main(int argc, char* argv[]){
   }
   outfile->cd();
   Settings* set = new Settings(SetFile);
-  cout << set->EventTimeDiff() << endl;
 
   BuildEvents* evts = new BuildEvents();
   evts->SetVerbose(vl);

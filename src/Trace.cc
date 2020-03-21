@@ -1,5 +1,5 @@
 #include "Trace.hh"
-#include "Settings.hh"
+//#include "Settings.hh"
 #include <algorithm>
 
 bool trace_comparison(Trace a, Trace b){
