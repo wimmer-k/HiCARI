@@ -56,19 +56,19 @@ void UnpackedEvent::Init(){
 #endif
 #else
   fMode3Event = new Mode3Event;
-  fGermanium = new Germanium;
-  fGermaniumCalc = new GermaniumCalc;
+  fHiCARI = new HiCARI;
+  fHiCARICalc = new HiCARICalc;
 #endif
   if(fwtree){
     //setting up tree
     cout << "setting up raw tree " << endl;
-    ftr = new TTree("build","built events");
+    ftr = new TTree("build","built Gamma events");
 #ifdef SIMULATION
     ftr->Branch("gretina",&fGretina, 320000);
     ftr->Branch("miniball",&fMiniball, 320000);
 #else
     ftr->Branch("mode3Event",&fMode3Event, 320000);
-    ftr->Branch("germanium",&fGermanium, 320000);
+    ftr->Branch("hicari",&fHiCARI, 320000);
 #endif
     ftr->BranchRef();
     if(fvl>1)
@@ -86,7 +86,7 @@ void UnpackedEvent::Init(){
     fcaltr->Branch("gretinacalc",&fGretinaCalc, 320000);
     fcaltr->Branch("miniballcalc",&fMiniballCalc, 320000);
 #else
-    fcaltr->Branch("germaniumcalc",&fGermaniumCalc, 320000);
+    fcaltr->Branch("hicaricalc",&fHiCARICalc, 320000);
 #endif
     fcaltr->BranchRef();
     if(fvl>1)
@@ -118,7 +118,7 @@ void UnpackedEvent::Init(){
 #endif
 #else
   fMode3Event->Clear();
-  fGermanium->Clear();
+  fHiCARI->Clear();
 #endif
   fhasdata = false;
   fcurrent_ts = 0;
@@ -134,7 +134,7 @@ void UnpackedEvent::Init(){
   ReadSimThresholds(fSett->SimThresholdFile());
   fGammaSim->Clear();
 #else
-  fGermaniumCalc->Clear();
+  fHiCARICalc->Clear();
 #endif
 }
 #ifndef SIMULATION
@@ -839,7 +839,7 @@ bool UnpackedEvent::SimThresholds(Miniball* mb){
 void UnpackedEvent::ClearEvent(){
   fhasdata = false;
   fMode3Event->Clear();
-  fGermanium->Clear();
+  fHiCARI->Clear();
 #ifdef SIMULATION
   fGretina->Clear();
   fGretinaCalc->Clear();
@@ -850,7 +850,7 @@ void UnpackedEvent::ClearEvent(){
   fMINOS->Clear();
 #endif
 #else
-  fGermaniumCalc->Clear();
+  fHiCARICalc->Clear();
 #endif
   return;
 }
@@ -912,12 +912,14 @@ void UnpackedEvent::CloseEvent(){
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
 #endif
 #else
-    fcal->BuildGermaniumCalc(fGermanium,fGermaniumCalc);
+    fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
 #endif
 
     if(fwcaltree){
-      fcaltr->Fill();
-      fncalentries++;
+      if(fHiCARICalc->GetMult()>0){
+	fcaltr->Fill();
+	fncalentries++;
+      }
     }
     if(fwcalhist){
 #ifdef SIMULATION
@@ -954,10 +956,10 @@ void UnpackedEvent::WriteLastEvent(){
     fcal->PrintCtrs();
 }
 /*! 
-  Create Germanium object from mode3 data
+  Create HiCARI object from mode3 data
 */
 void UnpackedEvent::MakeMode2(){
-  fGermanium->Clear();
+  fHiCARI->Clear();
   //cout << __PRETTY_FUNCTION__ << endl;
   //cout << " mult " << fMode3Event->GetMult() << endl;
   for(int i=0; i<fMode3Event->GetMult(); i++){
@@ -980,14 +982,14 @@ void UnpackedEvent::MakeMode2(){
 	  cout << " <- with net energy " << endl;
 	else
 	  cout << endl;
-	cout << fSett->GermaniumModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->GermaniumCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
+	cout << fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	
       }
       if(trace->GetEnergy()<fSett->RawThresh())
 	continue;
       bool tracking = false;
-      int mod = fSett->GermaniumModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
-      int cry = fSett->GermaniumCrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int mod = fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int cry = fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
       int chn = trace->GetChn();
       // for tracking detectors, channel will be 0-39 = chn+slot*10
       if(mod>9){
@@ -1005,7 +1007,7 @@ void UnpackedEvent::MakeMode2(){
 	  cout << " is tracking ";
 	cout << endl;
       }
-      GeCrystal* gehit = fGermanium->GetHit(mod,cry);
+      HiCARICrystal* gehit = fHiCARI->GetHit(mod,cry);
       if(gehit){
 	if((!tracking&&chn==9) || (tracking&&chn==39))
 	  gehit->InsertCore(mod, cry, trace->GetEnergy(), trace->GetTS());
@@ -1013,10 +1015,10 @@ void UnpackedEvent::MakeMode2(){
 	  gehit->InsertSegment(mod, cry, chn, trace->GetEnergy());	  
       }      
       else{
-	fGermanium->AddHit(new GeCrystal(mod, cry, chn, trace->GetEnergy(), trace->GetTS(), tracking));
+	fHiCARI->AddHit(new HiCARICrystal(mod, cry, chn, trace->GetEnergy(), trace->GetTS(), tracking));
       }      
     }//traces
   }//hits
   if(fSett->VLevel()>1)
-    fGermanium->PrintEvent();
+    fHiCARI->PrintEvent();
 }

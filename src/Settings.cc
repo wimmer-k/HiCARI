@@ -77,11 +77,11 @@ void Settings::ReadSettings(TEnv* set){
   }
   fTracking = set->GetValue("DoTracking",false);
 #else
-  fAveGePos = set->GetValue("Average.GePositions",defaultfile);
-  fGemapping = set->GetValue("Germanium.Mapping.Table",defaultfile);
-  fRawThresh = set->GetValue("Germanium.Raw.Thresh",0);
-  ReadGermaniumMappingTable();
-  fGecalfile = set->GetValue("Germanium.Calibration.File",defaultfile);
+  fHiCARIPos = set->GetValue("HiCARI.Positions",defaultfile);
+  fHiCARImapping = set->GetValue("HiCARI.Mapping.Table",defaultfile);
+  fRawThresh = set->GetValue("HiCARI.Raw.Thresh",0);
+  ReadHiCARIMappingTable();
+  fHiCARIcalfile = set->GetValue("HiCARI.Calibration.File",defaultfile);
   fBaselineLength = set->GetValue("BaseLine.Length",60);
   fTracePlots = set->GetValue("TracePlots",0);
 
@@ -170,11 +170,11 @@ void Settings::PrintSettings(){
 
   cout << "DoTracking\t"<< fTracking << endl;
 #else
-  cout << "Average.GePositions\t" << fAveGePos << endl;
-  cout << "Germanium.Mapping.Table\t"<< fGemapping << endl;
-  PrintGermaniumMappingTable();
-  cout << "Germanium.Raw.Thresh\t"<< fRawThresh << endl;
-  cout << "Germanium.Calibration.File\t"<< fGecalfile << endl;
+  cout << "HiCARI.Positions\t" << fHiCARIPos << endl;
+  cout << "HiCARI.Mapping.Table\t"<< fHiCARImapping << endl;
+  PrintHiCARIMappingTable();
+  cout << "HiCARI.Raw.Thresh\t"<< fRawThresh << endl;
+  cout << "HiCARI.Calibration.File\t"<< fHiCARIcalfile << endl;
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
   cout << "Trace.Plots\t"<< fTracePlots << endl;
   for(int i=0;i<6;i++)
@@ -202,18 +202,18 @@ void Settings::PrintSettings(){
 
 }
 #ifndef SIMULATION
-void Settings::ReadGermaniumMappingTable(){
-  TEnv* mapenv = new TEnv(fGemapping.c_str());
+void Settings::ReadHiCARIMappingTable(){
+  TEnv* mapenv = new TEnv(fHiCARImapping.c_str());
   for(int h=0;h<20;h++){
     for(int c=0;c<4;c++){
       for(int s=0;s<4;s++){
-	fGemap[h][c][s] = mapenv->GetValue(Form("Hole.%02d.Crystal.%d.Slot.%d",h,c,s),-1);
+	fHiCARImap[h][c][s] = mapenv->GetValue(Form("Hole.%02d.Crystal.%d.Slot.%d",h,c,s),-1);
       }
     }
   }
 }
 
-void Settings::PrintGermaniumMappingTable(){
+void Settings::PrintHiCARIMappingTable(){
   // for accessing first map 
   map<int, map<int, map<int, int> > >::iterator ftr;   
   // for accessing second map 
@@ -222,14 +222,14 @@ void Settings::PrintGermaniumMappingTable(){
   map<int, int>::iterator ptr;
 
   char* abc = "ABC";
-  for(ftr = fGemap.begin(); ftr != fGemap.end(); ftr++) {   
+  for(ftr = fHiCARImap.begin(); ftr != fHiCARImap.end(); ftr++) {   
     for(str = ftr->second.begin(); str != ftr->second.end(); str++) { 
       for(ptr = str->second.begin(); ptr != str->second.end(); ptr++) {
 	if(ptr->second>-1)
 	  cout << "Hole " << ftr->first 
 	       << ", Crystal " << str->first 
 	       << ", Slot " << ptr->first 
-	       << " is Ge " << ptr->second/10 << abc[ptr->second%10] << ", or " << fGemap[ftr->first][str->first][ptr->first] << ", or " << GermaniumModule(ftr->first,str->first,ptr->first)<< " and " << GermaniumCrystal(ftr->first,str->first,ptr->first) << endl; 
+	       << " is Ge " << ptr->second/10 << abc[ptr->second%10] << ", or " << fHiCARImap[ftr->first][str->first][ptr->first] << ", or " << HiCARIModule(ftr->first,str->first,ptr->first)<< " and " << HiCARICrystal(ftr->first,str->first,ptr->first) << endl; 
 	  
       } 
     } 

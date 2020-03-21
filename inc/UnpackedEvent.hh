@@ -33,7 +33,7 @@
 #include "MINOS.hh"
 #endif
 #else
-#include "Germanium.hh"
+#include "HiCARI.hh"
 #endif
 #include "Settings.hh"
 #include "RawHistograms.hh"
@@ -74,8 +74,8 @@ public:
     delete fMiniballCalc;
 #else
     delete fMode3Event;
-    delete fGermanium;
-    delete fGermaniumCalc;
+    delete fHiCARI;
+    delete fHiCARICalc;
 #endif
     delete frhist;
     delete fchist;
@@ -172,7 +172,7 @@ protected:
   //! Clears memory of current event.
   void ClearEvent();
 #ifndef SIMULATION
-  //! Make Germanium objects from mode3 data
+  //! Make HiCARI objects from mode3 data
   void MakeMode2();
 #endif
 
@@ -195,8 +195,8 @@ protected:
   GammaSim*     fGammaSim;
 #else
   Mode3Event *fMode3Event;
-  Germanium *fGermanium;
-  GermaniumCalc *fGermaniumCalc;
+  HiCARI *fHiCARI;
+  HiCARICalc *fHiCARICalc;
 #endif
 
   bool fhasdata;

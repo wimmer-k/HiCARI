@@ -1,5 +1,5 @@
-#ifndef __GERMANIUM_HH
-#define __GERMANIUM_HH
+#ifndef __HICARI_HH
+#define __HICARI_HH
 
 #include <iostream>
 #include <vector>
@@ -11,16 +11,16 @@
 
 using namespace std;
 
-class GeCrystal : public TObject {
+class HiCARICrystal : public TObject {
 public:
-  GeCrystal();
-  GeCrystal(int clu, int cry,  Short_t nr, double en,  long long int ts, bool tracking);
-  ~GeCrystal();
+  HiCARICrystal();
+  HiCARICrystal(int clu, int cry,  Short_t nr, double en,  long long int ts, bool tracking);
+  ~HiCARICrystal();
   void Clear();
   bool InsertCore(int clu, int cry, double en,  long long int ts);
   bool InsertSegment(int clu, int cry, Short_t nr, Float_t en);
 
-  void AddBackCrystal(GeCrystal* other);
+  void AddBackCrystal(HiCARICrystal* other);
   void AddSegment(Short_t segnr, Float_t segnen);
   void SetEnergy(Float_t val){fen = val;}
   void SetSegmentEn(int n, Float_t en){
@@ -82,27 +82,27 @@ protected:
   //! Indicates if it is a tracking detector
   bool ftracking;
 
-  ClassDef(GeCrystal, 1);
+  ClassDef(HiCARICrystal, 1);
 };
 
-class Germanium : public TObject {
+class HiCARI : public TObject {
 public:
-  Germanium();
-  ~Germanium(){Clear();}
+  HiCARI();
+  ~HiCARI(){Clear();}
   void Clear();
-  void AddHit(GeCrystal* cry);
+  void AddHit(HiCARICrystal* cry);
 
   int GetHitPattern(){return fhitpattern;}
   int GetMult(){return fmult;}
-  vector<GeCrystal*> GetHits(){return fcrystals;}
-  GeCrystal* GetHit(int n){
+  vector<HiCARICrystal*> GetHits(){return fcrystals;}
+  HiCARICrystal* GetHit(int n){
     if(n<fmult)
       return fcrystals[n];
     return NULL;
   }
-  GeCrystal* GetHit(int mod, int cry){
+  HiCARICrystal* GetHit(int mod, int cry){
     //cout << "trying to get " << mod << " , " << cry << endl;
-    for(vector<GeCrystal*>::iterator ges=fcrystals.begin(); ges!=fcrystals.end(); ges++){
+    for(vector<HiCARICrystal*>::iterator ges=fcrystals.begin(); ges!=fcrystals.end(); ges++){
       //cout << "finding " << (*ges)->GetCluster() << " , " << (*ges)->GetCrystal() << endl;
       if((*ges)->GetCluster() == mod && (*ges)->GetCrystal() == cry)
 	return (*ges);
@@ -115,19 +115,19 @@ protected:
   int fhitpattern;
   //! The crystal multiplicity of the event.
   Short_t fmult;
-  vector<GeCrystal*> fcrystals;
-  ClassDef(Germanium, 1);
+  vector<HiCARICrystal*> fcrystals;
+  ClassDef(HiCARI, 1);
 };
 
 
-class GeHitCalc : public TObject {
+class HiCARIHitCalc : public TObject {
 public:
-  GeHitCalc(){Clear();}
-  GeHitCalc(Short_t clu, Short_t cry, Short_t seg, TVector3 pos, Float_t en, long long int ts);
-  GeHitCalc(GeHitCalc* hit);
-  ~GeHitCalc(){Clear();}
+  HiCARIHitCalc(){Clear();}
+  HiCARIHitCalc(Short_t clu, Short_t cry, Short_t seg, TVector3 pos, Float_t en, long long int ts);
+  HiCARIHitCalc(HiCARIHitCalc* hit);
+  ~HiCARIHitCalc(){Clear();}
   void Clear();
-  void AddBackGeHitCalc(GeHitCalc* hit);
+  void AddBackHiCARIHitCalc(HiCARIHitCalc* hit);
   void SetDCEnergy(float dcen){fDCen = dcen;}
   void SetPosition(TVector3 in){fposition = in;}
 
@@ -160,29 +160,29 @@ public:
   long long int GetTS(){return ftimestamp;}
 
   //void DopplerCorrect(double beta, double z = 0){
-  //  fDCen = fen * GeHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
+  //  fDCen = fen * HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
   //}
   void DopplerCorrect(Settings* set){
-    fDCen = fen*GeHitCalc::DopplerCorrectionFactor(GetPosition(),set);
+    fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set);
   }
   //! Returns the Doppler-correction factor to correct the energy.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
 
   // void DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
-  //   fDCen = fen*GeHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg);
+  //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg);
   // }
   // //! Returns the Doppler-correction factor to correct the energy.
   // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg);
   
   // void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
-  //   fDCen = fen*GeHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,minos);
+  //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,minos);
   // }
   // //! Returns the Doppler-correction factor to correct the energy.
   // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   // //static double DopplerCorrectionFactor(TVector3 PosToTarget, double beta, double z);
 
   void Print(){
-    cout << "Germanium: cluster " << fcluster << "\tcrystal " << fcrystal << "\tsegment " << fsegment << "\ten " << fen << "\tmax hit " << fmaxhit << endl;
+    cout << "HiCARI: cluster " << fcluster << "\tcrystal " << fcrystal << "\tsegment " << fsegment << "\ten " << fen << "\tmax hit " << fmaxhit << endl;
     return;
   }
 
@@ -199,23 +199,24 @@ protected:
   double fmaxhit;
   long long int ftimestamp;
   
-  ClassDef(GeHitCalc, 1)
+  ClassDef(HiCARIHitCalc, 1)
 };
 
-//! The calibrated Germanium object.
+//! The calibrated HiCARI object.
 /*!
-  Holds all calibrated information of Germanium.
+  Holds all calibrated information of HiCARI.
   Holds three lists, keeping the crystal-by-crystal information,
     the add-backed information
  */
-class GermaniumCalc : public TObject {
+class HiCARICalc : public TObject {
 public:
-  GermaniumCalc(){
+  HiCARICalc(){
     Clear();
   }
   void Clear(){
+    ftimestamp = -1;
     fmult = 0;
-    for(vector<GeHitCalc*>::iterator cry=fhits.begin(); cry!=fhits.end(); cry++){
+    for(vector<HiCARIHitCalc*>::iterator cry=fhits.begin(); cry!=fhits.end(); cry++){
       delete *cry;
     }
     fhits.clear();
@@ -223,30 +224,34 @@ public:
   }
   void ClearAddBack(){
     fmult_ab = 0;
-    for(vector<GeHitCalc*>::iterator cry=fhits_ab.begin(); cry!=fhits_ab.end(); cry++){
+    for(vector<HiCARIHitCalc*>::iterator cry=fhits_ab.begin(); cry!=fhits_ab.end(); cry++){
       delete *cry;
     }
     fhits_ab.clear();
   }
-  void AddHit(GeHitCalc* cry){
+  void AddHit(HiCARIHitCalc* cry){
     fhits.push_back(cry);
     fmult++;
+    
+    ftimestamp = cry->GetTS();
+    if(ftimestamp<0)
+      cout << cry->GetEnergy() << endl;
   }
-  void AddHitAB(GeHitCalc* cry){
-    fmult_ab++;
+  void AddHitAB(HiCARIHitCalc* cry){
     fhits_ab.push_back(cry);
+    fmult_ab++;
   }
   void DopplerCorrect(Settings* set);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   void Print(){
     cout << " singles mult " <<fmult << endl;
-    for(vector<GeHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
+    for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
       (*hit)->Print();
     }
     if(fmult_ab>0){
       cout << "addback mult " <<fmult_ab <<endl;
-      for(vector<GeHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
+      for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
 	(*hit)->Print();
       }
     }
@@ -254,26 +259,28 @@ public:
   }
   
   int GetMult(){return fmult;}
-  vector<GeHitCalc*> GetHits(){return fhits;}
-  GeHitCalc* GetHit(int n){
+  vector<HiCARIHitCalc*> GetHits(){return fhits;}
+  HiCARIHitCalc* GetHit(int n){
     if(n<fmult)
       return fhits[n];
     return NULL;
   }
-  vector<GeHitCalc*> GetHitsAB(){return fhits_ab;}
+  vector<HiCARIHitCalc*> GetHitsAB(){return fhits_ab;}
   int GetMultAB(){return fmult_ab;}
-  GeHitCalc* GetHitAB(int n){
+  HiCARIHitCalc* GetHitAB(int n){
     if(n<fmult_ab)
       return fhits_ab[n];
     return NULL;
   }
+  long long int GetTS(){return ftimestamp;}
 
 protected:
+  long long int ftimestamp;
   Short_t fmult;
-  vector<GeHitCalc*> fhits;
+  vector<HiCARIHitCalc*> fhits;
   Short_t fmult_ab;
-  vector<GeHitCalc*> fhits_ab;
-  ClassDef(GermaniumCalc, 1);
+  vector<HiCARIHitCalc*> fhits_ab;
+  ClassDef(HiCARICalc, 1);
 };
 
 #endif

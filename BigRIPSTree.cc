@@ -51,7 +51,6 @@ int main(int argc, char* argv[]){
   char* InputFile;
   char* OutputFile = NULL;
   char* SetFile = NULL;
-  char* CutFile = NULL;
   int nmax = 0;
   int vl = 0;
 

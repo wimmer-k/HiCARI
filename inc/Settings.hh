@@ -78,14 +78,14 @@ public:
   void SetTracking(bool tracking){fTracking = tracking;}
   bool GetTracking(){return fTracking;}
 #else
-  const char* AveGePos(){return fAveGePos.c_str();}
-  const char* GermaniumMappingTable(){return fGemapping.c_str();}
-  void ReadGermaniumMappingTable();
-  void PrintGermaniumMappingTable();
-  int GermaniumModule(int hole, int cry, int slot){return fGemap[hole][cry][slot]/10;}
-  int GermaniumCrystal(int hole, int cry, int slot){return fGemap[hole][cry][slot]%10;}
+  const char* HiCARIPos(){return fHiCARIPos.c_str();}
+  const char* HiCARIMappingTable(){return fHiCARImapping.c_str();}
+  void ReadHiCARIMappingTable();
+  void PrintHiCARIMappingTable();
+  int HiCARIModule(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]/10;}
+  int HiCARICrystal(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
-  const char* GermaniumCalibrationFile(){return fGecalfile.c_str();}
+  const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
 
@@ -165,11 +165,11 @@ protected:
   bool fTracking;
 
 #else
-  string fAveGePos;
-  string fGemapping;
-  map<int, map<int, map<int, int> > > fGemap;
+  string fHiCARIPos;
+  string fHiCARImapping;
+  map<int, map<int, map<int, int> > > fHiCARImap;
   int fRawThresh;
-  string fGecalfile;
+  string fHiCARIcalfile;
   int fBaselineLength;
   bool fTracePlots;
 

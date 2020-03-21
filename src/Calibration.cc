@@ -37,8 +37,8 @@ Calibration::Calibration(Settings* setting, int event){
   ftracking = new Tracking((TrackSettings*)setting);
 #else
   fRand = new TRandom();
-  ReadGePositions(fSett->AveGePos());
-  ReadGeCalibration(fSett->GermaniumCalibrationFile());
+  ReadHiCARIPositions(fSett->HiCARIPos());
+  ReadHiCARICalibration(fSett->HiCARICalibrationFile());
 #endif
   
 }
@@ -82,37 +82,37 @@ void Calibration::ReadMBPositions(const char* filename){
   }
 }
 #else
-void Calibration::ReadGePositions(const char* filename){
-  TEnv *averagePos = new TEnv(filename);
+void Calibration::ReadHiCARIPositions(const char* filename){
+  TEnv *positions = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
       for(int s=0;s<40;s++){
 	// double theta, phi;
-	// theta = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Theta",m,c,s),0.0);
-	// phi   = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Phi",m,c,s),0.0);
-	// fGepositions[m][c][s].SetMagThetaPhi(1,theta,phi);
+	// theta = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Theta",m,c,s),0.0);
+	// phi   = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Phi",m,c,s),0.0);
+	// fHiCARIpositions[m][c][s].SetMagThetaPhi(1,theta,phi);
 	//changed to x,y,z, makes it easier to deal with MINOS and position resolutions
 	double x,y,z;
-	x = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.X",m,c,s),0.0);
-	y = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Y",m,c,s),0.0);
-	z = averagePos->GetValue(Form("Germanium.Clu%d.Cry%d.Seg%d.Z",m,c,s),0.0);
-	fGepositions[m][c][s].SetXYZ(x,y,z);
+	x = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",m,c,s),0.0);
+	y = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",m,c,s),0.0);
+	z = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",m,c,s),0.0);
+	fHiCARIpositions[m][c][s].SetXYZ(x,y,z);
       }
     }
   }
 }
-void Calibration::ReadGeCalibration(const char* filename){
+void Calibration::ReadHiCARICalibration(const char* filename){
   //cout << "filename " << filename << endl;
   TEnv *calF = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
-      fGeCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),0.0);
-      fGeCoreOffs[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",m,c),0.0);      
+      fCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),0.0);
+      fCoreOffs[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",m,c),0.0);      
       for(int s=0;s<40;s++){
-	fGeSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),0.0);
-	fGeSegOffs[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Offset",m,c,s),0.0);
+	fSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),0.0);
+	fSegOffs[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Offset",m,c,s),0.0);
       }
-      //cout << fGeCoreGain[m][c] << "\t" << fGeCoreOffs[m][c] << endl;
+      //cout << fCoreGain[m][c] << "\t" << fCoreOffs[m][c] << endl;
     }
   }
 }
@@ -418,7 +418,7 @@ void Calibration::BuildMINOS(MINOS* minos){
   minos->SetBeta(beta);
 }
 #else
-void Calibration::BuildGermaniumCalc(Germanium* in, GermaniumCalc* out){
+void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
   //cout <<__PRETTY_FUNCTION__ << endl;
   out->Clear();
   if(fverbose)
@@ -426,15 +426,15 @@ void Calibration::BuildGermaniumCalc(Germanium* in, GermaniumCalc* out){
   if(in->GetMult()==0){
     return;
   }
-  vector<GeCrystal*> cr= in->GetHits();
-  for(vector<GeCrystal*>::iterator hit = cr.begin(); hit!=cr.end(); hit++){
+  vector<HiCARICrystal*> cr= in->GetHits();
+  for(vector<HiCARICrystal*>::iterator hit = cr.begin(); hit!=cr.end(); hit++){
     Short_t clu = (*hit)->GetCluster();
     Short_t cry = (*hit)->GetCrystal();
     Short_t seg = (*hit)->GetMaxSegNr();
     long long int ts = (*hit)->GetTS();
     double en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
-    en = en*fGeCoreGain[clu][cry] + fGeCoreOffs[clu][cry];
-    out->AddHit(new GeHitCalc(clu,cry,seg,fGepositions[clu][cry][seg],en,ts));
+    en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
+    out->AddHit(new HiCARIHitCalc(clu,cry,seg,fHiCARIpositions[clu][cry][seg],en,ts));
 
   }
   if(fverbose)
@@ -443,43 +443,43 @@ void Calibration::BuildGermaniumCalc(Germanium* in, GermaniumCalc* out){
   if (fAddBackType == 0){
     // do nothing
   } else if (fAddBackType == 1){
-    AddBackGermaniumCluster(out);
+    AddBackHiCARICluster(out);
   } else if (fAddBackType == 2 || fAddBackType == 3){
-    AddBackGermaniumEverything(out);
+    AddBackHiCARIEverything(out);
   } else {
     cout << "unknown addback type: " << fAddBackType << endl;
   }
 }
-void Calibration::AddBackGermaniumCluster(GermaniumCalc* gr){
+void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
   //All hits within a cluster 
-  vector<GeHitCalc*> hits= gr->GetHits();
-  for(vector<GeHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
-    GeHitCalc* hit = *iter;
+  vector<HiCARIHitCalc*> hits= gr->GetHits();
+  for(vector<HiCARIHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
+    HiCARIHitCalc* hit = *iter;
     bool addbacked = false;
     for (int j=0; j<gr->GetMultAB(); j++){
       if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster()){
-	gr->GetHitAB(j)->AddBackGeHitCalc(hit);
+	gr->GetHitAB(j)->AddBackHiCARIHitCalc(hit);
 	addbacked = true;
 	break;
       }
     }
     if (!addbacked){
-      gr->AddHitAB(new GeHitCalc(*hit));
+      gr->AddHitAB(new HiCARIHitCalc(*hit));
     }
   }
 }
 
-void Calibration::AddBackGermaniumEverything(GermaniumCalc* gr){
+void Calibration::AddBackHiCARIEverything(HiCARICalc* gr){
   //All hits within Gretina are summed.
-  vector<GeHitCalc*> hits = gr->GetHits();
+  vector<HiCARIHitCalc*> hits = gr->GetHits();
   if(hits.size() < 1)
     return;
-  for(vector<GeHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
-    GeHitCalc* hit = *iter;
+  for(vector<HiCARIHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
+    HiCARIHitCalc* hit = *iter;
     if(iter==hits.begin()){
-      gr->AddHitAB(new GeHitCalc(*hit));
+      gr->AddHitAB(new HiCARIHitCalc(*hit));
     } else {
-      gr->GetHitAB(0)->AddBackGeHitCalc(hit);
+      gr->GetHitAB(0)->AddBackHiCARIHitCalc(hit);
     }
   }
 
@@ -492,7 +492,7 @@ void Calibration::ResetCtrs(){
   fzerodegctr = 0;
   fminosctr = 0;
 #else
-  fgectr = 0;
+  fHiCARIctr = 0;
 #endif
 }
 
@@ -505,6 +505,6 @@ void Calibration::PrintCtrs(){
   cout << "fzerodegctr  \t" << fzerodegctr  << endl;
   cout << "fminosctr  \t" << fminosctr  << endl;
 #else
-  cout << "fgectr  \t" << fgectr  << endl;
+  cout << "fHiCARIctr  \t" << fHiCARIctr  << endl;
 #endif
 }

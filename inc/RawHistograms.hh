@@ -32,7 +32,7 @@
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
 #else
-#include "Germanium.hh"
+#include "HiCARI.hh"
 #endif
 #include "Trace.hh"
 
@@ -58,7 +58,7 @@ public:
   void FillHistograms(Gretina* gr, Miniball* mb, ZeroDeg* zd, MINOS* mi);
   void FillHistograms(Mode3Event* m3e, Miniball* mb, Gretina* gr);
 #else
-  void FillHistograms(Mode3Event* m3e, Germanium* ge);
+  void FillHistograms(Mode3Event* m3e, HiCARI* ge);
 #endif
 
   void Fill(string name,int bins, double low, double high, double value){
@@ -93,7 +93,7 @@ protected:
   void FillMode2Histograms(Gretina* gr);
 #endif
   void FillMode3Histograms(Mode3Event* m3e);
-  void FillGermaniumHistograms(Germanium* ge);
+  void FillHiCARIHistograms(HiCARI* ge);
 
   TList* fhlist;
   map<string,TH1*> fhmap;

@@ -1,8 +1,8 @@
 VerboseLevel:			0
 EventTimeDiff:			500
 
-Germanium.Mapping.Table:	/home/gamma20/HiCARI/settings/mapping.dat
-Germanium.Calibration.File:	/home/gamma20/HiCARI/settings/MBcal0319.dat
-Germanium.Raw.Thresh:		3000
+HiCARI.Mapping.Table:	/home/gamma20/HiCARI/settings/mapping.dat
+HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/MBcal0319.dat
+HiCARI.Raw.Thresh:		3000
 BaseLine.Length:		60
 TracePlots:	   		1

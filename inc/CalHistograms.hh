@@ -33,7 +33,7 @@
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
 #else
-#include "Germanium.hh"
+#include "HiCARI.hh"
 #endif
 
 using namespace std;
@@ -71,7 +71,7 @@ public:
 #ifdef SIMULATION
   void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi);
 #else
-  void FillHistograms(GermaniumCalc* ge);
+  void FillHistograms(HiCARICalc* ge);
 #endif
 
   void FillI(string name,int bins, double low, double high, double value){

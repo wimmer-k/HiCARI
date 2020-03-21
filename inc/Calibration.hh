@@ -26,7 +26,7 @@
 #include "MINOS.hh"
 #include "Tracking.hh"
 #else
-#include "Germanium.hh"
+#include "HiCARI.hh"
 #endif
 
 using namespace std;
@@ -47,10 +47,10 @@ public:
   //! Read the Miniball coordinates, average first interactions from file
   void ReadMBPositions(const char* filename);
 #else
-  //! Read the Germanium coordinates, average first interactions from file
-  void ReadGePositions(const char* filename);
-  //! Read the Germanium calibration parameters
-  void ReadGeCalibration(const char* filename);
+  //! Read the HiCARI coordinates, average first interactions from file
+  void ReadHiCARIPositions(const char* filename);
+  //! Read the HiCARI calibration parameters
+  void ReadHiCARICalibration(const char* filename);
 #endif
 
 #ifdef SIMULATION
@@ -78,10 +78,10 @@ public:
   //! Construct tracked gamma events
   void GammaTrack(GretinaCalc* gr, GretinaEvent* gt);
 #else
-  //! Build the GermaniumCalc object, given a raw Germanium object.
-  void BuildGermaniumCalc(Germanium* in, GermaniumCalc* out);
-  void AddBackGermaniumCluster(GermaniumCalc* gr);
-  void AddBackGermaniumEverything(GermaniumCalc* gr);
+  //! Build the HiCARICalc object, given a raw HiCARI object.
+  void BuildHiCARICalc(HiCARI* in, HiCARICalc* out);
+  void AddBackHiCARICluster(HiCARICalc* gr);
+  void AddBackHiCARIEverything(HiCARICalc* gr);
 #endif
 
   void PrintCtrs();
@@ -100,12 +100,12 @@ private:
   TVector3 fMBpositions[MBCLUST+CLOVERS][CRYST][SEGS];//cluster, crystal, segment
 #else
   TRandom* fRand;
-  //! averaged miniball first interaction positions
-  TVector3 fGepositions[12][4][40];//cluster, crystal, segment
-  double fGeCoreGain[12][4];
-  double fGeCoreOffs[12][4];
-  double fGeSegGain[12][4][40];
-  double fGeSegOffs[12][4][40];
+  //! HiCARI positions
+  TVector3 fHiCARIpositions[12][4][40];//cluster, crystal, segment
+  double fCoreGain[12][4];
+  double fCoreOffs[12][4];
+  double fSegGain[12][4][40];
+  double fSegOffs[12][4][40];
 #endif
 
   int fAddBackType;
@@ -118,7 +118,7 @@ private:
   
   Tracking* ftracking;
 #else
-  Long64_t fgectr;
+  Long64_t fHiCARIctr;
 #endif
 };
 

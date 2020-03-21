@@ -34,9 +34,10 @@ ifeq ($(SWITCH),-DSIMULATION)
     O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
     HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
 else
-    LIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/Trace.o build/TraceDictionary.o build/Germanium.o build/GermaniumDictionary.o
+    LIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
     BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
-    O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o 
+    O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
+    MO_FILES = build/BuildEvents.o 
     HO_FILES = build/RawHistograms.o build/CalHistograms.o 
 endif
 
@@ -46,11 +47,11 @@ ifeq ($(USING_ROOT_6),1)
 ifeq ($(SWITCH),-DSIMULATION)
 	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
 else
-	EXTRAS = GermaniumDictionary_rdict.pcm SettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
+	EXTRAS = HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
 endif
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) Unpack Raw_histos BigRIPSTree #SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) UnpackMode3 Raw_histos BigRIPSTree Merge #SimCalculate Sim_histos
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -60,7 +61,7 @@ Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
-Unpack: Unpack.cc $(O_FILES)
+UnpackMode3: UnpackMode3.cc $(O_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
 
@@ -71,6 +72,10 @@ Raw_histos: Raw_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 BigRIPSTree: BigRIPSTree.cc $(LIB_DIR)/libBigRIPS.so
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) -o $(BIN_DIR)/$@ 
+
+Merge: Merge.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so $(MO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
 
 $(LIB_DIR)/libHiCARI.so: $(LIB_O_FILES)

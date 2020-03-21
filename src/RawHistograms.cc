@@ -60,7 +60,7 @@ void RawHistograms::FillHistograms(Mode3Event* m3e, Miniball* mb, Gretina* gr){
   }
 }
 #else
-void RawHistograms::FillHistograms(Mode3Event* m3e, Germanium* ge){
+void RawHistograms::FillHistograms(Mode3Event* m3e, HiCARI* ge){
   fentry++;
   //Determine which of the systems are present in the data.
   bool hasmode3 = m3e->GetMult()!=0;
@@ -71,7 +71,7 @@ void RawHistograms::FillHistograms(Mode3Event* m3e, Germanium* ge){
     FillMode3Histograms(m3e);
   }
   if(hasgerma){
-    FillGermaniumHistograms(ge);
+    FillHiCARIHistograms(ge);
   }
 }
 #endif
@@ -124,11 +124,11 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
   }
 }
 
-void RawHistograms::FillGermaniumHistograms(Germanium* ge){
+void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
   Fill("h_mult",30,0,30,ge->GetMult());
   for(int i=0; i<ge->GetMult(); i++){
     int segs = 6;
-    GeCrystal* cr = ge->GetHit(i);
+    HiCARICrystal* cr = ge->GetHit(i);
     if(cr->IsTracking())
       segs = 40;
     Fill("h_cluster",12,0,12,cr->GetCluster());

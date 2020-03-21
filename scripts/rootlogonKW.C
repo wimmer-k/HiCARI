@@ -1,3 +1,4 @@
+#include "TVector3.h"
 using namespace std;
 
 void rootlogonKW() {

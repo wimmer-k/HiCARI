@@ -73,6 +73,6 @@ void CalHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
 
 }
 #else
-void CalHistograms::FillHistograms(GermaniumCalc* ge){
+void CalHistograms::FillHistograms(HiCARICalc* ge){
 }
 #endif

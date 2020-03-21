@@ -27,7 +27,7 @@
 #include "Gretina.hh"
 #include "Miniball.hh"
 #else
-#include "Germanium.hh"
+#include "HiCARI.hh"
 #endif
 #include "Trace.hh"
 #include "RawHistograms.hh"
@@ -96,8 +96,8 @@ int main(int argc, char* argv[]){
   tr->SetBranchAddress("gretina",&gr);
   tr->SetBranchAddress("miniball",&mb);
 #else
-  Germanium* ge = new Germanium;
-  tr->SetBranchAddress("germanium",&ge);
+  HiCARI* hi = new HiCARI;
+  tr->SetBranchAddress("HiCARI",&hi);
 #endif
   Mode3Event* m3r = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&m3r);
@@ -133,7 +133,7 @@ int main(int argc, char* argv[]){
     gr->Clear();
     mb->Clear();
 #else
-    ge->Clear();
+    hi->Clear();
 #endif
     m3r->Clear();
 
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]){
 #ifdef SIMULATION
     hists->FillHistograms(m3r,mb,gr);
 #else
-    hists->FillHistograms(m3r,ge);
+    hists->FillHistograms(m3r,hi);
 #endif
 
     if(i%10000 == 0){
