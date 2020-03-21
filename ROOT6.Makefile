@@ -4,6 +4,7 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
+TARTSYS=/home/gamma20/exp/anaroot
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs)
@@ -13,9 +14,9 @@ ROOTINC     := -I$(shell root-config --incdir)
 CPP         = g++
 CFLAGS	    = -Wall -Wno-long-long -g -O3 $(ROOTCFLAGS) -fPIC -D_FILE_OFFSET_BITS=64 -MMD
 
-INCLUDES    = -I./inc 
-BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) 
-LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI
+INCLUDES    = -I./inc -I$(TARTSYS)/include
+BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib  -lXMLParser
+LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lBigRIPS
 
 #SWITCH = -DBACKGROUND
 SWITCH = -USIMULATION
@@ -34,6 +35,7 @@ ifeq ($(SWITCH),-DSIMULATION)
     HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
 else
     LIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/Trace.o build/TraceDictionary.o build/Germanium.o build/GermaniumDictionary.o
+    BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
     O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o 
     HO_FILES = build/RawHistograms.o build/CalHistograms.o 
 endif
@@ -44,11 +46,11 @@ ifeq ($(USING_ROOT_6),1)
 ifeq ($(SWITCH),-DSIMULATION)
 	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
 else
-	EXTRAS = GermaniumDictionary_rdict.pcm SettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
+	EXTRAS = GermaniumDictionary_rdict.pcm SettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
 endif
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so  $(EXTRAS) Unpack Raw_histos #SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) Unpack Raw_histos BigRIPSTree #SimCalculate Sim_histos
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -66,8 +68,16 @@ Raw_histos: Raw_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
+BigRIPSTree: BigRIPSTree.cc $(LIB_DIR)/libBigRIPS.so
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) -o $(BIN_DIR)/$@ 
+
 
 $(LIB_DIR)/libHiCARI.so: $(LIB_O_FILES)
+	@echo "Making $@"
+	@$(CPP) $(LFLAGS) -o $@ $^ -lc
+
+$(LIB_DIR)/libBigRIPS.so: $(BRLIB_O_FILES)
 	@echo "Making $@"
 	@$(CPP) $(LFLAGS) -o $@ $^ -lc
 

@@ -2,6 +2,7 @@ using namespace std;
 
 void rootlogonKW() {
   gSystem->Load("libHiCARI");
+  gSystem->Load("libBigRIPS");
   gROOT->ProcessLine(".L ~/HiCARI/scripts/FitWindow/fitwindow.C+");
   cout<<"loaded mouseclick fitting / "<<flush;
   gROOT->ProcessLine("window()");

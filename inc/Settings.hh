@@ -15,12 +15,20 @@
 
 using namespace std;
 
+/*!
+  A container for the analysis settings
+*/
 class Settings : public TObject {
 public:
-  Settings(){};//default ctor
+  //! default constructor
+  Settings(){};
+  //! constructor
   Settings(const char* filename);
+  //! constructor
   Settings(vector<char*> files);
-  ~Settings(){};
+  //! dummy destructor
+  ~Settings(){
+  };
   
   void ReadSettings(TEnv* set);
   void PrintSettings();
@@ -80,6 +88,39 @@ public:
   const char* GermaniumCalibrationFile(){return fGecalfile.c_str();}
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
+
+  //! Get the beta for the Doppler correction
+  double Beta(){return fbeta;}
+  //! Get the BigRIPS PPAC xml file
+  char *PPACFile(){return (char*)fPPACfile.c_str();}
+  //! Get the BigRIPS PPAC Default xml file
+  char *PPACDefFile(){return (char*)fPPACdefaultfile.c_str();}
+  //! Get the BigRIPS plastic xml file
+  char *PlasticFile(){return (char*)fplasticfile.c_str();}
+  //! Get the BigRIPS IC xml file
+  char *ICFile(){return (char*)fICfile.c_str();}
+  //! Get the BigRIPS Focalplane xml file
+  char *FocalFile(){return (char*)ffocalfile.c_str();}
+  //! Get the BigRIPS/ZeroDegree matrix file
+  char *MatrixFile(int i){return (char*)fmatrixfile[i].c_str();}
+  //! Get the time of flight offsets for the A/Q
+  double TimeOffset(int b){return ftoffset[b];}
+
+  //! Get the alignment shift (X0) for the PPAC3 at F8 after the target
+  double PPAC3PositionX0(){return fppac3align[0];}
+  //! Get the alignment shift (Y0) for the PPAC3 at F8 after the target
+  double PPAC3PositionY0(){return fppac3align[1];}
+  //! Get the alignment shift (X1) for the PPAC3 at F8 after the target
+  double PPAC3PositionX1(){return fppac3align[2];}
+  //! Get the alignment shift (Y1) for the PPAC3 at F8 after the target
+  double PPAC3PositionY1(){return fppac3align[3];}
+  //! Get the target position with respect to nominal focus
+  double TargetPosition(){return ftargetposition;}
+  //! Get the gate on the F5X position
+  double F5XGate(int i){return ff5xgate[i];}
+  //! Get the gate on the change in delta for charge changes
+  double DeltaGate(int i){return fdeltagate[i];}
+
 #endif
 
 protected:
@@ -131,6 +172,31 @@ protected:
   string fGecalfile;
   int fBaselineLength;
   bool fTracePlots;
+
+  //! BigRIPS PPAC xml file
+  string fPPACfile;
+  //! BigRIPS PPAC default xml file
+  string fPPACdefaultfile;
+  //! BigRIPS Plastic xml file
+  string fplasticfile;
+  //! BigRIPS IC xml file
+  string fICfile;
+  //! BigRIPS Focalplane xml file
+  string ffocalfile;
+  //! BigRIPS/ZeroDegree matrix files
+  string fmatrixfile[4];
+  //! time offsets for A/Q calibration
+  double ftoffset[6];
+  //! averge beta for Doppler correction
+  double fbeta;
+  //! alignment of PPAc at F8
+  double fppac3align[4];
+  //! target position with respect to nominal focus
+  double ftargetposition;
+  //! gate on the F5X position
+  double ff5xgate[2];
+  //! gate on the delta change
+  double fdeltagate[4];
 #endif 
 
   ClassDef(Settings, 1)

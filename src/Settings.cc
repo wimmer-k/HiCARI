@@ -84,6 +84,32 @@ void Settings::ReadSettings(TEnv* set){
   fGecalfile = set->GetValue("Germanium.Calibration.File",defaultfile);
   fBaselineLength = set->GetValue("BaseLine.Length",60);
   fTracePlots = set->GetValue("TracePlots",0);
+
+  fPPACfile = set->GetValue("BigRIPS.PPAC.File","/home/gamma20/exp/db/db/BigRIPSPPAC.xml");
+  fPPACdefaultfile = set->GetValue("BigRIPS.PPAC.Def.File","/home/gamma20/exp/db/db/BigRIPSPPAC.xml");
+  fplasticfile = set->GetValue("BigRIPS.Plastic.File","/home/gamma20/exp/db/db/BigRIPSPlastic.xml");
+  fICfile = set->GetValue("BigRIPS.IC.File","/home/gamma20/exp/db/db/BigRIPSIC.xml");
+  ffocalfile = set->GetValue("BigRIPS.Focal.File","/home/gamma20/exp/db/db/FocalPlane.xml");
+  fmatrixfile[0] = set->GetValue("Matrix.35.File","/home/gamma20/exp/db/matrix/mat1.mat");
+  fmatrixfile[1] = set->GetValue("Matrix.57.File","/home/gamma20/exp/db/matrix/mat2.mat");
+  fmatrixfile[2] = set->GetValue("Matrix.89.File","/home/gamma20/exp/db/matrix/F8F9_LargeAccAchr.mat");
+  fmatrixfile[3] = set->GetValue("Matrix.911.File","/home/gamma20/exp/db/matrix/F9F11_LargeAccAchr.mat");
+  for(int i=0;i<6;i++)
+    ftoffset[i] = set->GetValue(Form("TOF.Offset.%d",i),300.0);
+
+  fbeta = set->GetValue("AverageBeta",0.5);
+
+  fppac3align[0] = set->GetValue("PPAC3.Align.X0",0.0);
+  fppac3align[1] = set->GetValue("PPAC3.Align.Y0",0.0);
+  fppac3align[2] = set->GetValue("PPAC3.Align.X1",0.0);
+  fppac3align[3] = set->GetValue("PPAC3.Align.Y1",0.0);
+  ftargetposition = set->GetValue("Target.Position",129.5);
+  ff5xgate[0] = set->GetValue("F5X.Gate.Low", -200.);
+  ff5xgate[1] = set->GetValue("F5X.Gate.High", 200.);
+  fdeltagate[2] = set->GetValue("Delta.Gate.Low", -999.);
+  fdeltagate[3] = set->GetValue("Delta.Gate.High", 999.);
+  fdeltagate[0] = set->GetValue("Delta.Gate.BR.Low", -999.);
+  fdeltagate[1] = set->GetValue("Delta.Gate.BR.High", 999.);
 #endif
   
 
@@ -151,7 +177,27 @@ void Settings::PrintSettings(){
   cout << "Germanium.Calibration.File\t"<< fGecalfile << endl;
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
   cout << "Trace.Plots\t"<< fTracePlots << endl;
+  for(int i=0;i<6;i++)
+    cout << Form("TOF offset.%d\t",i) << ftoffset[i] << endl;
 
+  cout << "BigRIPS.PPAC.File\t"	<< fPPACfile << endl;
+  cout << "BigRIPS.PPAC.Def.File\t"	<< fPPACdefaultfile << endl;
+  cout << "BigRIPS.Plastic.File\t" << fplasticfile << endl;
+  cout << "BigRIPS.IC.File\t" << fICfile << endl;
+  cout << "BigRIPS.Focal.File\t" << ffocalfile	<< endl;
+  cout << "Matrix.35.File\t" << fmatrixfile[0] << endl;
+  cout << "Matrix.57.File\t" << fmatrixfile[1] << endl;
+  cout << "Matrix.89.File\t" << fmatrixfile[2] << endl;
+  cout << "Matrix.911.File\t" << fmatrixfile[3] << endl;
+
+  cout << "beta\t" << fbeta << endl;  
+  cout << "align PPAC 3 x0 = " << fppac3align[0] << " , y0 = " << fppac3align[1] << endl;
+  cout << "align PPAC 3 x1 = " << fppac3align[2] << " , y1 = " << fppac3align[3] << endl;
+  cout << "target position\t" << ftargetposition << endl;
+  cout << "gate on F5X position\t" <<ff5xgate[0] << " to " << ff5xgate[1] << endl;
+  cout << "gate on delta for charge changes BR\t" <<fdeltagate[0] << " to " << fdeltagate[1] << endl;
+  cout << "gate on delta for charge changes ZD\t" <<fdeltagate[2] << " to " << fdeltagate[3] << endl;
+ 
 #endif
 
 }
