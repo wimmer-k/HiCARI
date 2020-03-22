@@ -30,7 +30,11 @@ public:
   Short_t GetID(){return fcluster*4 + fcrystalid;}
   Short_t GetCluster(){return fcluster;}
   Short_t GetCrystal(){return fcrystalid;}
-  Float_t GetEnergy(){return fen;}
+  Float_t GetEnergy(){
+    if(IsSuperClo())
+      return -fen;
+    return fen;
+  }
 
   Float_t GetSegmentSum();
   int GetMult(){return fmult;}
@@ -55,7 +59,9 @@ public:
   
   bool GetTraking(){return ftracking;}
   bool IsTracking(){return ftracking;}
-
+  
+  bool IsMiniball(){return (fcluster>-1 && fcluster<8);}
+  bool IsSuperClo(){return (fcluster> 7 && fcluster<10);}
   void PrintEvent();
 
 protected:
@@ -102,10 +108,10 @@ public:
   }
   HiCARICrystal* GetHit(int mod, int cry){
     //cout << "trying to get " << mod << " , " << cry << endl;
-    for(vector<HiCARICrystal*>::iterator ges=fcrystals.begin(); ges!=fcrystals.end(); ges++){
-      //cout << "finding " << (*ges)->GetCluster() << " , " << (*ges)->GetCrystal() << endl;
-      if((*ges)->GetCluster() == mod && (*ges)->GetCrystal() == cry)
-	return (*ges);
+    for(vector<HiCARICrystal*>::iterator his=fcrystals.begin(); his!=fcrystals.end(); his++){
+      //cout << "finding " << (*his)->GetCluster() << " , " << (*his)->GetCrystal() << endl;
+      if((*his)->GetCluster() == mod && (*his)->GetCrystal() == cry)
+	return (*his);
     }
     return NULL;
   }
@@ -235,7 +241,7 @@ public:
     
     ftimestamp = cry->GetTS();
     if(ftimestamp<0)
-      cout << cry->GetEnergy() << endl;
+      cout << "invalid time stamp? " << cry->GetEnergy() << endl;
   }
   void AddHitAB(HiCARIHitCalc* cry){
     fhits_ab.push_back(cry);

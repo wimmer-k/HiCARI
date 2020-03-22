@@ -433,6 +433,7 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     Short_t seg = (*hit)->GetMaxSegNr();
     long long int ts = (*hit)->GetTS();
     double en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
+    //cout << "calibrating hit clu = " << clu << ", cry " << cry << ", seg " << seg << ", en " << en << ", ts " << ts << endl;
     en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
     out->AddHit(new HiCARIHitCalc(clu,cry,seg,fHiCARIpositions[clu][cry][seg],en,ts));
 

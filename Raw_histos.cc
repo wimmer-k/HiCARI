@@ -97,7 +97,7 @@ int main(int argc, char* argv[]){
   tr->SetBranchAddress("miniball",&mb);
 #else
   HiCARI* hi = new HiCARI;
-  tr->SetBranchAddress("HiCARI",&hi);
+  tr->SetBranchAddress("hicari",&hi);
 #endif
   Mode3Event* m3r = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&m3r);

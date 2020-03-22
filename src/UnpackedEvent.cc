@@ -985,7 +985,8 @@ void UnpackedEvent::MakeMode2(){
 	cout << fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	
       }
-      if(trace->GetEnergy()<fSett->RawThresh())
+      int en = trace->GetEnergy();
+      if(abs(en)<fSett->RawThresh())
 	continue;
       bool tracking = false;
       int mod = fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
@@ -1009,13 +1010,19 @@ void UnpackedEvent::MakeMode2(){
       }
       HiCARICrystal* gehit = fHiCARI->GetHit(mod,cry);
       if(gehit){
-	if((!tracking&&chn==9) || (tracking&&chn==39))
-	  gehit->InsertCore(mod, cry, trace->GetEnergy(), trace->GetTS());
-	else
-	  gehit->InsertSegment(mod, cry, chn, trace->GetEnergy());	  
-      }      
+	//cout << "hit exists, ";
+	if((!tracking&&chn==9) || (tracking&&chn==39)){
+	  //cout << "inserting core" << endl;
+	  gehit->InsertCore(mod, cry, en, trace->GetTS());
+	}
+	else{
+	  //cout << "inserting segment " << endl;
+	  gehit->InsertSegment(mod, cry, chn, en);	  
+	}      
+      }
       else{
-	fHiCARI->AddHit(new HiCARICrystal(mod, cry, chn, trace->GetEnergy(), trace->GetTS(), tracking));
+	//cout << "creating new hit " << endl;
+	fHiCARI->AddHit(new HiCARICrystal(mod, cry, chn, en, trace->GetTS(), tracking));
       }      
     }//traces
   }//hits

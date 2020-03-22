@@ -221,7 +221,7 @@ void Settings::PrintHiCARIMappingTable(){
   // for accessing inner map 
   map<int, int>::iterator ptr;
 
-  char* abc = "ABC";
+  char* abc = "ABCD";
   for(ftr = fHiCARImap.begin(); ftr != fHiCARImap.end(); ftr++) {   
     for(str = ftr->second.begin(); str != ftr->second.end(); str++) { 
       for(ptr = str->second.begin(); ptr != str->second.end(); ptr++) {

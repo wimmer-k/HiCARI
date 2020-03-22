@@ -1,3 +1,4 @@
+##P3
 Hole.07.Crystal.0.Slot.0:       100
 Hole.07.Crystal.0.Slot.1:       100
 Hole.07.Crystal.0.Slot.2:       100
@@ -11,26 +12,47 @@ Hole.07.Crystal.2.Slot.1:       102
 Hole.07.Crystal.2.Slot.2:       102
 Hole.07.Crystal.2.Slot.3:       102
 
+##MB
+#bank08
 Hole.07.Crystal.3.Slot.0:	00
 Hole.07.Crystal.3.Slot.1:	01
 Hole.07.Crystal.3.Slot.2:	02
 Hole.07.Crystal.3.Slot.3:	10
+#bank09
 Hole.11.Crystal.0.Slot.0:	11
 Hole.11.Crystal.0.Slot.1:	12
 Hole.11.Crystal.0.Slot.2:	20
 Hole.11.Crystal.0.Slot.3:	21
+#bank10
 Hole.11.Crystal.1.Slot.0:	22
 Hole.11.Crystal.1.Slot.1:	30
 Hole.11.Crystal.1.Slot.2:	31
 Hole.11.Crystal.1.Slot.3:	32
+#bank11
 Hole.11.Crystal.2.Slot.0:	40
 Hole.11.Crystal.2.Slot.1:	41
 Hole.11.Crystal.2.Slot.2:	42
 Hole.11.Crystal.2.Slot.3:	50
+#bank12
 Hole.11.Crystal.3.Slot.0:	51
 Hole.11.Crystal.3.Slot.1:	52
-Hole.11.Crystal.3.Slot.2:       66
-Hole.11.Crystal.3.Slot.3:       66
+Hole.11.Crystal.3.Slot.2:       60
+Hole.11.Crystal.3.Slot.3:       61
+#bank13
+Hole.16.Crystal.0.Slot.0:	62
+Hole.16.Crystal.0.Slot.1:	70
+Hole.16.Crystal.0.Slot.2:	71
+Hole.16.Crystal.0.Slot.3:	72
+
+##CS
+#bank14
+
+#bank15
+Hole.16.Crystal.2.Slot.0:       90
+Hole.16.Crystal.2.Slot.1:       91
+Hole.16.Crystal.2.Slot.2:       92
+Hole.16.Crystal.2.Slot.3:       93
+
 
 ##dummy
 Hole.15.Crystal.0.Slot.0:	60
