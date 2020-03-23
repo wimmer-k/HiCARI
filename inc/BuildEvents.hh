@@ -91,6 +91,8 @@ private:
 
   //! BigRIPS timestamp
   unsigned long long int fBRts;
+  //! bigrips checkADC
+  int fcheckADC;
   //! bigrips data
   Beam* fbeam;
   //! bigrips focal plane information
@@ -102,6 +104,8 @@ private:
 
   //! local copy of BigRIPS timestamp
   unsigned long long int flocalBRts;
+  //! local copy of checkADC
+  int flocalcheckADC;
   //! local copy of bigrips data
   Beam* flocalbeam;
   //! local copy of bigrips focal plane information

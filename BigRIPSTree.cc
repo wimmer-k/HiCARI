@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
     return 4;
   }
   Settings* set = new Settings(SetFile);
-
+  set->SetVLevel(vl);
   TArtStoreManager* sman = TArtStoreManager::Instance();
 
   TArtEventStore* estore = new TArtEventStore();
@@ -139,6 +139,8 @@ int main(int argc, char* argv[]){
   //branch for trig bit
   int trigbit = 0;
   tr->Branch("trigbit",&trigbit,"trigbit/I");
+  int checkADC = 0;
+  tr->Branch("checkADC",&checkADC,"checkADC/I");
   //branch for original event number
   int eventnumber = 0;
   tr->Branch("eventnumber",&eventnumber,"eventnumber/I");
@@ -164,6 +166,7 @@ int main(int argc, char* argv[]){
   while(estore->GetNextEvent() && !signal_received){
     //clearing
     trigbit = 0;
+    checkADC = -1;
     timestamp = 0;
     eventnumber++;
     for(int f=0;f<NFPLANES;f++){
@@ -181,14 +184,27 @@ int main(int argc, char* argv[]){
     TArtRawEventObject* rawevent = (TArtRawEventObject*)sman->FindDataContainer("RawEvent");
     int rawevent_number = rawevent->GetEventNumber();
     rawevent_timestamp = rawevent->GetTimeStamp();
-    for(int i=0;i<rawevent -> GetNumSeg();i++){
-      TArtRawSegmentObject* seg = rawevent -> GetSegment(i);
-      Int_t fpl = seg -> GetFP();
-      Int_t detector = seg -> GetDetector();
+    for(int i=0; i<rawevent->GetNumSeg();i++){
+      TArtRawSegmentObject* seg = rawevent->GetSegment(i);
+      Int_t fpl = seg->GetFP();
+      Int_t detector = seg->GetDetector();
+      //cout << fpl << "\t " << detector << endl;
+      if(fpl==8 && detector ==21){
+	if(seg->GetNumData()<1)
+	  break;
+	TArtRawDataObject* d = seg->GetData(0);
+	checkADC = d->GetVal();
+	if(set->VLevel()>1){
+	  for(int j=0; j < seg->GetNumData(); j++){
+	    TArtRawDataObject* d = seg->GetData(j);
+	    cout << j << "\t" << d->GetVal() << endl;
+	  }
+	}//vlevel
+      }
       if(fpl==63 && detector==10){
-        for(int j=0; j < seg -> GetNumData(); j++){
-          TArtRawDataObject* d = seg -> GetData(j);
-          trigbit = d -> GetVal();
+        for(int j=0; j < seg->GetNumData(); j++){
+          TArtRawDataObject* d = seg->GetData(j);
+          trigbit = d->GetVal();
         }
       }
     }
@@ -201,7 +217,7 @@ int main(int argc, char* argv[]){
       cout << "timestamp was reset, this TS = " << timestamp << ", last one was " << last_timestamp << " difference " << timestamp-last_timestamp << endl;
     }
     //
-    if(vl>-1)
+    if(vl>1)
       cout << "tb = "<< trigbit << "\t bit = " << bit << "\t TS(event info) = " << timestamp << "\t diff to last" << timestamp-last_timestamp << "\t eventnumber = "  << eventnumber << "\t rawevent eventnumber = " << rawevent_number << "\t rawevent timestamp = " << rawevent_timestamp << endl;
     last_timestamp = timestamp;
     

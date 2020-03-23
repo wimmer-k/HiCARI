@@ -26,6 +26,7 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
   fnbytes = 0;
 
   fBRts = 0;
+  fcheckADC = -1;
   fbeam = new Beam;
   for(unsigned short f=0;f<NFPLANES;f++){
     ffp[f] = new FocalPlane;
@@ -35,6 +36,7 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
 
   //local copy for intermediate storing
   flocalBRts = 0;
+  flocalcheckADC = -1;
   flocalbeam = new Beam;
   for(unsigned short f=0;f<NFPLANES;f++){
     flocalfp[f] = new FocalPlane;
@@ -44,6 +46,7 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
 
   if(fhasBR){
     fBRtr->SetBranchAddress("timestamp",&flocalBRts);
+    fBRtr->SetBranchAddress("checkADC",&flocalcheckADC);
     fBRtr->SetBranchAddress("beam",&flocalbeam);
     for(unsigned short f=0;f<NFPLANES;f++){
       fBRtr->SetBranchAddress(Form("fp%d",fpID[f]),&flocalfp[f]);
@@ -58,6 +61,7 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
   }
     
   fmtr = new TTree("tr","merged tree");
+  fmtr->Branch("checkADC",&fcheckADC,320000);
   fmtr->Branch("beam",&fbeam,320000);
   for(unsigned short f=0;f<NFPLANES;f++){
     fmtr->Branch(Form("fp%d",fpID[f]),&ffp[f],320000);
@@ -93,8 +97,10 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
       cout << "last HiCARI timestamp: " << flocalhicari->GetTS() << endl;;
     }
   }
+
   flocalBRts = 0;
   flocalHIts = 0;
+  flocalcheckADC = -1;
   flocalbeam->Clear();
   for(unsigned short f=0;f<NFPLANES;f++){
     flocalfp[f]->Clear();
@@ -111,7 +117,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
 bool BuildEvents::ReadBigRIPS(){
   if(fverbose>1)
     cout << __PRETTY_FUNCTION__ << endl;
-
+  
+  flocalcheckADC = -1;
   flocalbeam->Clear();
   for(unsigned short f=0;f<NFPLANES;f++){
     flocalfp[f]->Clear();
@@ -233,6 +240,7 @@ void BuildEvents::CloseEvent(){
   }
 
   fBRts = 0;
+  fcheckADC = -1;
   fbeam->Clear();
   for(unsigned short f=0;f<NFPLANES;f++){
     ffp[f]->Clear();
@@ -279,6 +287,7 @@ bool BuildEvents::Merge(){
       CloseEvent();
     }
     fBRts = flocalBRts;
+    fcheckADC = flocalcheckADC;
     fbeam = (Beam*)flocalbeam->Clone();
     for(unsigned short f=0;f<NFPLANES;f++){
       ffp[f] = (FocalPlane*)flocalfp[f]->Clone(Form("fp_%d",f));

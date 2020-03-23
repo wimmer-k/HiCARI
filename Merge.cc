@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
   BuildEvents* evts = new BuildEvents();
   evts->SetVerbose(vl);
   evts->SetWindow(set->EventTimeDiff());
-  evts->SetCoincMode(0); // for p-gamma coinc  
+  evts->SetCoincMode(0); // for p-gamma coinc choose 1  
   evts->Init(trbigrips,trhicari);
   evts->SetLastEvent(LastEvent);
 

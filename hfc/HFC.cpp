@@ -226,7 +226,7 @@ HFC::flush()
 void
 HFC::printstatus()
 {
-  cerr << "Status of HFC object:" 
+  cerr << endl << "Status of HFC object:" 
        << endl
        << "Event memory depth: " << m_memdepth 
        << endl

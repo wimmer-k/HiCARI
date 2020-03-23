@@ -166,7 +166,10 @@ int main(int argc, char* argv[]){
       bytes_read += header[1]*sizeof(char);
       int error = evt->DecodeMode3(cBuf, header[1], ts);
       if(error){
-      	cout << "An error ("<<error<<") occured at buffer nr " << buffers << " in DecodeMode3() while processing file: " << InputFile << ". Continuing ..." << endl;
+	if(error==1)
+	  cout << GREEN << "end of file reached " << DEFCOLOR << endl;
+	else
+	  cout << "An error ("<<error<<") occured at buffer nr " << buffers << " in DecodeMode3() while processing file: " << InputFile << ". Continuing ..." << endl;
       	//continue;
       }
     }

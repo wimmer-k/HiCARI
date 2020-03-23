@@ -169,16 +169,22 @@ int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
 
     // 1st & 2nd word are 0xaaaa
     if( (*wBuf != 0xaaaa) && (*(wBuf+1) != 0xaaaa) ) {
-      cerr << "0xAAAA header missing" << endl;
+      cerr << RED << "0xAAAA header missing" << DEFCOLOR <<  endl;
       return 9;
     } else if(fvl>1){
       cout << "UnpackedEvent: " << "-----------------------------next 0xaaaa aaaa" << endl;
     }
 
     wBuf+=2;
+    if(fvl>2){
+      cout << "UnpackedEvent: " << *wBuf << " " << (hex) << *wBuf << (dec) << endl;
+      cout << "UnpackedEvent: " << *(wBuf+1) << " " << (hex) << *(wBuf+1) << (dec) << endl;
+    }
 
     int length  = (*wBuf & 0x07ff) * 2 + 2;
     len -= length;
+    if(len<0)
+      return 1;
 
     //Read out from buffer and build current trace.
     curTrace = DecodeTrace(&wBuf,length,gts);
@@ -188,8 +194,8 @@ int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
  
     static bool errorShown = false;
     if(!errorShown && (curTrace.GetLED() < fcurrent_ts)){
-      cout << "UnpackedEvent: " << "Found events that are not in order" << endl;
-      cout << "UnpackedEvent: " << "Have you run this through GEB_HFC first?" << endl;
+      cout << RED << "UnpackedEvent: " << "Found events that are not in order" << endl;
+      cout << "UnpackedEvent: " << "Have you run this through GEB_HFC first?" << DEFCOLOR << endl;
       errorShown = true;
     }
 
@@ -234,6 +240,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
 
 
   curTrace.SetTS(gts);
+  //cout << "length - 16 = " << length << " - " << 16 << " = " <<  length - 16 << endl;
   curTrace.SetLength(length-16);
   // this length includes aaaa aaaa until next aaaa aaaa.
   // trace length is this minus 16
@@ -999,7 +1006,22 @@ void UnpackedEvent::MakeMode2(){
       }
 
       if(mod<0 || cry<0){
-	cout << "invalid module or crystal for hole = " << trace->GetHole()<<", crys = "<<trace->GetCrystal()<<", slot = "<<trace->GetSlot()<< endl;
+	cout << RED << "invalid module or crystal for hole = " << trace->GetHole()<<", crys = "<<trace->GetCrystal()<<", slot = "<<trace->GetSlot()<< DEFCOLOR<<endl;
+	cout << "Trace " << j << " Length " << trace->GetLength() <<
+	  "\tEnergy " << trace->GetEnergy() <<
+	  "\tBoard " << trace->GetBoard() <<
+	  "\tSlot " << trace->GetSlot() <<
+	  "\tChannel " << trace->GetChn() <<
+	  "\tHole " << trace->GetHole() <<
+	  "\tCrystal " << trace->GetCrystal() <<
+	  "\tTimeStamp " << trace->GetTS();
+	if(trace->GetChn()==9)
+	  cout << " <- CC " << endl;
+	else if(trace->GetEnergy()>1000)
+	  cout << " <- with net energy " << endl;
+	else
+	  cout << endl;
+	cout << fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	continue;
       }
       if(fSett->VLevel()>1){

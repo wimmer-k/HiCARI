@@ -38,7 +38,7 @@ else
     BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
     O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
     MO_FILES = build/BuildEvents.o 
-    HO_FILES = build/RawHistograms.o build/CalHistograms.o 
+    HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
 endif
 
 
@@ -76,6 +76,10 @@ BigRIPSTree: BigRIPSTree.cc $(LIB_DIR)/libBigRIPS.so
 Merge: Merge.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so $(MO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
+
+Merge_histos: Merge_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(HO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
 
 $(LIB_DIR)/libHiCARI.so: $(LIB_O_FILES)

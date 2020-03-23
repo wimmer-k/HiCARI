@@ -351,7 +351,7 @@ int main(int argc, char** argv)
 		
     }
 
-  cerr << "HFC: calling flush" << endl; cerr.flush();
+  cerr << endl << "HFC: calling flush" << endl; cerr.flush();
   hfc_list.flush();
   hfc_list.printstatus();
 

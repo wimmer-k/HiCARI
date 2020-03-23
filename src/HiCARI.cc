@@ -16,6 +16,8 @@ HiCARICrystal::HiCARICrystal(int clu, int cry, Short_t nr, double en,  long long
   }
   else{
     AddSegment(nr,en);
+    fen=0;
+    ftimestamp = ts;
   }
 }
 

@@ -11,8 +11,10 @@
 #include "TEnv.h"
 #include "TVector3.h"
 
+#ifdef SIMULATION
 #include "Simdefs.h"
-
+#endif
+#include "Globaldefs.h"
 using namespace std;
 
 /*!
@@ -36,6 +38,7 @@ public:
 
   const string InputFile(){return fInputFiles[0];}
 
+  void SetVLevel(int vl){fVerboseLevel = vl;}
   int VLevel(){return fVerboseLevel;}
   int EventTimeDiff(){return fEventTimeDiff;}
   Float_t TargetX(){return ftargetX;}
