@@ -339,20 +339,28 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     cout << "UnpackedEvent: " << "cfd points " << curTrace.GetCFD(0) << " and " << curTrace.GetCFD(1) << endl;
 
   //cout << "UnpackedEvent: " << curTrace.GetTrace().size() << " size" << endl;
-  for(int i=0; i<(length-16); i+=2){
-    //cout << "UnpackedEvent: " << i <<"\t"<< *(wBuf) << endl;
-    curTrace.SetTrace(i ,-(short) *(wBuf+1)+512 );
-    curTrace.SetTrace(i+1 ,-(short) *(wBuf)+512 );
-    wBuf++;
-    wBuf++;
+  if(fSett->IgnoreTrace()){
     if(fvl>5){
-      cout << "UnpackedEvent: " << i <<"\t"<< curTrace.GetTrace()[i] << endl;
-      cout << "UnpackedEvent: " << i+1 <<"\t"<< curTrace.GetTrace()[i+1] << endl;
+      cout << "ignoring trace jumping forward by " << (length-16) << " words" << endl;
+    }
+    wBuf+=(length-16);
+  }
+  else{
+    for(int i=0; i<(length-16); i+=2){
+      //cout << "UnpackedEvent: " << i <<"\t"<< *(wBuf) << endl;
+      curTrace.SetTrace(i ,-(short) *(wBuf+1)+512 );
+      curTrace.SetTrace(i+1 ,-(short) *(wBuf)+512 );
+      wBuf++;
+      wBuf++;
+      if(fvl>5){
+	cout << "UnpackedEvent: " << i <<"\t"<< curTrace.GetTrace()[i] << endl;
+	cout << "UnpackedEvent: " << i+1 <<"\t"<< curTrace.GetTrace()[i+1] << endl;
+      }
     }
   }
 
   if(fvl>2){
-    cout << " these next ones should be aaaa and aaaa again " << endl;
+    cout << " these next ones should be 0 and 0" << endl;
     cout << "UnpackedEvent: " << *wBuf << " " << (hex) << *wBuf << (dec) << endl;
     cout << "UnpackedEvent: " << *(wBuf+1) << " " << (hex) << *(wBuf+1) << (dec) << endl;
   }
@@ -1030,22 +1038,22 @@ void UnpackedEvent::MakeMode2(){
 	  cout << " is tracking ";
 	cout << endl;
       }
-      HiCARICrystal* gehit = fHiCARI->GetHit(mod,cry);
-      if(gehit){
+      HiCARIHit* hit = fHiCARI->GetHit(mod,cry);
+      if(hit){
 	//cout << "hit exists, ";
 	if((!tracking&&chn==9) || (tracking&&chn==39)){
 	  //cout << "inserting core" << endl;
-	  gehit->InsertCore(mod, cry, en, trace->GetTS());
+	  hit->InsertCore(mod, cry, en, trace->GetTS());
 	}
 	else{
 	  //cout << "inserting segment " << endl;
-	  gehit->InsertSegment(mod, cry, chn, en);	  
-	}      
+	  hit->InsertSegment(mod, cry, chn, en);
+	}
       }
       else{
 	//cout << "creating new hit " << endl;
-	fHiCARI->AddHit(new HiCARICrystal(mod, cry, chn, en, trace->GetTS(), tracking));
-      }      
+	fHiCARI->AddHit(new HiCARIHit(mod, cry, chn, en, trace->GetTS(), tracking));
+      }
     }//traces
   }//hits
   if(fSett->VLevel()>1)

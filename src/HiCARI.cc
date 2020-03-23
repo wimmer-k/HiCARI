@@ -1,13 +1,13 @@
 #include "HiCARI.hh"
 
-HiCARICrystal::HiCARICrystal(){
+HiCARIHit::HiCARIHit(){
   Clear();
 }
 
-HiCARICrystal::HiCARICrystal(int clu, int cry, Short_t nr, double en,  long long int ts, bool tracking){
+HiCARIHit::HiCARIHit(int clu, int cry, Short_t nr, double en,  long long int ts, bool tracking){
   Clear();
   fcluster = clu;
-  fcrystalid = cry;
+  fcrystal = cry;
   ftracking = tracking;
   if( (!tracking&&nr==9) || (tracking&&nr==39)){
     fen = en;
@@ -21,9 +21,9 @@ HiCARICrystal::HiCARICrystal(int clu, int cry, Short_t nr, double en,  long long
   }
 }
 
-bool HiCARICrystal::InsertCore(int clu, int cry, double en,  long long int ts){
-  if(fcluster != clu || fcrystalid != cry){
-    cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystalid <<"!="<< cry << endl;
+bool HiCARIHit::InsertCore(int clu, int cry, double en,  long long int ts){
+  if(fcluster != clu || fcrystal != cry){
+    cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystal <<"!="<< cry << endl;
     return false;
   }
   fen = en;
@@ -32,9 +32,9 @@ bool HiCARICrystal::InsertCore(int clu, int cry, double en,  long long int ts){
   return true;
 }
 
-bool HiCARICrystal::InsertSegment(int clu, int cry, Short_t nr, Float_t en){
-  if(fcluster != clu || fcrystalid != cry){
-    cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystalid <<"!="<< cry << endl;
+bool HiCARIHit::InsertSegment(int clu, int cry, Short_t nr, Float_t en){
+  if(fcluster != clu || fcrystal != cry){
+    cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystal <<"!="<< cry << endl;
     return false;
   }
   AddSegment(nr,en);
@@ -42,13 +42,13 @@ bool HiCARICrystal::InsertSegment(int clu, int cry, Short_t nr, Float_t en){
 }
 
 
-HiCARICrystal::~HiCARICrystal(){
+HiCARIHit::~HiCARIHit(){
   Clear();
 }
 
-void HiCARICrystal::Clear(){
+void HiCARIHit::Clear(){
   fcluster = -1;
-  fcrystalid = -1;
+  fcrystal = -1;
   fen = sqrt(-1.0);
   fmult = 0;
   fmaxsinglecrystal = sqrt(-1);
@@ -61,7 +61,7 @@ void HiCARICrystal::Clear(){
 
 //Returns the sum of the segment energies
 //Should be approximately equal to fen.
-Float_t HiCARICrystal::GetSegmentSum(){
+Float_t HiCARIHit::GetSegmentSum(){
   Float_t sum = 0;
   for(vector<Float_t>::iterator iter=fsegen.begin(); iter!=fsegen.end(); iter++){
     sum += (*iter);
@@ -70,10 +70,10 @@ Float_t HiCARICrystal::GetSegmentSum(){
 }
 
 
-void HiCARICrystal::AddBackCrystal(HiCARICrystal* other){
+void HiCARIHit::AddBackHit(HiCARIHit* other){
   if(other->GetEnergy() > fmaxsinglecrystal){
     fcluster = other->GetCluster();
-    fcrystalid = other->GetCrystal();
+    fcrystal = other->GetCrystal();
     fmaxsinglecrystal =other->GetEnergy();
     ftimestamp = other->GetTS();
   }
@@ -83,7 +83,7 @@ void HiCARICrystal::AddBackCrystal(HiCARICrystal* other){
   }
 }
 
-void HiCARICrystal::AddSegment(Short_t nr, Float_t en){
+void HiCARIHit::AddSegment(Short_t nr, Float_t en){
   if(isnan(fmaxsegen) || en>fmaxsegen){
     fmaxsegen = en;
     fmaxsegnr = nr;
@@ -93,9 +93,9 @@ void HiCARICrystal::AddSegment(Short_t nr, Float_t en){
   fmult++;
 }
 
-void HiCARICrystal::PrintEvent(){
+void HiCARIHit::PrintEvent(){
   cout << __PRETTY_FUNCTION__ << endl;
-  cout << "cluster " << fcluster << ", crystal " << fcrystalid << ", ts " << ftimestamp<< endl;
+  cout << "cluster " << fcluster << ", crystal " << fcrystal << ", ts " << ftimestamp<< endl;
   cout << "energy " << fen << " keV, nr of segment hits " << fmult << endl;
   for(UShort_t i=0;i<fsegen.size();i++)
     cout << fsegnr[i] << ": " << fsegen[i] << " keV" << endl;
@@ -110,14 +110,14 @@ HiCARI::HiCARI(){
 void HiCARI::Clear(){
   fhitpattern = 0;
   fmult = 0;
-  for(vector<HiCARICrystal*>::iterator cry=fcrystals.begin(); cry!=fcrystals.end(); cry++){
+  for(vector<HiCARIHit*>::iterator cry=fhits.begin(); cry!=fhits.end(); cry++){
     delete *cry;
   }
-  fcrystals.clear();
+  fhits.clear();
 }
 
-void HiCARI::AddHit(HiCARICrystal* cry){
-  fcrystals.push_back(cry);
+void HiCARI::AddHit(HiCARIHit* cry){
+  fhits.push_back(cry);
   fmult++;
   fhitpattern |= 1 << (int)cry->GetCluster();
 }
@@ -126,8 +126,8 @@ void HiCARI::PrintEvent(){
   cout << __PRETTY_FUNCTION__ << endl;
   cout << "mult " << fmult << endl;
   cout << "hitpattern " << fhitpattern << endl;
-  for(UShort_t i=0;i<fcrystals.size();i++)
-    fcrystals[i]->PrintEvent();
+  for(UShort_t i=0;i<fhits.size();i++)
+    fhits[i]->PrintEvent();
 }
 
 HiCARIHitCalc::HiCARIHitCalc(Short_t clu, Short_t cry, Short_t seg, TVector3 pos, Float_t en, long long int ts){

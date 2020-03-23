@@ -11,7 +11,7 @@
 #include "TH2F.h"
 
 #include "/home/gamma20/HiCARI/inc/Trace.hh"
-char* filename = "~/rootfiles/run0351.root";
+char* filename = "~/rootfiles/run0376.root";
 int verbose = 0;
 int frontBL = 70;
 Double_t flinear(Double_t *x, Double_t *par);

@@ -81,6 +81,7 @@ void Settings::ReadSettings(TEnv* set){
   }
   fTracking = set->GetValue("DoTracking",false);
 #else
+  fIgnoreTrace = set->GetValue("HiCARI.IgnoreTrace",0);
   fHiCARIPos = set->GetValue("HiCARI.Positions",defaultfile);
   fHiCARImapping = set->GetValue("HiCARI.Mapping.Table",defaultfile);
   fRawThresh = set->GetValue("HiCARI.Raw.Thresh",0);
@@ -179,6 +180,7 @@ void Settings::PrintSettings(){
 
   cout << "DoTracking\t"<< fTracking << endl;
 #else
+  cout << "HiCARI.IgnoreTrace\t" << fIgnoreTrace << endl;
   cout << "HiCARI.Positions\t" << fHiCARIPos << endl;
   cout << "HiCARI.Mapping.Table\t"<< fHiCARImapping << endl;
   PrintHiCARIMappingTable();

@@ -75,7 +75,7 @@ int main(int argc, char* argv[]){
   //get the run number from the filename
   int run;
   TString ifname(InputFile);
-  ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/Global.dat.gz but works also for Global.dat
+  ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/GlobalRaw.dat
   //cout << "ifname.Data() " << ifname.Data() << endl;
   sscanf(ifname.Data(),"run%04d/%*s",&run);
 

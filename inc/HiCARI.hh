@@ -11,25 +11,25 @@
 
 using namespace std;
 
-class HiCARICrystal : public TObject {
+class HiCARIHit : public TObject {
 public:
-  HiCARICrystal();
-  HiCARICrystal(int clu, int cry,  Short_t nr, double en,  long long int ts, bool tracking);
-  ~HiCARICrystal();
+  HiCARIHit();
+  HiCARIHit(int clu, int cry,  Short_t nr, double en,  long long int ts, bool tracking);
+  ~HiCARIHit();
   void Clear();
   bool InsertCore(int clu, int cry, double en,  long long int ts);
   bool InsertSegment(int clu, int cry, Short_t nr, Float_t en);
 
-  void AddBackCrystal(HiCARICrystal* other);
+  void AddBackHit(HiCARIHit* other);
   void AddSegment(Short_t segnr, Float_t segnen);
   void SetEnergy(Float_t val){fen = val;}
   void SetSegmentEn(int n, Float_t en){
       fsegen[n] = en;
   }
 
-  Short_t GetID(){return fcluster*4 + fcrystalid;}
+  Short_t GetID(){return fcluster*4 + fcrystal;}
   Short_t GetCluster(){return fcluster;}
-  Short_t GetCrystal(){return fcrystalid;}
+  Short_t GetCrystal(){return fcrystal;}
   Float_t GetEnergy(){
     if(IsSuperClo())
       return -fen;
@@ -68,7 +68,7 @@ protected:
   //! The cluster number (1-30) of the hit.
   Short_t fcluster;
   //! The crystal number (0-3) of the hit
-  Short_t fcrystalid;
+  Short_t fcrystal;
   //! The energy (keV) of the hit.
   Float_t fen;
   //! The maximum single crystal energy, for addback
@@ -88,7 +88,7 @@ protected:
   //! Indicates if it is a tracking detector
   bool ftracking;
 
-  ClassDef(HiCARICrystal, 1);
+  ClassDef(HiCARIHit, 1);
 };
 
 class HiCARI : public TObject {
@@ -96,19 +96,19 @@ public:
   HiCARI();
   ~HiCARI(){Clear();}
   void Clear();
-  void AddHit(HiCARICrystal* cry);
+  void AddHit(HiCARIHit* cry);
 
   int GetHitPattern(){return fhitpattern;}
   int GetMult(){return fmult;}
-  vector<HiCARICrystal*> GetHits(){return fcrystals;}
-  HiCARICrystal* GetHit(int n){
+  vector<HiCARIHit*> GetHits(){return fhits;}
+  HiCARIHit* GetHit(int n){
     if(n<fmult)
-      return fcrystals[n];
+      return fhits[n];
     return NULL;
   }
-  HiCARICrystal* GetHit(int mod, int cry){
+  HiCARIHit* GetHit(int mod, int cry){
     //cout << "trying to get " << mod << " , " << cry << endl;
-    for(vector<HiCARICrystal*>::iterator his=fcrystals.begin(); his!=fcrystals.end(); his++){
+    for(vector<HiCARIHit*>::iterator his=fhits.begin(); his!=fhits.end(); his++){
       //cout << "finding " << (*his)->GetCluster() << " , " << (*his)->GetCrystal() << endl;
       if((*his)->GetCluster() == mod && (*his)->GetCrystal() == cry)
 	return (*his);
@@ -121,7 +121,7 @@ protected:
   int fhitpattern;
   //! The crystal multiplicity of the event.
   Short_t fmult;
-  vector<HiCARICrystal*> fcrystals;
+  vector<HiCARIHit*> fhits;
   ClassDef(HiCARI, 1);
 };
 

@@ -81,6 +81,7 @@ public:
   void SetTracking(bool tracking){fTracking = tracking;}
   bool GetTracking(){return fTracking;}
 #else
+  bool IgnoreTrace(){return fIgnoreTrace;}
   const char* HiCARIPos(){return fHiCARIPos.c_str();}
   const char* HiCARIMappingTable(){return fHiCARImapping.c_str();}
   void ReadHiCARIMappingTable();
@@ -182,6 +183,7 @@ protected:
   bool fTracking;
 
 #else
+  bool fIgnoreTrace;
   string fHiCARIPos;
   string fHiCARImapping;
   map<int, map<int, map<int, int> > > fHiCARImap;

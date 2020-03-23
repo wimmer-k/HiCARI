@@ -53,6 +53,11 @@ Hole.16.Crystal.2.Slot.1:       91
 Hole.16.Crystal.2.Slot.2:       92
 Hole.16.Crystal.2.Slot.3:       93
 
+#BigRIPS timing
+#bank16 
+Hole.16.Crystal.3.Slot.3:       99
+
+
 
 ##dummy
 Hole.15.Crystal.0.Slot.0:	60

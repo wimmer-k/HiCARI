@@ -128,20 +128,20 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
   Fill("h_mult",30,0,30,ge->GetMult());
   for(int i=0; i<ge->GetMult(); i++){
     int segs = 6;
-    HiCARICrystal* cr = ge->GetHit(i);
-    if(cr->IsTracking())
+    HiCARIHit* hit = ge->GetHit(i);
+    if(hit->IsTracking())
       segs = 40;
-    if(cr->IsSuperClo())
+    if(hit->IsSuperClo())
       segs = 8;
-    Fill("h_cluster",12,0,12,cr->GetCluster());
-    Fill("h_crystal",4,0,4,cr->GetCrystal());
-    Fill("h_crystal_vs_cluster",12,0,12,cr->GetCluster(),4,0,4,cr->GetCrystal());
-    Fill(Form("h_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),5000,0,1e6,cr->GetEnergy());
-    Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),1000,0,1e6,cr->GetEnergy(),1000,0,1e6,cr->GetSegmentSum());
-    Fill(Form("h_segmult_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetMult());
+    Fill("h_cluster",12,0,12,hit->GetCluster());
+    Fill("h_crystal",4,0,4,hit->GetCrystal());
+    Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
+    Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e6,hit->GetEnergy(),1000,0,1e6,hit->GetSegmentSum());
+    Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetMult());
     
-    for(int j=0; j<cr->GetMult(); j++){
-      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",cr->GetCluster(),cr->GetCrystal()),segs,0,segs,cr->GetSegmentNr(j),5000,0,1e6,cr->GetSegmentEn(j));
+    for(int j=0; j<hit->GetMult(); j++){
+      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr(j),5000,0,1e6,hit->GetSegmentEn(j));
     }
   }
 }

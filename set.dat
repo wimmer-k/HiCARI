@@ -6,3 +6,4 @@ HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/MBcal0319.dat
 HiCARI.Raw.Thresh:		3000
 BaseLine.Length:		60
 TracePlots:	   		1
+HiCARI.IgnoreTrace:		1

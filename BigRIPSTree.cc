@@ -67,6 +67,14 @@ int main(int argc, char* argv[]){
     exit(1);
   }
   cout<<"input file:"<<InputFile<<endl;
+  //get the run number from the filename
+  int run;
+  TString ifname(InputFile);
+  ifname.Remove(0,ifname.Length()-9); // Last 9 characters: nameXXXX.ridf
+  //cout << "ifname.Data() " << ifname.Data() << endl;
+  sscanf(ifname.Data(),"%04d.ridf",&run);
+  //cout << run << endl;
+
   cout<<"output file: "<<OutputFile<< endl;
   if(SetFile == NULL)
     cerr<<"No settings file! Using standard values"<<endl;
@@ -81,6 +89,8 @@ int main(int argc, char* argv[]){
   }
   Settings* set = new Settings(SetFile);
   set->SetVLevel(vl);
+  set->SetBRRunNumber(run);
+  set->Write("settings",TObject::kOverwrite);
   TArtStoreManager* sman = TArtStoreManager::Instance();
 
   TArtEventStore* estore = new TArtEventStore();
