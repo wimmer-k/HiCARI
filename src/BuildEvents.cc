@@ -1,12 +1,20 @@
 #include "BuildEvents.hh"
 using namespace std;
 
+  //! Default constructor
+BuildEvents::BuildEvents(Settings* set){
+  fSett = set;
+  SetWindow(set->EventTimeDiff());
+  SetCorrelationMode(set->CorrelationMode()); // for p-gamma coinc choose 1  
+};
+
 /*!
   Initialyze the event building
   \param brtr tree with input bigrips data
   \param hitr tree with input hicari data
 */
 void BuildEvents::Init(TTree* brtr, TTree* hitr){
+
   flastevent = -1;
   fhasBR = false;
   fhasHI = false;
@@ -112,6 +120,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
   fBRtsjump = false;
   fHItsjump = false;
 
+
+  fmhist = new MergeHistograms(fSett);
 }
 
 bool BuildEvents::ReadBigRIPS(){
@@ -232,10 +242,13 @@ void BuildEvents::CloseEvent(){
   default:
   case 0: //write all events
     fmtr->Fill();
+    fmhist->FillHistograms(fcheckADC, fhicari, fBRts, fHIts);
     break;
   case 1://BR and HI coincidence
-    if(fBRts>0 && fHIts >0)
+    if(fBRts>0 && fHIts >0){
       fmtr->Fill();
+      fmhist->FillHistograms(fcheckADC, fhicari, fBRts, fHIts);
+    }
     break;
   }
 

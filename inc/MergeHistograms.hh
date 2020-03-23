@@ -25,7 +25,7 @@
 #include <fcntl.h>
 #include <stdexcept>
 
-//#include "Settings.hh"
+#include "Settings.hh"
 #include "HiCARI.hh"
 #include "Beam.hh"
 #include "PPAC.hh"
@@ -36,16 +36,16 @@ using namespace std;
 
 class MergeHistograms {
 public:
-  MergeHistograms(int nentries=100000){
+  MergeHistograms(Settings* set, int nentries=100000){
     fentry = -1;
     fhlist = new TList;
     fnentries = nentries;
-    //fSett = set;
+    fSett = set;
   }
   ~MergeHistograms(){
     delete fhlist;
   }
-  
+  double GetCorrRate();
   TList* GetHList(){return fhlist;}
   void Write();
 
@@ -83,7 +83,7 @@ protected:
 
   TList* fhlist;
   map<string,TH1*> fhmap;
-  //Settings* fSett;
+  Settings* fSett;
   int fnentries;
   int fentry;
 };

@@ -30,6 +30,7 @@ int main(int argc, char* argv[]){
   char* SetFile = NULL;
   int LastEvent = -1;
   int vl = 0;
+  int mode = -1;
 
   CommandLineInterface* interface = new CommandLineInterface();
   interface->Add("-b", "BigRIPS tree input file", &BigRIPSFile);
@@ -38,6 +39,7 @@ int main(int argc, char* argv[]){
   interface->Add("-s", "settings file", &SetFile);
   interface->Add("-le", "last event to be read", &LastEvent);
   interface->Add("-v", "verbose", &vl);
+  interface->Add("-m", "coincidence mode", &mode);
   interface->CheckFlags(argc, argv);
 
   if((BigRIPSFile == NULL && HiCARIFile == NULL) || OutputFile == NULL){
@@ -88,10 +90,10 @@ int main(int argc, char* argv[]){
   outfile->cd();
   Settings* set = new Settings(SetFile);
 
-  BuildEvents* evts = new BuildEvents();
+  BuildEvents* evts = new BuildEvents(set);
   evts->SetVerbose(vl);
-  evts->SetWindow(set->EventTimeDiff());
-  evts->SetCoincMode(0); // for p-gamma coinc choose 1  
+  if(mode>-1)
+    evts->SetCorrelationMode(mode);
   evts->Init(trbigrips,trhicari);
   evts->SetLastEvent(LastEvent);
 
@@ -103,9 +105,19 @@ int main(int argc, char* argv[]){
   while(evts->Merge()){
     if(ctr%10000 == 0){
       double time_end = get_time();
+      double r = evts->GetHistos()->GetCorrRate();
       cout << setw(5) << setiosflags(ios::fixed) << setprecision(1) << (100.*ctr)/total<<" % done\t" << 
-	(Float_t)ctr/(time_end - time_start) << " events/s (average) " <<
-	10000./(time_end - time_last) << " events/s (current) " <<
+	"correlation rate "; 
+      if(r>90)
+	cout << GREEN;                                                              
+      else if(r>70)
+	cout << YELLOW;                                                             
+      else
+	cout << RED;                                                                
+      cout << r << DEFCOLOR << " %\t";                                        
+
+      cout <<(Float_t)ctr/(time_end - time_start) << " events/s (average) " <<
+	10000./(time_end - time_last) << " events/s (current)\t" <<
 	(total-ctr)*(time_end - time_start)/(Float_t)ctr << "s to go \r" << flush;
       time_last = time_end;
     }
@@ -116,6 +128,17 @@ int main(int argc, char* argv[]){
   }
   evts->CloseEvent();
   evts->GetTree()->Write("",TObject::kOverwrite);
+  evts->GetHistos()->Write();
+  double r = evts->GetHistos()->GetCorrRate();
+  cout << endl << "Total correlation rate from checkADC ";
+  if(r>90)
+    cout << GREEN;
+  else if(r>70)
+    cout << YELLOW;
+  else
+    cout << RED;
+  cout << r << DEFCOLOR << " %" << endl;
+
   outfile->Close();
   if(inbigrips!=NULL)
     inbigrips->Close();

@@ -92,6 +92,11 @@ public:
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
 
+  void SetHIRunNumber(int runnr){fHIrunnr = runnr;}
+  int GetHIRunNumber(){return fHIrunnr;}
+  void SetBRRunNumber(int runnr){fBRrunnr = runnr;}
+  int GetBRRunNumber(){return fBRrunnr;}
+
   //! Get the beta for the Doppler correction
   double Beta(){return fbeta;}
   //! Get the BigRIPS PPAC xml file
@@ -123,6 +128,15 @@ public:
   double F5XGate(int i){return ff5xgate[i];}
   //! Get the gate on the change in delta for charge changes
   double DeltaGate(int i){return fdeltagate[i];}
+
+  //! Set the event correlation mode
+  void SetCorrelationMode(int mode){fcorrelationMode = mode;}
+  //! Get the event correlation mode
+  int CorrelationMode(){return fcorrelationMode;}
+  //! Get the cluster used for correlation checking
+  int CorrelationCluster(){return fcorrelationCluster;}
+  //! Get the crystal used for correlation checking
+  int CorrelationCrystal(){return fcorrelationCrystal;}
 
 #endif
 
@@ -175,6 +189,12 @@ protected:
   string fHiCARIcalfile;
   int fBaselineLength;
   bool fTracePlots;
+
+  int fHIrunnr;
+  int fBRrunnr;
+  int fcorrelationMode;
+  int fcorrelationCluster;
+  int fcorrelationCrystal;
 
   //! BigRIPS PPAC xml file
   string fPPACfile;

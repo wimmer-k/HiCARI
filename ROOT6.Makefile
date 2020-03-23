@@ -37,7 +37,7 @@ else
     LIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
     BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
     O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
-    MO_FILES = build/BuildEvents.o 
+    MO_FILES = build/BuildEvents.o build/MergeHistograms.o
     HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
 endif
 

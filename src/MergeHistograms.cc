@@ -26,7 +26,15 @@ using namespace std;
 void MergeHistograms::Write(){
   fhlist->Sort();
   fhlist->Write();
+}
 
+double MergeHistograms::GetCorrRate(){
+  try{
+    fhmap.at("hEcorr")->Integral();
+  } catch(const out_of_range& e) {
+    return sqrt(-1);
+  }
+  return fhmap.at("hEcorr")->Integral()/fhmap.at("hEcorr")->GetEntries() *100;
 }
 
 void MergeHistograms::FillHistograms(int checkADC, HiCARICalc* hi, long long int brTS, long long int hiTS){
@@ -42,8 +50,8 @@ void MergeHistograms::FillCorrelationHistograms(int checkADC, HiCARICalc* hi, lo
   Fill("hTSdiff",1000,-500,500,brTS-hiTS);
   for(UShort_t i=0; i<hi->GetMult();i++){
     HiCARIHitCalc* hit = hi->GetHit(i);
-    if(hit->GetCluster()==3 && hit->GetCrystal()==0)
-      Fill("hEcorr",4096,0,4096,checkADC, 4000,0,4000,hit->GetEnergy());
+    if(hit->GetCluster()==fSett->CorrelationCluster() && hit->GetCrystal()==fSett->CorrelationCrystal())
+      Fill("hEcorr",1024,0,4096,checkADC, 1000,0,4000,hit->GetEnergy());
   }
       
 }

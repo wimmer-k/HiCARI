@@ -76,7 +76,8 @@ int main(int argc, char* argv[]){
   int run;
   TString ifname(InputFile);
   ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/Global.dat.gz but works also for Global.dat
-  sscanf(ifname.Data(),"%*sRun%04d/%*s",&run);
+  //cout << "ifname.Data() " << ifname.Data() << endl;
+  sscanf(ifname.Data(),"run%04d/%*s",&run);
 
   //Open the input and output files.
   TFile *ofile = new TFile(RootFile,"RECREATE");
@@ -113,6 +114,7 @@ int main(int argc, char* argv[]){
   Settings* set = new Settings(SettingFile);
   ofile->cd();
   int vl = set->VLevel();
+  set->SetHIRunNumber(run);
   set->Write("settings",TObject::kOverwrite);
   //Initialize the data structures for the event building.
   int buffers = 0;

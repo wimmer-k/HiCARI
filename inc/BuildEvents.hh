@@ -10,7 +10,7 @@
 #include "HiCARI.hh"
 #include "Settings.hh"
 #include "Globaldefs.h"
-
+#include "MergeHistograms.hh"
 
 /*!
   A container to keep track of the timestamps and corresponding detectors
@@ -27,14 +27,20 @@ struct detector{
 */
 class BuildEvents {
 public:
-  //! Default constructor
+  //! default constructor
   BuildEvents(){};
+  //! constructor                                                                                                                                                             
+  BuildEvents(Settings* set);
+  //! dummy destructor
+  ~BuildEvents(){
+  };
+
   //! Initialize trees
   void Init(TTree* brtr, TTree* hitr);
   //! Set the window for event building
   void SetWindow(unsigned long long int window){fwindow = window;};
-  //! Set coincidence mode
-  void SetCoincMode(int mode){fmode = mode;};
+  //! Set correlation mode
+  void SetCorrelationMode(int mode){fmode = mode;};
   //! Set the verbose level
   void SetVerbose(int verbose){fverbose = verbose;};
   //! Set the last event
@@ -55,8 +61,12 @@ public:
   void CloseEvent();
   //! Get the merged tree
   TTree* GetTree(){return fmtr;};
-  
+  //! Get the histograms
+  MergeHistograms* GetHistos(){return fmhist;};
+
 private:
+  //! Settings to control merger
+  Settings* fSett;
   //! BigRIPS input tree
   TTree* fBRtr;
   //! HiCARI input tree
@@ -128,6 +138,10 @@ private:
   unsigned long long fwindow;
   //! modus for writing the merged data: 0 all, 1 only particle/gamma (BR and Hi)
   int fmode;
+
+  //! Histograms for merged data
+  MergeHistograms* fmhist;
+  
   
 };
 

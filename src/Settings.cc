@@ -7,6 +7,8 @@ Settings::Settings(const char* filename){
   if(fVerboseLevel>1){
     PrintSettings();
   }
+  fHIrunnr = -1;
+  fBRrunnr = -1;
 }
 
 Settings::Settings(vector<char*> files){
@@ -20,6 +22,8 @@ Settings::Settings(vector<char*> files){
   if(fVerboseLevel>1){
     PrintSettings();
   }
+  fHIrunnr = -1;
+  fBRrunnr = -1;
 
 }
 
@@ -110,6 +114,11 @@ void Settings::ReadSettings(TEnv* set){
   fdeltagate[3] = set->GetValue("Delta.Gate.High", 999.);
   fdeltagate[0] = set->GetValue("Delta.Gate.BR.Low", -999.);
   fdeltagate[1] = set->GetValue("Delta.Gate.BR.High", 999.);
+
+  fcorrelationMode = set->GetValue("Correlation.Mode",0);
+  fcorrelationCluster = set->GetValue("Correlation.Cluster",3);
+  fcorrelationCrystal = set->GetValue("Correlation.Crystal",0);
+  
 #endif
   
 
@@ -197,7 +206,14 @@ void Settings::PrintSettings(){
   cout << "gate on F5X position\t" <<ff5xgate[0] << " to " << ff5xgate[1] << endl;
   cout << "gate on delta for charge changes BR\t" <<fdeltagate[0] << " to " << fdeltagate[1] << endl;
   cout << "gate on delta for charge changes ZD\t" <<fdeltagate[2] << " to " << fdeltagate[3] << endl;
+
+  cout << "Correlation.Mode\t" << fcorrelationMode << endl;  
+  cout << "Correlation.Cluster\t" << fcorrelationCluster << endl;  
+  cout << "Correlation.Crystal\t" << fcorrelationCrystal << endl;  
  
+  cout << "HiCARI run Number as read from inputfile:\t" << fHIrunnr << endl; 
+  cout << "BigRIPS run Number as read from inputfile:\t" << fBRrunnr << endl; 
+
 #endif
 
 }
