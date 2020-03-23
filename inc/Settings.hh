@@ -86,7 +86,7 @@ public:
   const char* HiCARIMappingTable(){return fHiCARImapping.c_str();}
   void ReadHiCARIMappingTable();
   void PrintHiCARIMappingTable();
-  int HiCARIModule(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]/10;}
+  int HiCARICluster(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]/10;}
   int HiCARICrystal(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}

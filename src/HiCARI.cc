@@ -130,11 +130,12 @@ void HiCARI::PrintEvent(){
     fhits[i]->PrintEvent();
 }
 
-HiCARIHitCalc::HiCARIHitCalc(Short_t clu, Short_t cry, Short_t seg, TVector3 pos, Float_t en, long long int ts){
+HiCARIHitCalc::HiCARIHitCalc(Short_t clu, Short_t cry, Short_t maxseg, Float_t segsum, TVector3 pos, Float_t en, long long int ts){
   Clear();
   fcluster = clu;
   fcrystal = cry;
-  fsegment = seg;
+  fmaxseg = maxseg;
+  fsegsum = segsum;
   fen = en;
   fDCen = sqrt(-1.0);
   fposition = pos;
@@ -146,38 +147,52 @@ HiCARIHitCalc::HiCARIHitCalc(Short_t clu, Short_t cry, Short_t seg, TVector3 pos
 void HiCARIHitCalc::Clear(){
   fcluster = -1;
   fcrystal = -1;
-  fsegment = -1;
+  fmaxseg = -1;
+  fsegsum = sqrt(-1);
   fen = sqrt(-1);
   fDCen = sqrt(-1.0);
   fposition.SetXYZ(0,0,0);
   fHitsAdded = 0;
   fmaxhit = sqrt(-1);
   ftimestamp = -1;
+  fsegnr.clear();
+  fsegen.clear();
 }
 
 HiCARIHitCalc::HiCARIHitCalc(HiCARIHitCalc* hit){
   Clear();
   fcluster = hit->GetCluster();
   fcrystal = hit->GetCrystal();
-  fsegment = hit->GetSegment();
+  fmaxseg = hit->GetMaxSegment();
+  fsegsum = hit->GetSegSum();
   fen = hit->GetEnergy();
   fDCen = hit->GetDCEnergy();
   fposition = hit->GetPosition();
   ftimestamp = hit->GetTS();
   fHitsAdded = 1;
   fmaxhit = fen;
+  fsegnr = hit->GetSegmentNr();
+  fsegen = hit->GetSegmentEn();
+}
+
+void HiCARIHitCalc::SetSegments(vector<Short_t>nr, vector<Float_t> en){
+  fsegnr = nr;
+  fsegen = en;
 }
 
 void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
   if(!isnan(fmaxhit) && hit->GetEnergy() > fmaxhit){
     fcluster = hit->GetCluster();
     fcrystal = hit->GetCrystal();
-    fsegment = hit->GetSegment();
+    fmaxseg = hit->GetMaxSegment();
     fposition = hit->GetPosition();
     fmaxhit = hit->GetEnergy();
     ftimestamp = hit->GetTS();
+    fsegnr = hit->GetSegmentNr();
+    fsegen = hit->GetSegmentEn();
   }
   fen += hit->GetEnergy();
+  fsegsum += hit->GetSegSum();
   fHitsAdded += hit->GetHitsAdded();
  
 }

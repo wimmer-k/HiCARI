@@ -129,10 +129,12 @@ protected:
 class HiCARIHitCalc : public TObject {
 public:
   HiCARIHitCalc(){Clear();}
-  HiCARIHitCalc(Short_t clu, Short_t cry, Short_t seg, TVector3 pos, Float_t en, long long int ts);
+  HiCARIHitCalc(Short_t clu, Short_t cry, Short_t maxseg, Float_t segsum, TVector3 pos, Float_t en, long long int ts);
   HiCARIHitCalc(HiCARIHitCalc* hit);
   ~HiCARIHitCalc(){Clear();}
   void Clear();
+  void SetSegments(vector<Short_t> nr, vector<Float_t> en);
+
   void AddBackHiCARIHitCalc(HiCARIHitCalc* hit);
   void SetDCEnergy(float dcen){fDCen = dcen;}
   void SetPosition(TVector3 in){fposition = in;}
@@ -141,10 +143,14 @@ public:
   Short_t GetCluster(){return fcluster;}
   //! The number of the crystal, ranging from 0-3.
   Short_t GetCrystal(){return fcrystal;}
-  //! The number of the segment number
-  Short_t GetSegment(){return fsegment;}
+  //! The number of the max segment
+  Short_t GetMaxSegment(){return fmaxseg;}
   //! The energy of the hit (keV).
   Float_t GetEnergy(){return fen;}
+  //! The sum of the segment energies of the hit (keV).
+  Float_t GetSegSum(){return fsegsum;}
+  vector<Float_t> GetSegmentEn(){return fsegen;}
+  vector<Short_t> GetSegmentNr(){return fsegnr;}
   //! The Doppler-corrected energy of the hit.
   Float_t GetDCEnergy(){return fDCen;}
   Float_t GetDCEnergy(float beta, double x=0, double y=0, double z=0){
@@ -188,7 +194,10 @@ public:
   // //static double DopplerCorrectionFactor(TVector3 PosToTarget, double beta, double z);
 
   void Print(){
-    cout << "HiCARI: cluster " << fcluster << "\tcrystal " << fcrystal << "\tsegment " << fsegment << "\ten " << fen << "\tmax hit " << fmaxhit << endl;
+    cout << "HiCARI: cluster " << fcluster << "\tcrystal " << fcrystal << "\tmaxseg " << fmaxseg << "\tsegsum " << fsegsum << "\ten " << fen << "\tmax hit " << fmaxhit << endl;
+    for(UShort_t s=0;s<fsegnr.size();s++){
+      cout << "segment " << fsegnr.at(s) << ", en " << fsegen.at(s) << endl;
+    }
     return;
   }
 
@@ -197,12 +206,17 @@ public:
 protected:
   Short_t fcluster;
   Short_t fcrystal;
-  Short_t fsegment;
-  double fen;
-  double fDCen;
+
+  Short_t fmaxseg;
+  Float_t fsegsum;
+  vector<Float_t> fsegen;
+  vector<Short_t> fsegnr;
+
+  Float_t fen;
+  Float_t fDCen;
   TVector3 fposition;
   int fHitsAdded;
-  double fmaxhit;
+  Float_t fmaxhit; // max single hit when addback is used
   long long int ftimestamp;
   
   ClassDef(HiCARIHitCalc, 1)

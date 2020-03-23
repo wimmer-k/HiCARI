@@ -997,24 +997,25 @@ void UnpackedEvent::MakeMode2(){
 	  cout << " <- with net energy " << endl;
 	else
 	  cout << endl;
-	cout << fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
+	cout << "cluster = " << fSett->HiCARICluster(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\tcrystal" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	
       }
       int en = trace->GetEnergy();
       if(abs(en)<fSett->RawThresh())
 	continue;
       bool tracking = false;
-      int mod = fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
+      int clu = fSett->HiCARICluster(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
       int cry = fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
       int chn = trace->GetChn();
       // for tracking detectors, channel will be 0-39 = chn+slot*10
-      if(mod>9){
+      if(clu>9){
 	tracking =true;
 	chn+=trace->GetSlot()*10;
       }
 
-      if(mod<0 || cry<0){
-	cout << RED << "invalid module or crystal for hole = " << trace->GetHole()<<", crys = "<<trace->GetCrystal()<<", slot = "<<trace->GetSlot()<< DEFCOLOR<<endl;
+      // check if cluster and crystal are valid
+      if(clu<0 || cry<0){
+	cout << RED << "invalid cluster or crystal for hole = " << trace->GetHole()<<", crys = "<<trace->GetCrystal()<<", slot = "<<trace->GetSlot()<< DEFCOLOR<<endl;
 	cout << "Trace " << j << " Length " << trace->GetLength() <<
 	  "\tEnergy " << trace->GetEnergy() <<
 	  "\tBoard " << trace->GetBoard() <<
@@ -1029,30 +1030,32 @@ void UnpackedEvent::MakeMode2(){
 	  cout << " <- with net energy " << endl;
 	else
 	  cout << endl;
-	cout << fSett->HiCARIModule(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\t" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
+	cout << "cluster = " << fSett->HiCARICluster(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\tcrystal" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	continue;
       }
+      
       if(fSett->VLevel()>1){
-	cout << "mod = " << mod << ", cry = " << cry << ", chn = " << chn;
+	cout << "clu = " << clu << ", cry = " << cry << ", chn = " << chn;
 	if(tracking)
 	  cout << " is tracking ";
 	cout << endl;
       }
-      HiCARIHit* hit = fHiCARI->GetHit(mod,cry);
+
+      HiCARIHit* hit = fHiCARI->GetHit(clu,cry);
       if(hit){
 	//cout << "hit exists, ";
 	if((!tracking&&chn==9) || (tracking&&chn==39)){
 	  //cout << "inserting core" << endl;
-	  hit->InsertCore(mod, cry, en, trace->GetTS());
+	  hit->InsertCore(clu, cry, en, trace->GetTS());
 	}
 	else{
 	  //cout << "inserting segment " << endl;
-	  hit->InsertSegment(mod, cry, chn, en);
+	  hit->InsertSegment(clu, cry, chn, en);
 	}
       }
       else{
 	//cout << "creating new hit " << endl;
-	fHiCARI->AddHit(new HiCARIHit(mod, cry, chn, en, trace->GetTS(), tracking));
+	fHiCARI->AddHit(new HiCARIHit(clu, cry, chn, en, trace->GetTS(), tracking));
       }
     }//traces
   }//hits

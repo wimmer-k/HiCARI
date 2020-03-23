@@ -106,10 +106,10 @@ void Calibration::ReadHiCARICalibration(const char* filename){
   TEnv *calF = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
-      fCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),1.0);
+      fCoreGain[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),0.0);
       fCoreOffs[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",m,c),0.0);      
       for(int s=0;s<40;s++){
-	fSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),1.0);
+	fSegGain[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Gain",m,c,s),0.0);
 	fSegOffs[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Offset",m,c,s),0.0);
       }
       //cout << fCoreGain[m][c] << "\t" << fCoreOffs[m][c] << endl;
@@ -426,17 +426,41 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
   if(in->GetMult()==0){
     return;
   }
-  vector<HiCARICrystal*> cr= in->GetHits();
-  for(vector<HiCARICrystal*>::iterator hit = cr.begin(); hit!=cr.end(); hit++){
+  vector<HiCARIHit*> hits= in->GetHits();
+  for(vector<HiCARIHit*>::iterator hit = hits.begin(); hit!=hits.end(); hit++){
     Short_t clu = (*hit)->GetCluster();
     Short_t cry = (*hit)->GetCrystal();
-    Short_t seg = (*hit)->GetMaxSegNr();
     long long int ts = (*hit)->GetTS();
-    double en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
-    //cout << "calibrating hit clu = " << clu << ", cry " << cry << ", seg " << seg << ", en " << en << ", ts " << ts << endl;
+    Float_t en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
     en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
-    out->AddHit(new HiCARIHitCalc(clu,cry,seg,fHiCARIpositions[clu][cry][seg],en,ts));
-
+    //Short_t seg = (*hit)->GetMaxSegNr();
+    if(fverbose)
+      cout << "calibrating hit clu = " << clu << ", cry " << cry << ", en " << en << ", ts " << ts << endl;
+    //here calibrate segments and find largest one
+    Float_t maxen = 0;
+    Float_t sumen = 0;
+    Short_t maxnr = -1;
+    vector<Short_t> nrs;
+    vector<Float_t> ens;
+    for(UShort_t s=0;s<(*hit)->GetSegmentNr().size();s++){
+      Short_t segnr = (*hit)->GetSegmentNr().at(s);
+      Float_t segen = (*hit)->GetSegmentEn().at(s) + fRand->Uniform(0,1);
+      segen = segen*fSegGain[clu][cry][segnr] + fSegOffs[clu][cry][segnr];
+      if(fverbose)
+	cout << "segment " << segnr << " energy " << (*hit)->GetSegmentEn().at(s) << " cal " << segen<< endl;
+      if(segen>maxen){
+	maxen = segen;
+	maxnr = segnr;
+      }
+      if(segen>0){
+	sumen += segen;
+	ens.push_back(segen);
+	nrs.push_back(segnr);
+      }
+    }//uncalibrated segs
+    HiCARIHitCalc* newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
+    newHit->SetSegments(nrs,ens);
+    out->AddHit(newHit);
   }
   if(fverbose)
     out->Print();
@@ -494,6 +518,7 @@ void Calibration::ResetCtrs(){
   fminosctr = 0;
 #else
   fHiCARIctr = 0;
+  fBigRIPSctr = 0;
 #endif
 }
 
@@ -507,5 +532,6 @@ void Calibration::PrintCtrs(){
   cout << "fminosctr  \t" << fminosctr  << endl;
 #else
   cout << "fHiCARIctr  \t" << fHiCARIctr  << endl;
+  cout << "fBigRIPSctr  \t" << fBigRIPSctr  << endl;
 #endif
 }

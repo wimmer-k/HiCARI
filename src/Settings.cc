@@ -247,7 +247,7 @@ void Settings::PrintHiCARIMappingTable(){
 	  cout << "Hole " << ftr->first 
 	       << ", Crystal " << str->first 
 	       << ", Slot " << ptr->first 
-	       << " is Ge " << ptr->second/10 << abc[ptr->second%10] << ", or " << fHiCARImap[ftr->first][str->first][ptr->first] << ", or " << HiCARIModule(ftr->first,str->first,ptr->first)<< " and " << HiCARICrystal(ftr->first,str->first,ptr->first) << endl; 
+	       << " is Ge " << ptr->second/10 << abc[ptr->second%10] << ", or " << fHiCARImap[ftr->first][str->first][ptr->first] << ", or " << HiCARICluster(ftr->first,str->first,ptr->first)<< " and " << HiCARICrystal(ftr->first,str->first,ptr->first) << endl; 
 	  
       } 
     } 

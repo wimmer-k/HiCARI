@@ -119,6 +119,7 @@ private:
   Tracking* ftracking;
 #else
   Long64_t fHiCARIctr;
+  Long64_t fBigRIPSctr;
 #endif
 };
 

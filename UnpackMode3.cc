@@ -189,8 +189,8 @@ int main(int argc, char* argv[]){
   }
   //Finish reading the last event and close it out.
   evt->WriteLastEvent();
-
-  cout << "Total of " << buffers << " data buffers ("<<bytes_read/(1024*1024)<<" MB) and" << endl;
+  cout << endl;
+  cout << "Total of " <<BLUE<< buffers << DEFCOLOR<< " data buffers ("<<BLUE<<bytes_read/(1024*1024)<<DEFCOLOR<<" MB) and" << endl;
   ofile->cd();
   //Final cleanup and writing of files.
   if(wrawtree){
