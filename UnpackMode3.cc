@@ -190,7 +190,18 @@ int main(int argc, char* argv[]){
   //Finish reading the last event and close it out.
   evt->WriteLastEvent();
   cout << endl;
-  cout << "Total of " <<BLUE<< buffers << DEFCOLOR<< " data buffers ("<<BLUE<<bytes_read/(1024*1024)<<DEFCOLOR<<" MB) and" << endl;
+  cout << "Total of " << BLUE << buffers << DEFCOLOR << " data buffers ("<< BLUE <<bytes_read/(1024*1024) << DEFCOLOR << " MB) read." << endl;
+  if(wrawtree||wrawhist){
+    cout << "Total of " << BLUE << evt->NrOfEvents() << DEFCOLOR << " raw events";
+    if(wrawtree)
+      cout <<"("<< BLUE << evt->GetTree()->GetZipBytes()/(1024*1024)<< DEFCOLOR << " MB)";
+    cout <<" written."  << endl;
+    //cout << evt->NrOfHits() << " hits and " << evt->NrOfStrangeHits() << " strange hits (bad ip) "<<setprecision(2)<< (float)evt->NrOfStrangeHits()/evt->NrOfHits()*100.<< " %"  <<setw(5)<< endl;
+  }
+  if(wcaltree){
+    cout << "Total of " <<BLUE << evt->NrOfCalEvents() << DEFCOLOR << " cal events ("<< BLUE <<evt->GetCalTree()->GetZipBytes()/(1024*1024) << DEFCOLOR << " MB) written."  << endl;
+  }
+  cout << endl;
   ofile->cd();
   //Final cleanup and writing of files.
   if(wrawtree){
@@ -203,6 +214,6 @@ int main(int argc, char* argv[]){
   cout << "Program Run time " << time_end - time_start << " s." << endl;
   cout << "Unpacked " << buffers/(time_end - time_start) << " buffers/s." << endl;
   timer.Stop();
-  cout << "\n CPU time: " << timer.CpuTime() << "\tReal time: " << timer.RealTime() << endl;
+  cout << "CPU time: " << timer.CpuTime() << "\tReal time: " << timer.RealTime() << endl;
   return 0;
 }

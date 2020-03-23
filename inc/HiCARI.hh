@@ -240,6 +240,7 @@ public:
       delete *cry;
     }
     fhits.clear();
+    fhadBigRIPS = false;
     ClearAddBack();
   }
   void ClearAddBack(){
@@ -249,18 +250,23 @@ public:
     }
     fhits_ab.clear();
   }
-  void AddHit(HiCARIHitCalc* cry){
+  void AddHit(HiCARIHitCalc* cry, bool isBigRIPS){
     fhits.push_back(cry);
-    fmult++;
     
     ftimestamp = cry->GetTS();
     if(ftimestamp<0)
       cout << "invalid time stamp? " << cry->GetEnergy() << endl;
+    if(isBigRIPS)
+      fhadBigRIPS = true;
+    else
+      fmult++;
   }
   void AddHitAB(HiCARIHitCalc* cry){
     fhits_ab.push_back(cry);
     fmult_ab++;
   }
+  bool HadBigRIPS(){return fhadBigRIPS;}
+
 //  void DopplerCorrect(Settings* set);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
@@ -300,6 +306,7 @@ protected:
   vector<HiCARIHitCalc*> fhits;
   Short_t fmult_ab;
   vector<HiCARIHitCalc*> fhits_ab;
+  bool fhadBigRIPS;
   ClassDef(HiCARICalc, 1);
 };
 

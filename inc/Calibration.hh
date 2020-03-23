@@ -120,6 +120,8 @@ private:
 #else
   Long64_t fHiCARIctr;
   Long64_t fBigRIPSctr;
+  Long64_t fHiCARIHitctr;
+  Long64_t fBigRIPSHitctr;
 #endif
 };
 

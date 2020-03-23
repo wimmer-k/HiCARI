@@ -931,7 +931,7 @@ void UnpackedEvent::CloseEvent(){
 #endif
 
     if(fwcaltree){
-      if(fHiCARICalc->GetMult()>0){
+      if(fHiCARICalc->GetMult()>0||fHiCARICalc->HadBigRIPS()){
 	fcaltr->Fill();
 	fncalentries++;
       }
@@ -967,7 +967,7 @@ void UnpackedEvent::WriteLastEvent(){
   if(fwcalhist){
     fchist->Write();
   }
-  if(fvl>1)
+  if(fwcaltree)
     fcal->PrintCtrs();
 }
 /*! 

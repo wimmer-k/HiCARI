@@ -460,8 +460,16 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     }//uncalibrated segs
     HiCARIHitCalc* newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
     newHit->SetSegments(nrs,ens);
-    out->AddHit(newHit);
+    bool isBigRIPS = false;
+    if(clu==9 && cry==9){
+      fBigRIPSHitctr++;
+      isBigRIPS = true;
+    }
+    else if(en>0 || sumen>0)
+      fHiCARIHitctr++;
+    out->AddHit(newHit,isBigRIPS);
   }
+  
   if(fverbose)
     out->Print();
   //Perform the addback, which fills the add-backed vector.
@@ -474,6 +482,13 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
   } else {
     cout << "unknown addback type: " << fAddBackType << endl;
   }
+  if(out->GetMult()>0)
+    fHiCARIctr++;
+  if(out->HadBigRIPS())
+    fBigRIPSctr++;
+  if(fverbose>2 && out->HadBigRIPS())
+    cout << out->GetMult() << "\t" << (out->GetHits()).size() << endl;
+  fevent++;
 }
 void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
   //All hits within a cluster 
@@ -519,19 +534,24 @@ void Calibration::ResetCtrs(){
 #else
   fHiCARIctr = 0;
   fBigRIPSctr = 0;
+  fHiCARIHitctr = 0;
+  fBigRIPSHitctr = 0;
 #endif
 }
 
 void Calibration::PrintCtrs(){
-  cout << "event counters in" << __PRETTY_FUNCTION__ << endl;
-  cout << "fevent\t" << fevent << endl;
+  //cout << "event counters in" << __PRETTY_FUNCTION__ << endl;
+  cout << endl << "event counters: " << endl;
+  cout << "events   \t" << fevent << endl;
 #ifdef SIMULATION
   cout << "fgretactr  \t" << fgretactr  << endl;
   cout << "fminiballctr  \t" << fminiballctr  << endl;
   cout << "fzerodegctr  \t" << fzerodegctr  << endl;
   cout << "fminosctr  \t" << fminosctr  << endl;
 #else
-  cout << "fHiCARIctr  \t" << fHiCARIctr  << endl;
-  cout << "fBigRIPSctr  \t" << fBigRIPSctr  << endl;
+  cout << "HiCARI events  \t" << fHiCARIctr  << endl;
+  cout << "HiCARI hits  \t" << fHiCARIHitctr  << endl;
+  cout << "BigRIPS events\t" << fBigRIPSctr  << endl;
+  cout << "BigRIPS hits  \t" << fBigRIPSHitctr  << endl;
 #endif
 }
