@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
   if(wrawtree||wrawhist){
     cout << "Total of " << BLUE << evt->NrOfEvents() << DEFCOLOR << " raw events";
     if(wrawtree)
-      cout <<"("<< BLUE << evt->GetTree()->GetZipBytes()/(1024*1024)<< DEFCOLOR << " MB)";
+      cout <<" ("<< BLUE << evt->GetTree()->GetZipBytes()/(1024*1024)<< DEFCOLOR << " MB)";
     cout <<" written."  << endl;
     //cout << evt->NrOfHits() << " hits and " << evt->NrOfStrangeHits() << " strange hits (bad ip) "<<setprecision(2)<< (float)evt->NrOfStrangeHits()/evt->NrOfHits()*100.<< " %"  <<setw(5)<< endl;
   }

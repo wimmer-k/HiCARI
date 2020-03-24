@@ -11,10 +11,13 @@
 #include "TH2F.h"
 
 #include "/home/gamma20/HiCARI/inc/Trace.hh"
-char* filename = "~/rootfiles/run0376.root";
+char* filename = (char*)"~/rootfiles/run0376.root";
 int verbose = 0;
 int frontBL = 70;
 Double_t flinear(Double_t *x, Double_t *par);
+void SetRun(int run){
+  filename = Form("~/rootfiles/run%04d.root",run);
+}
 void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
   TFile *f = new TFile(filename);
   TTree* tr = (TTree*)f->Get("build");
@@ -29,6 +32,8 @@ void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
   int ctr = 0;
   for(int i=firstevt; i<lastevt; i++){ 
     Int_t status = tr->GetEvent(i);
+    if(status==0)
+      continue;
     for(int e=0;e<mode3->GetMult();e++){
       for(int t=0;t<mode3->GetHit(e)->GetMult();t++){
 	Trace *trace = mode3->GetHit(e)->GetTrace(t);
@@ -80,6 +85,8 @@ void CoreTraces(int firstevt=0, int lastevt=-1, int crystal = -1){
     lastevt = tr->GetEntries();
   for(int i=firstevt; i<lastevt; i++){ 
     Int_t status = tr->GetEvent(i);
+    if(status==0)
+      continue;
     for(int e=0;e<mode3->GetMult();e++){
       Trace *trace = mode3->GetHit(e)->GetCoreTrace();
       if(crystal>-1 && trace->GetCrystal() != crystal)
@@ -104,6 +111,8 @@ void ViewCoreTrace(int n){
   tr->SetBranchAddress("mode3Event",&mode3);
   
   Int_t status = tr->GetEvent(n);
+  if(status==0)
+    return;
   cout << "Event length " << mode3->GetMult() << endl;
   vector<TGraph*> g;
   g.resize(mode3->GetMult());
@@ -158,19 +167,20 @@ vector<TGraph*> ViewTrace(int n, int e){
       cout << "bad trace, aborting" << endl;
       continue;
     }
-    // cout << "Trace " << g.size() << " Length " << trace->GetLength() << 
-    //   "\tEnergy " << trace->GetEnergy() <<
-    //   "\tBoard " << trace->GetBoard() <<
-    //   "\tChannel " << trace->GetChn() <<
-    //   "\tHole " << trace->GetHole() <<
-    //   "\tCrystal " << trace->GetCrystal();
-    // if(trace->GetChn()==9)
-    //   cout << " <- CC " << endl;
-    // else if(trace->GetEnergy()>1000)
-    //   cout << " <- with net energy " << endl;
-    // else
-    //   cout << endl;
-    
+    if(verbose){
+      cout << "Trace " << g.size() << " Length " << trace->GetLength() << 
+	"\tEnergy " << trace->GetEnergy() <<
+	"\tBoard " << trace->GetBoard() <<
+	"\tChannel " << trace->GetChn() <<
+	"\tHole " << trace->GetHole() <<
+	"\tCrystal " << trace->GetCrystal();
+      if(trace->GetChn()==9)
+	cout << " <- CC " << endl;
+      else if(trace->GetEnergy()>1000)
+	cout << " <- with net energy " << endl;
+      else
+	cout << endl;
+    }
     int data[200];
     int cfd[200];
     int x[200];
@@ -231,4 +241,62 @@ void ViewTrace(int n, int e, int p){
 }
 Double_t flinear(Double_t *x, Double_t *par){
   return x[0]*par[0] + par[1];
+}
+void ViewTraces(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
+  TFile *f = new TFile(filename);
+  TTree* tr = (TTree*)f->Get("build");
+  Mode3Event *mode3 = new Mode3Event;
+  tr->SetBranchAddress("mode3Event",&mode3);
+  // TCanvas *c = new TCanvas("c","c",900,400);
+  // c->Divide(2,1);
+  // TH2F *traces = new TH2F("traces","traces", 200,0,200,1200,-10000,2000);
+  // TH2F *smokep = new TH2F("smokep","smokep", 2000,0,5e5,1000,0,1000);
+  if(lastevt<0)
+    lastevt = tr->GetEntries();
+  //int ctr = 0;
+  vector<TGraph*> g;
+  TMultiGraph *mg = new TMultiGraph();
+  for(int i=firstevt; i<lastevt; i++){
+    Int_t status = tr->GetEvent(i);
+    if(status==0)
+      continue;
+    for(int e=0;e<mode3->GetMult();e++){
+      for(int t=0;t<mode3->GetHit(e)->GetMult();t++){
+        Trace *trace = mode3->GetHit(e)->GetTrace(t);
+        if (trace==NULL || trace->GetLength()<1){
+          cout << "bad trace, aborting" << endl;
+          continue;
+        }
+        if(trace->GetHole()!=hole || trace->GetCrystal()!=cry || trace->GetSlot()!=slot)
+          continue;
+	if(verbose){
+	  cout << "Trace " << g.size() << " Length " << trace->GetLength() <<
+	    "\tEnergy " << trace->GetEnergy() <<
+	    "\tBoard " << trace->GetBoard() <<
+	    "\tChannel " << trace->GetChn() <<
+	    "\tHole " << trace->GetHole() <<
+	    "\tCrystal " << trace->GetCrystal();
+	  if(trace->GetChn()==9)
+	    cout << " <- CC " << endl;
+	  else if(trace->GetEnergy()>1000)
+	    cout << " <- with net energy " << endl;
+	  else
+	    cout << endl;
+	}
+	int data[200];
+	int x[200];
+	for(int j=0;j<trace->GetLength();j++){
+	  x[j] = j;
+	  data[j] = (int)trace->GetTrace()[j];
+	}// tracelength
+	g.push_back(new TGraph(trace->GetLength(),x,data));
+	mg->Add(g.back(),"LP");
+	if(trace->GetChn()==9){
+	  g.back()->SetLineColor(2);
+	  g.back()->SetMarkerColor(2);
+	}//core
+      }// traces
+    }//hits
+  }//events
+  mg->Draw("a");
 }

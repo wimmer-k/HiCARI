@@ -241,12 +241,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
 
   curTrace.SetTS(gts);
   //cout << "length - 16 = " << length << " - " << 16 << " = " <<  length - 16 << endl;
-  curTrace.SetLength(length-16);
-  // this length includes aaaa aaaa until next aaaa aaaa.
-  // trace length is this minus 16
-
-  if(fvl>2)
-    cout << "UnpackedEvent: " << "trace length " << curTrace.GetLength() << endl;
+  
 
   curTrace.SetBoard(*wBuf >> 11);//called GA in mario's doc 13.dez
   wBuf++;
@@ -346,6 +341,12 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     wBuf+=(length-16);
   }
   else{
+    curTrace.SetLength(length-16);
+    // this length includes aaaa aaaa until next aaaa aaaa.
+    // trace length is this minus 16
+    
+    if(fvl>2)
+      cout << "UnpackedEvent: " << "trace length " << curTrace.GetLength() << endl;
     for(int i=0; i<(length-16); i+=2){
       //cout << "UnpackedEvent: " << i <<"\t"<< *(wBuf) << endl;
       curTrace.SetTrace(i ,-(short) *(wBuf+1)+512 );

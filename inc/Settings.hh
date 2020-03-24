@@ -139,6 +139,13 @@ public:
   //! Get the crystal used for correlation checking
   int CorrelationCrystal(){return fcorrelationCrystal;}
 
+  //! Get the cluster used for BigRIPS time checking
+  int BigRIPSCluster(){return fBigRIPSCluster;}
+  //! Get the crystal used for BigRIPS time checking
+  int BigRIPSCrystal(){return fBigRIPSCrystal;}
+  //! Get the channel used for BigRIPS time checking
+  int BigRIPSChannel(){return fBigRIPSChannel;}
+
 #endif
 
 protected:
@@ -197,6 +204,10 @@ protected:
   int fcorrelationMode;
   int fcorrelationCluster;
   int fcorrelationCrystal;
+
+  int fBigRIPSCluster;
+  int fBigRIPSCrystal;
+  int fBigRIPSChannel;
 
   //! BigRIPS PPAC xml file
   string fPPACfile;

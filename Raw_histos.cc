@@ -158,7 +158,7 @@ int main(int argc, char* argv[]){
     hists->FillHistograms(m3r,hi);
 #endif
 
-    if(i%10000 == 0){
+    if(i%1000 == 0){
       double time_end = get_time();
       cout<<setw(5)<<setiosflags(ios::fixed)<<setprecision(1)<<(100.*i)/nentries<<" % done\t"<<(Float_t)i/(time_end - time_start)<<" events/s " << (nentries-i)*(time_end - time_start)/(Float_t)i<<"s to go \r"<<flush;
     }

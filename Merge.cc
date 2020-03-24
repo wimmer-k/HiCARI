@@ -111,7 +111,7 @@ int main(int argc, char* argv[]){
       if(r>90)
 	cout << GREEN;                                                              
       else if(r>70)
-	cout << YELLOW;                                                             
+	cout << ORANGE;                                                             
       else
 	cout << RED;                                                                
       cout << r << DEFCOLOR << " %\t";                                        
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]){
   if(r>90)
     cout << GREEN;
   else if(r>70)
-    cout << YELLOW;
+    cout << ORANGE;
   else
     cout << RED;
   cout << r << DEFCOLOR << " %" << endl;

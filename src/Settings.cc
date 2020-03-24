@@ -120,9 +120,11 @@ void Settings::ReadSettings(TEnv* set){
   fcorrelationCluster = set->GetValue("Correlation.Cluster",3);
   fcorrelationCrystal = set->GetValue("Correlation.Crystal",0);
   
-#endif
-  
+  fBigRIPSCluster = set->GetValue("BigRIPS.Cluster",9);
+  fBigRIPSCrystal = set->GetValue("BigRIPS.Crystal",9);
+  fBigRIPSChannel = set->GetValue("BigRIPS.Channel",9);
 
+#endif
 }
 
 #ifdef SIMULATION
@@ -212,6 +214,10 @@ void Settings::PrintSettings(){
   cout << "Correlation.Mode\t" << fcorrelationMode << endl;  
   cout << "Correlation.Cluster\t" << fcorrelationCluster << endl;  
   cout << "Correlation.Crystal\t" << fcorrelationCrystal << endl;  
+ 
+  cout << "BigRIPS.Cluster\t" << fBigRIPSCluster << endl;  
+  cout << "BigRIPS.Crystal\t" << fBigRIPSCrystal << endl;  
+  cout << "BigRIPS.Channel\t" << fBigRIPSChannel << endl;  
  
   cout << "HiCARI run Number as read from inputfile:\t" << fHIrunnr << endl; 
   cout << "BigRIPS run Number as read from inputfile:\t" << fBRrunnr << endl; 

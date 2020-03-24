@@ -6,4 +6,16 @@ HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/MBcal0319.dat
 HiCARI.Raw.Thresh:		3000
 BaseLine.Length:		60
 TracePlots:	   		1
+
 HiCARI.IgnoreTrace:		1
+
+## correlation mode: 0 = any, 1 force coinc
+Correlation.Mode:		0
+## correlation with ADC copy of one Ge signal
+Correlation.Cluster:		3
+Correlation.Crystal:		0
+
+## channel used for digitizing the BigRIPS trigger
+BigRIPS.Cluster:		9
+BigRIPS.Crystal:		9
+BigRIPS.Channel:		8

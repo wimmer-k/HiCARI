@@ -461,7 +461,7 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     HiCARIHitCalc* newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
     newHit->SetSegments(nrs,ens);
     bool isBigRIPS = false;
-    if(clu==9 && cry==9){
+    if(clu==fSett->BigRIPSCluster() && cry==fSett->BigRIPSCrystal()){
       fBigRIPSHitctr++;
       isBigRIPS = true;
     }
