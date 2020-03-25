@@ -29,7 +29,8 @@ double resolution = 2;
 double frange = 5000;
 double range[2] = {150000,450000};
 TCanvas *ca;
-char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
+//char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
+char* fileCo = (char*)"/home/gamma20/rootfiles/hist0393.root";
 char* fileEu = (char*)"/home/gamma20/rootfiles/Eu_281_282.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
@@ -61,6 +62,13 @@ void core(int m=0, int c =0){
   if(m==4)
     frange = 5000;
   fitEu(h,v[0],1,1);
+}
+void coreCo(int m=0, int c =0){
+  TFile *f = new TFile(fileCo);
+  TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
+  if(h==NULL)
+    return;
+  vector<double> v = fitCo(h,1,1);
 }
 void segment(int m=0, int c =0, int s =0){
   resolution = 5;
@@ -424,6 +432,8 @@ void CalibGeCo(){
        	  frange = 2000;
 	if(clu==3 && cry==0 && s==3)
        	  frange = 2000;
+	if(clu==10)
+	  SetRange(350000,550000);
 	vector<double> r = fitCo(h,0);
 	//cout << " fitted " << r[0]<< endl;
 	if(r[0]<0)

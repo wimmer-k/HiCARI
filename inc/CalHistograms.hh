@@ -71,7 +71,7 @@ public:
 #ifdef SIMULATION
   void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi);
 #else
-  void FillHistograms(HiCARICalc* ge);
+  void FillHistograms(HiCARICalc* hi);
 #endif
 
   void FillI(string name,int bins, double low, double high, double value){

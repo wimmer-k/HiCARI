@@ -192,6 +192,10 @@ public:
   // //! Returns the Doppler-correction factor to correct the energy.
   // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   // //static double DopplerCorrectionFactor(TVector3 PosToTarget, double beta, double z);
+  bool IsMiniball(){return (fcluster>-1 && fcluster<8);}
+  bool IsSuperClo(){return (fcluster> 7 && fcluster<10 && fcrystal<4);}
+  bool IsTracking(){return (fcluster> 9 && fcluster<12);}
+  bool IsBigRIPS(){return (fcluster==9 && fcrystal==9);}
 
   void Print(){
     cout << "HiCARI: cluster " << fcluster << "\tcrystal " << fcrystal << "\tmaxseg " << fmaxseg << "\tsegsum " << fsegsum << "\ten " << fen << "\tmax hit " << fmaxhit << endl;

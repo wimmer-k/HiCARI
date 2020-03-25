@@ -92,6 +92,7 @@ public:
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
+  bool Mode3Histos(){return fMode3Histos;}
 
   void SetHIRunNumber(int runnr){fHIrunnr = runnr;}
   int GetHIRunNumber(){return fHIrunnr;}
@@ -198,6 +199,7 @@ protected:
   string fHiCARIcalfile;
   int fBaselineLength;
   bool fTracePlots;
+  bool fMode3Histos;
 
   int fHIrunnr;
   int fBRrunnr;

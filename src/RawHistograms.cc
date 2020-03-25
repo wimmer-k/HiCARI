@@ -67,7 +67,7 @@ void RawHistograms::FillHistograms(Mode3Event* m3e, HiCARI* ge){
   bool hasgerma = ge->GetMult()!=0;
 
 
-  if(hasmode3){
+  if(fSett->Mode3Histos() && hasmode3){
     FillMode3Histograms(m3e);
   }
   if(hasgerma){
@@ -136,7 +136,13 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
     Fill("h_cluster",12,0,12,hit->GetCluster());
     Fill("h_crystal",4,0,4,hit->GetCrystal());
     Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
-    Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
+    //temp increase spectrum range gain seems later for P3 pos 2
+    if(hit->GetCluster()==10 && hit->GetCrystal()==1){
+      Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e6,hit->GetEnergy());
+    }
+    else{
+      Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
+    }
     Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e6,hit->GetEnergy(),1000,0,1e6,hit->GetSegmentSum());
     Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetMult());
     

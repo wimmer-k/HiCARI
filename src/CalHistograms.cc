@@ -74,5 +74,28 @@ void CalHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
 }
 #else
 void CalHistograms::FillHistograms(HiCARICalc* hi){
+  Fill("h_mult",30,0,30,hi->GetMult());
+  for(int i=0; i<hi->GetMult(); i++){
+    int segs = 6;
+    HiCARIHitCalc* hit = hi->GetHit(i);
+    if(hit->IsTracking())
+      segs = 40;
+    if(hit->IsSuperClo())
+      segs = 8;
+    if(hit->IsBigRIPS())
+      continue;
+
+    Fill("h_cluster",12,0,12,hit->GetCluster());
+    Fill("h_crystal",4,0,4,hit->GetCrystal());
+    Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),4000,0,4000,hit->GetEnergy());
+    Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
+    Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().size());
+    
+    for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
+      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));
+    }
+  }
+
 }
 #endif

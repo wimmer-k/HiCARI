@@ -88,7 +88,8 @@ void Settings::ReadSettings(TEnv* set){
   ReadHiCARIMappingTable();
   fHiCARIcalfile = set->GetValue("HiCARI.Calibration.File",defaultfile);
   fBaselineLength = set->GetValue("BaseLine.Length",60);
-  fTracePlots = set->GetValue("TracePlots",0);
+  fTracePlots = set->GetValue("Trace.Plots",0);
+  fMode3Histos = set->GetValue("Mode3.Histos",0);
 
   fPPACfile = set->GetValue("BigRIPS.PPAC.File","/home/gamma20/exp/db/db/BigRIPSPPAC.xml");
   fPPACdefaultfile = set->GetValue("BigRIPS.PPAC.Def.File","/home/gamma20/exp/db/db/BigRIPSPPAC.xml");
@@ -190,6 +191,8 @@ void Settings::PrintSettings(){
   cout << "HiCARI.Calibration.File\t"<< fHiCARIcalfile << endl;
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
   cout << "Trace.Plots\t"<< fTracePlots << endl;
+  cout << "Mode3.Histos\t"<< fMode3Histos << endl;
+  
   for(int i=0;i<6;i++)
     cout << Form("TOF offset.%d\t",i) << ftoffset[i] << endl;
 
