@@ -137,7 +137,7 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
     Fill("h_crystal",4,0,4,hit->GetCrystal());
     Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
     //temp increase spectrum range gain seems later for P3 pos 2
-    if(hit->GetCluster()==10 && hit->GetCrystal()==1){
+    if(hit->GetCluster()==11 && hit->GetCrystal()==1){
       Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e6,hit->GetEnergy());
     }
     else{

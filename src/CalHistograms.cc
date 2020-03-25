@@ -97,7 +97,41 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
       Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));
     }
-  }
+    for(int j=i+1; j<hi->GetMult(); j++){
+      HiCARIHitCalc* sec = hi->GetHit(j);
+      Fill("h_engg_symm",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+      Fill("h_engg_symm",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+    }
+  }//hit mult
+  Fill("hAB_mult",30,0,30,hi->GetMultAB());
+  for(int i=0; i<hi->GetMultAB(); i++){
+    int segs = 6;
+    HiCARIHitCalc* hit = hi->GetHitAB(i);
+    if(hit->IsTracking())
+      segs = 40;
+    if(hit->IsSuperClo())
+      segs = 8;
+    if(hit->IsBigRIPS())
+      continue;
+
+    Fill("hAB_cluster",12,0,12,hit->GetCluster());
+    Fill("hAB_crystal",4,0,4,hit->GetCrystal());
+    Fill("hAB_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill("hAB_en_summary",48,0,48,hit->GetCluster()*4+hit->GetCrystal(),4000,0,4000,hit->GetEnergy());
+    Fill(Form("hAB_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),4000,0,4000,hit->GetEnergy());
+    Fill("hAB_segsum_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
+    Fill(Form("hAB_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
+    Fill(Form("hAB_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().size());
+    
+    for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
+      Fill(Form("hAB_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));
+    }
+    for(int j=i+1; j<hi->GetMultAB(); j++){
+      HiCARIHitCalc* sec = hi->GetHitAB(j);
+      Fill("hAB_engg_symm",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+      Fill("hAB_engg_symm",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+    }
+  }//hit mult
 
 }
 #endif

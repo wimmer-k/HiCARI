@@ -30,7 +30,7 @@ double frange = 5000;
 double range[2] = {150000,450000};
 TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
-char* fileCo = (char*)"/home/gamma20/rootfiles/hist0393.root";
+char* fileCo = (char*)"/home/gamma20/rootfiles/hist0394.root";
 char* fileEu = (char*)"/home/gamma20/rootfiles/Eu_281_282.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
@@ -383,7 +383,10 @@ void CalibGeCo(){
 	continue;
       frange = 3000;
       SetRange(150000,450000);
-      if(clu==10 && cry==1){
+      if(clu==5 && cry==1){
+	frange = 10000;
+      }
+      if(clu==11 && cry==1){
 	frange = 30000;
 	SetRange(1200000,1700000);
       }
@@ -425,7 +428,7 @@ void CalibGeCo(){
       for(int s=0;s<40;s++){
 	//cout << s << endl;
 	TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
-	if(h==NULL || h->Integral()<100)
+	if(h==NULL || h->Integral()<10)
 	  continue;
 	frange = 3000;
 	SetRange(150000,450000);
@@ -439,8 +442,8 @@ void CalibGeCo(){
        	  frange = 2000;
 	if(clu==3 && cry==0 && s==3)
        	  frange = 2000;
-	if(clu==10)
-	  SetRange(350000,550000);
+	if(clu==11)
+	  SetRange(420000,540000);
 	vector<double> r = fitCo(h,0);
 	//cout << " fitted " << r[0]<< endl;
 	if(r[0]<0)

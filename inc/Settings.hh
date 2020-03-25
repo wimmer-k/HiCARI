@@ -47,6 +47,7 @@ public:
   TVector3 TargetPos(){return TVector3(ftargetX,ftargetY,ftargetZ);}
   Float_t TargetBeta(){return ftargetBeta;}
   Float_t AverageAfterBeta(){return fAveAfterBeta;}
+  int AddBackType(){return fAddBackType;}
 #ifdef SIMULATION
   const char* SimResolutionFile(){return fResFile.c_str();}
   const char* SimThresholdFile(){return fThreshFile.c_str();}
@@ -66,7 +67,6 @@ public:
   const char* MatrixFile(){return fMatrixFile.c_str();}
   const char* NeighborFile(){return fNeighborFile.c_str();}
 
-  int AddBackType(){return fAddBackType;}
 
   double ClusterAngle(){return fClusterAngle;}
   int StoreAllIPoints(){return fStoreAllIPoints;}
@@ -160,6 +160,7 @@ protected:
   Float_t ftargetZ;
   Float_t ftargetBeta;
   Float_t fAveAfterBeta;
+  int fAddBackType;
 
 #ifdef SIMULATION
   double fTargetAngleRes;
@@ -184,7 +185,6 @@ protected:
   map<int,int> fdet2clu;
   map<int,int> fclu2det;
 
-  int fAddBackType;
   double fClusterAngle;
   int fStoreAllIPoints;
   double fOverflowThreshold;

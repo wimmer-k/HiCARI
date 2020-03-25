@@ -38,6 +38,7 @@ void Settings::ReadSettings(TEnv* set){
   ftargetZ = set->GetValue("Target.Z",0.0);
   ftargetBeta = set->GetValue("Target.Beta",0.0);
   fAveAfterBeta = set->GetValue("Average.Beta.After",0.0);
+  fAddBackType = set->GetValue("AddBackType",0);
 
 #ifdef SIMULATION
   fResFile = set->GetValue("Sim.Resolution.File",defaultfile);
@@ -60,7 +61,6 @@ void Settings::ReadSettings(TEnv* set){
   
   
   fAveMBPos = set->GetValue("Average.MBPositions",defaultfile);
-  fAddBackType = set->GetValue("AddBackType",0);
   fClusterAngle = set->GetValue("ClusterAngle",20);
   fStoreAllIPoints = set->GetValue("StoreAllIPoints",0);
 
@@ -154,6 +154,8 @@ void Settings::PrintSettings(){
   cout << "Target.Beta\t" << ftargetBeta << endl;
   cout << "Average.Beta.After\t" << fAveAfterBeta << endl;
 
+  cout << "AddBackType\t" << fAddBackType << endl;
+
 #ifdef SIMULATION
   cout << "Sim.Resolution.File\t" << fResFile << endl;
   cout << "Sim.Threshold.File\t" << fThreshFile << endl;
@@ -176,7 +178,6 @@ void Settings::PrintSettings(){
   cout << "Gretina.Matrix.File\t" << fMatrixFile << endl;
   cout << "Gretina.Neighbor.File\t" << fNeighborFile << endl;
 
-  cout << "AddBackType\t" << fAddBackType << endl;
   cout << "ClusterAngle\t" << fClusterAngle << endl;
   cout << "StoreAllIPoints\t" << fStoreAllIPoints << endl;
   cout << "OverflowThreshold\t"<< fOverflowThreshold << endl;
