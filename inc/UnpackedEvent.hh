@@ -162,6 +162,11 @@ public:
   TTree* GetSimTree(){return fsimtr;}
 #else
   TTree* GetTraceTree(){return ftr;}
+  //! Make HiCARI objects from mode3 data
+  void MakeMode2();
+  void SetMode3(Mode3Event *m3e){fMode3Event = m3e;}
+  HiCARI* GetHiCARI(){return fHiCARI;}
+  HiCARICalc* GetHiCARICalc(){return fHiCARICalc;}
 #endif
 
 protected:
@@ -171,10 +176,6 @@ protected:
   void CloseEvent();
   //! Clears memory of current event.
   void ClearEvent();
-#ifndef SIMULATION
-  //! Make HiCARI objects from mode3 data
-  void MakeMode2();
-#endif
 
   TRandom* fRand;
 #ifdef SIMULATION

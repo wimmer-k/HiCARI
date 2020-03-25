@@ -68,6 +68,7 @@ void coreCo(int m=0, int c =0){
   TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
     return;
+  h->Draw();
   vector<double> v = fitCo(h,1,1);
 }
 void segment(int m=0, int c =0, int s =0){
@@ -255,7 +256,7 @@ vector<double> fitCo(TH1F* h, bool bg, bool draw){
     fu[p]->SetParameter(3,xpeaks[p]);//mean
     fu[p]->SetParLimits(3,xpeaks[p]-500,xpeaks[p]+500);//mean
     fu[p]->SetParameter(4,200);//sigma
-    fu[p]->SetParLimits(4,100,1000);//sigma
+    fu[p]->SetParLimits(4,100,frange);//sigma
     fu[p]->SetParameter(5,h->GetBinContent(h->FindBin(xpeaks[p]-frange)));//step
     if(draw)
       h->Fit(fu[p],"Rn");
@@ -380,6 +381,12 @@ void CalibGeCo(){
       TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
       if(h==NULL)
 	continue;
+      frange = 3000;
+      SetRange(150000,450000);
+      if(clu==10 && cry==1){
+	frange = 30000;
+	SetRange(1200000,1700000);
+      }
       vector<double> r = fitCo(h,1);
       //cout << " fitted " << r[0]<< endl;
       if(r[0]<0)

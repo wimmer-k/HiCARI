@@ -88,7 +88,9 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     Fill("h_cluster",12,0,12,hit->GetCluster());
     Fill("h_crystal",4,0,4,hit->GetCrystal());
     Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill("h_en_summary",48,0,48,hit->GetCluster()*4+hit->GetCrystal(),4000,0,4000,hit->GetEnergy());
     Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),4000,0,4000,hit->GetEnergy());
+    Fill("h_segsum_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
     Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
     Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().size());
     

@@ -51,7 +51,7 @@ else
 endif
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) UnpackMode3 Raw_histos Cal_histos BigRIPSTree Merge #SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) UnpackMode3 Calibrate Raw_histos Cal_histos BigRIPSTree Merge #SimCalculate Sim_histos
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -68,6 +68,14 @@ UnpackMode3: UnpackMode3.cc $(O_FILES)
 Raw_histos: Raw_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
+
+MakeMode2: MakeMode2.cc $(O_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
+
+Calibrate: Calibrate.cc $(O_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
 
 Cal_histos: Cal_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
