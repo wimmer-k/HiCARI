@@ -74,6 +74,24 @@ public:
   bool GetCore(){return fcore;}
   long long int GetTDiff(){return ftdiff;}
 
+  void Print(){
+    cout << "--------------------- Trace Print ------------------------" << endl;
+    cout << "flength  = " << flength  << endl;
+    cout << "fboard   = " << fboard   << endl;
+    cout << "fchn     = " << fchn     << endl;
+    cout << "fslot    = " << fslot    << endl;
+    cout << "fcrystal = " << fcrystal << endl;
+    cout << "fhole    = " << fhole    << endl;
+    cout << "fLED_ts  = " << fLED_ts  << endl;
+    cout << "fen      = " << fen      << endl;
+    cout << "fen_sign = " << fen_sign << endl;
+    cout << "fpileup  = " << fpileup  << endl;
+    cout << "fCFD_ts  = " << fCFD_ts  << endl;
+    cout << "fCFD[0]  = " << fCFD[0]  << endl;
+    cout << "fCFD[1]  = " << fCFD[1]  << endl;
+    cout << "fts      = " << fts      << endl;
+    cout << "ftdiff   = " << ftdiff   << endl;
+  }
   //int GetSegNum(Settings*);
 protected:
   //! The number of points in the trace.

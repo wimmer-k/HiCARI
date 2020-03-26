@@ -444,6 +444,8 @@ void CalibGeCo(){
        	  frange = 2000;
 	if(clu==11)
 	  SetRange(420000,540000);
+	if(clu==11&&cry==2&&s ==33)
+	  SetRange(580000,740000);
 	vector<double> r = fitCo(h,0);
 	//cout << " fitted " << r[0]<< endl;
 	if(r[0]<0)

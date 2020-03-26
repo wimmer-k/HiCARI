@@ -11,7 +11,7 @@
 #include "TH2F.h"
 
 #include "/home/gamma20/HiCARI/inc/Trace.hh"
-char* filename = (char*)"~/rootfiles/run0376.root";
+char* filename = (char*)"~/rootfiles/debug.root";
 int verbose = 0;
 int frontBL = 70;
 Double_t flinear(Double_t *x, Double_t *par);
@@ -283,6 +283,10 @@ void ViewTraces(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
 	  else
 	    cout << endl;
 	}
+	if(trace->GetEnergy() == pow(2,16))
+	  trace->Print();
+	if(trace->GetEnergy() >70000 && trace->GetEnergy() < 80000)
+	  trace->Print();
 	int data[200];
 	int x[200];
 	for(int j=0;j<trace->GetLength();j++){

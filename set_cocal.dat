@@ -3,11 +3,11 @@ EventTimeDiff:			500
 
 HiCARI.Mapping.Table:		/home/gamma20/HiCARI/settings/mapping.dat
 HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/co_cal0325.dat
-HiCARI.Raw.Thresh:		3000
+HiCARI.Raw.Thresh:		0	#3000
 BaseLine.Length:		60
 TracePlots:	   		1
 
-HiCARI.IgnoreTrace:		1
+HiCARI.IgnoreTrace:		0
 
 AddBackType:			1
 

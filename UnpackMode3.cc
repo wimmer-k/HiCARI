@@ -54,6 +54,8 @@ int main(int argc, char* argv[]){
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-rt", "write raw tree", &wrawtree);
   interface->Add("-ct", "write cal tree", &wcaltree);
+  interface->Add("-rh", "write raw histos", &wrawhist);
+  interface->Add("-ch", "write cal histos", &wcalhist);
   interface->Add("-m", "make mode2 data, no decomp", &makemode2);
   interface->Add("--no-HFC","do not use HFC as an intermediate step",&noHFC);
   interface->CheckFlags(argc, argv);

@@ -286,6 +286,8 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   int en = (int) *(wBuf+3) & 0x00ff;
   en = en << 16;
   en += (int) *(wBuf);
+  if((int) *(wBuf) == 0)
+    en = 0;
   int sign = *(wBuf+3) & 0x0100;
 
   if(sign){
@@ -300,7 +302,6 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     if(curTrace.GetChn()!=9) // not core
       en = - en;
   }
-
 
   curTrace.SetEnergy(en);
   curTrace.SetEnSign(sign);

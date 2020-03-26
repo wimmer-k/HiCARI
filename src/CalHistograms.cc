@@ -99,10 +99,11 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     }
     for(int j=i+1; j<hi->GetMult(); j++){
       HiCARIHitCalc* sec = hi->GetHit(j);
-      Fill("h_engg_symm",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-      Fill("h_engg_symm",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+      Fill("h_engg_symm",1000,0,4000,hit->GetEnergy(),1000,0,4000,sec->GetEnergy());
+      Fill("h_engg_symm",1000,0,4000,sec->GetEnergy(),1000,0,4000,hit->GetEnergy());
     }
   }//hit mult
+  Fill("h_mult_multAB",30,0,30,hi->GetMult(),30,0,30,hi->GetMultAB());
   Fill("hAB_mult",30,0,30,hi->GetMultAB());
   for(int i=0; i<hi->GetMultAB(); i++){
     int segs = 6;
@@ -128,8 +129,8 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     }
     for(int j=i+1; j<hi->GetMultAB(); j++){
       HiCARIHitCalc* sec = hi->GetHitAB(j);
-      Fill("hAB_engg_symm",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-      Fill("hAB_engg_symm",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+      Fill("hAB_engg_symm",1000,0,4000,hit->GetEnergy(),1000,0,4000,sec->GetEnergy());
+      Fill("hAB_engg_symm",1000,0,4000,sec->GetEnergy(),1000,0,4000,hit->GetEnergy());
     }
   }//hit mult
 

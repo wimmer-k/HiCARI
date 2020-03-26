@@ -23,9 +23,9 @@ Calibration::Calibration(Settings* setting, int event){
 
 
   fverbose = fSett->VLevel();
+  fAddBackType = fSett->AddBackType();
 
 #ifdef SIMULATION
-  fAddBackType = fSett->AddBackType();
   ReadMBPositions(fSett->AveMBPos());
   if(fSett->UseMINOS()){
     fMINOSZett = new TF1("MINOSZett",inverted,fSett->TargetZ() - 200, fSett->TargetZ() + 200, 3);
@@ -490,6 +490,7 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     cout << out->GetMult() << "\t" << (out->GetHits()).size() << endl;
   fevent++;
 }
+
 void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
   //All hits within a cluster 
   vector<HiCARIHitCalc*> hits= gr->GetHits();
