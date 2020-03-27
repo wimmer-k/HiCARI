@@ -7,8 +7,6 @@ Settings::Settings(const char* filename){
   if(fVerboseLevel>1){
     PrintSettings();
   }
-  fHIrunnr = -1;
-  fBRrunnr = -1;
 }
 
 Settings::Settings(vector<char*> files){
@@ -22,9 +20,6 @@ Settings::Settings(vector<char*> files){
   if(fVerboseLevel>1){
     PrintSettings();
   }
-  fHIrunnr = -1;
-  fBRrunnr = -1;
-
 }
 
 void Settings::ReadSettings(TEnv* set){
@@ -222,9 +217,6 @@ void Settings::PrintSettings(){
   cout << "BigRIPS.Cluster\t" << fBigRIPSCluster << endl;  
   cout << "BigRIPS.Crystal\t" << fBigRIPSCrystal << endl;  
   cout << "BigRIPS.Channel\t" << fBigRIPSChannel << endl;  
- 
-  cout << "HiCARI run Number as read from inputfile:\t" << fHIrunnr << endl; 
-  cout << "BigRIPS run Number as read from inputfile:\t" << fBRrunnr << endl; 
 
 #endif
 

@@ -11,6 +11,7 @@
 
 #include "CommandLineInterface.hh"
 #include "BuildEvents.hh"
+#include "RunInfo.hh"
 
 #include "Globaldefs.h"
 using namespace TMath;
@@ -51,7 +52,10 @@ int main(int argc, char* argv[]){
   TTree* trhicari = NULL;
   TFile* inbigrips = NULL;
   TFile* inhicari = NULL;
+  int BRrunnr = -1;
+  int HIrunnr = -1;
 
+  RunInfo *info = NULL;
   if(BigRIPSFile == NULL){
     cout << "No BigRIPS input file given " << endl;
   }
@@ -61,6 +65,7 @@ int main(int argc, char* argv[]){
     if(trbigrips == NULL){
       cout << "could not find BigRIPS tree in file " << inbigrips->GetName() << endl;
     }
+    info = (RunInfo*) inbigrips->Get("info");
   }
   if(HiCARIFile == NULL){
     cout << "No HiCARI input file given " << endl;
@@ -71,6 +76,10 @@ int main(int argc, char* argv[]){
     if(trhicari == NULL){
       cout << "could not find HiCARI tree in file " << inhicari->GetName() << endl;
     }
+    if(info==NULL)
+      info = (RunInfo*) inhicari->Get("info");
+    else
+      info->AppendInfo((RunInfo*) inhicari->Get("info"));
   }
 
   cout<<"BigRIPS file: "<<BigRIPSFile<<endl;
@@ -101,7 +110,7 @@ int main(int argc, char* argv[]){
   evts->ReadEach();
   int ctr=0;
   int total = evts->GetNEvents();
-  
+
   while(evts->Merge()){
     if(ctr%10000 == 0){
       double time_end = get_time();
@@ -126,10 +135,12 @@ int main(int argc, char* argv[]){
     }
     ctr++;
   }
+  info->SetMergedEvents(ctr);
   evts->CloseEvent();
   evts->GetTree()->Write("",TObject::kOverwrite);
   evts->GetHistos()->Write();
   double r = evts->GetHistos()->GetCorrRate();
+  info->SetCorrelationRate(r);
   cout << endl << "Total correlation rate from checkADC ";
   if(r>90)
     cout << GREEN;
@@ -138,7 +149,7 @@ int main(int argc, char* argv[]){
   else
     cout << RED;
   cout << r << DEFCOLOR << " %" << endl;
-
+  info->Write("info");
   outfile->Close();
   if(inbigrips!=NULL)
     inbigrips->Close();

@@ -87,6 +87,9 @@ public:
   void SetCalibration(Calibration* cal){
     fcal = cal;
   }
+  Calibration* GetCalibration(){
+    return fcal;
+  }
 #ifdef SIMULATION
   void SetWrite(bool wtree, bool whist, bool wctree, bool wchist, bool wstree){
     fwtree = wtree;
@@ -142,8 +145,8 @@ public:
 
   int NrOfEvents(){return fnentries;}
   int NrOfCalEvents(){return fncalentries;}
-  int NrOfStrangeHits(){return fstrangehits;}
 #ifdef SIMULATION
+  int NrOfStrangeHits(){return fstrangehits;}
   int NrOfGRHits(){return fGRhits;}
   int NrOfMBHits(){return fMBhits;}
   //! The number of simulated events
@@ -218,9 +221,9 @@ protected:
   bool fwcalhist;
 #ifdef SIMULATION
   bool fwsimtree;
-#endif
   int fstrangehits;
   int frecalibrate;
+#endif
   int fEventTimeDiff;
 
   Calibration* fcal;

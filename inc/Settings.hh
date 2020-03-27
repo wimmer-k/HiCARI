@@ -94,11 +94,6 @@ public:
   bool TracePlots(){return fTracePlots;}
   bool Mode3Histos(){return fMode3Histos;}
 
-  void SetHIRunNumber(int runnr){fHIrunnr = runnr;}
-  int GetHIRunNumber(){return fHIrunnr;}
-  void SetBRRunNumber(int runnr){fBRrunnr = runnr;}
-  int GetBRRunNumber(){return fBRrunnr;}
-
   //! Get the beta for the Doppler correction
   double Beta(){return fbeta;}
   //! Get the BigRIPS PPAC xml file
@@ -201,8 +196,6 @@ protected:
   bool fTracePlots;
   bool fMode3Histos;
 
-  int fHIrunnr;
-  int fBRrunnr;
   int fcorrelationMode;
   int fcorrelationCluster;
   int fcorrelationCrystal;

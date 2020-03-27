@@ -550,8 +550,8 @@ void Calibration::PrintCtrs(){
   cout << "fzerodegctr  \t" << fzerodegctr  << endl;
   cout << "fminosctr  \t" << fminosctr  << endl;
 #else
-  cout << "HiCARI events  \t" << fHiCARIctr  << endl;
-  cout << "HiCARI hits  \t" << fHiCARIHitctr  << endl;
+  cout << "HiCARI events \t" << fHiCARIctr  << endl;
+  cout << "HiCARI hits   \t" << fHiCARIHitctr  << endl;
   cout << "BigRIPS events\t" << fBigRIPSctr  << endl;
   cout << "BigRIPS hits  \t" << fBigRIPSHitctr  << endl;
 #endif

@@ -107,9 +107,7 @@ void UnpackedEvent::Init(){
 #ifdef SIMULATION
   fGRhits = 0;
   fMBhits = 0;
-#endif
   fstrangehits = 0;
-#ifdef SIMULATION
   fGretina->Clear();
   fMiniball->Clear();
   fZeroDeg->Clear();
@@ -905,6 +903,8 @@ void UnpackedEvent::CloseEvent(){
 #else 
       frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,NULL);
 #endif
+#else
+      frhist->FillHistograms(fMode3Event,fHiCARI);
 #endif
     }
     //Write the raw tree.
@@ -945,6 +945,8 @@ void UnpackedEvent::CloseEvent(){
 #else
       fchist->FillHistograms(fGretinaCalc, fMiniballCalc,fZeroDeg,NULL);
 #endif
+#else
+      fchist->FillHistograms(fHiCARICalc);
 #endif
     }
   }
@@ -964,9 +966,11 @@ void UnpackedEvent::WriteLastEvent(){
   this->CloseEvent();
 
   if(fwhist){
+    cout << "Writing raw histograms" << endl;
     frhist->Write();
   }
   if(fwcalhist){
+    cout << "Writing calibrated histograms" << endl;
     fchist->Write();
   }
   if(fwcaltree)

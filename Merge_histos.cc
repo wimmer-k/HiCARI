@@ -53,7 +53,6 @@ int main(int argc, char* argv[]){
 
   interface->Add("-i", "inputfiles", &InputFiles);
   interface->Add("-o", "outputfile", &OutputFile);
-  //interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-n", "nmax", &nmax);
   interface->Add("-v", "verbose", &vl);
   interface->CheckFlags(argc, argv);
@@ -73,7 +72,6 @@ int main(int argc, char* argv[]){
   for(unsigned int i=0; i<InputFiles.size(); i++){
     tr->Add(InputFiles[i]);
   }
-  //tr->Print("toponly");
 
 
   if(tr == NULL){
@@ -125,7 +123,9 @@ int main(int argc, char* argv[]){
   //   return 5;
   // }
   // MergeHistograms* hists = new MergeHistograms(new Settings(SettingFile),nentries);
-  MergeHistograms* hists = new MergeHistograms(nentries);
+  TFile *firstinfile = new TFile(InputFiles[0]);
+  Settings* set = (Settings*)firstinfile->Get("settings");
+  MergeHistograms* hists = new MergeHistograms(set,nentries);
 
   cout << nentries << " entries in tree " << endl;
 

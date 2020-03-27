@@ -46,18 +46,18 @@ void SetRange(double low, double hig){
 }
 void test(int b=11, int s = 3, int c =9){
   TFile *f = new TFile(fileCo);
-  TH1F* h = (TH1F*)f->Get(Form("hraw_en_bank%02d_slot%02d_chan%02d",b,s,c));
+  TH1F* h = (TH1F*)f->Get(Form("hmode3_en_bank%02d_slot%02d_chan%02d",b,s,c));
   fitCo(h,1,1);
 }
 void core(int m=0, int c =0){
   TFile *f = new TFile(fileCo);
-  TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
+  TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
     return;
   vector<double> v = fitCo(h,1,1);
   cout << v[0] << "\t" << v[1] << endl;
   f = new TFile(fileEu);
-  h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
+  h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   frange = 3000;
   if(m==4)
     frange = 5000;
@@ -65,7 +65,7 @@ void core(int m=0, int c =0){
 }
 void coreCo(int m=0, int c =0){
   TFile *f = new TFile(fileCo);
-  TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",m,c));
+  TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
     return;
   h->Draw();
@@ -74,7 +74,7 @@ void coreCo(int m=0, int c =0){
 void segment(int m=0, int c =0, int s =0){
   resolution = 5;
   TFile *f = new TFile(fileCo);
-  TH2F* h2 = (TH2F*)f->Get(Form("h_segen_vs_nr_clus%02d_crys%02d",m,c));
+  TH2F* h2 = (TH2F*)f->Get(Form("hraw_segen_vs_nr_clus%02d_crys%02d",m,c));
   TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
   if(h==NULL || h->Integral()<100)
     return;
@@ -323,13 +323,13 @@ void CalibGeEu(){
   ca3->Divide(6,3);
   for(int clu=0;clu<6;clu++){
     for(int cry=0;cry<3;cry++){
-      TH1F* h = (TH1F*)fco->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
+      TH1F* h = (TH1F*)fco->Get(Form("hraw_en_clus%02d_crys%02d",clu,cry));
       if(h==NULL)
 	return;
       vector<double> vco = fitCo(h,1,0);
       if(vco[0]<0)
 	continue;
-      h = (TH1F*)feu->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
+      h = (TH1F*)feu->Get(Form("hraw_en_clus%02d_crys%02d",clu,cry));
       frange = 3000;
       if(cry==4)
 	frange = 5000;
@@ -378,7 +378,7 @@ void CalibGeCo(){
   for(int clu=0;clu<12;clu++){
     for(int cry=0;cry<4;cry++){
       //cout << clu << "\t" << cry << endl;
-      TH1F* h = (TH1F*)f->Get(Form("h_en_clus%02d_crys%02d",clu,cry));
+      TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",clu,cry));
       if(h==NULL)
 	continue;
       frange = 3000;
@@ -422,7 +422,7 @@ void CalibGeCo(){
   for(int clu=0;clu<12;clu++){
     for(int cry=0;cry<4;cry++){
       //cout << clu << "\t" << cry << endl;
-      TH2F* h2 = (TH2F*)f->Get(Form("h_segen_vs_nr_clus%02d_crys%02d",clu,cry));
+      TH2F* h2 = (TH2F*)f->Get(Form("hraw_segen_vs_nr_clus%02d_crys%02d",clu,cry));
       if(h2==NULL)
 	continue;
       for(int s=0;s<40;s++){

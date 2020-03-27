@@ -32,6 +32,7 @@
 
 #include "CommandLineInterface.hh"
 #include "Settings.hh"
+#include "RunInfo.hh"
 
 #include "FocalPlane.hh"
 #include "PPAC.hh"
@@ -89,7 +90,8 @@ int main(int argc, char* argv[]){
   }
   Settings* set = new Settings(SetFile);
   set->SetVLevel(vl);
-  set->SetBRRunNumber(run);
+  RunInfo* info = new RunInfo();
+  info->SetBRRunNumber(run);
   set->Write("settings",TObject::kOverwrite);
   TArtStoreManager* sman = TArtStoreManager::Instance();
 
@@ -409,7 +411,9 @@ int main(int argc, char* argv[]){
   cout << "Program Run time: " << time_end - time_start << " s." << endl;
   cout << "Total of " << ctr << " events processed, " << ctr/(time_end - time_start) << " events/s." << endl;
   cout << BLUE << tr->GetEntries() << DEFCOLOR << " entries written to tree ("<<BLUE<<tr->GetZipBytes()/(1024*1024)<< DEFCOLOR<<" MB)"<< endl;
+  info->SetBREvents(tr->GetEntries());
   tr->Write("",TObject::kOverwrite);
+  info->Write("info",TObject::kOverwrite);
   outfile->Close();
   timer.Stop();
   cout << "CPU time: " << timer.CpuTime() << "\tReal time: " << timer.RealTime() << endl;

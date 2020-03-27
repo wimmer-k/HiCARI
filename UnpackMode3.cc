@@ -11,7 +11,7 @@
 
 #include "CommandLineInterface.hh"
 #include "UnpackedEvent.hh"
-//#include "Settings.hh"
+#include "RunInfo.hh"
 using namespace TMath;
 using namespace std;
 
@@ -114,9 +114,10 @@ int main(int argc, char* argv[]){
   }
   //Read the settings
   Settings* set = new Settings(SettingFile);
+  RunInfo* info = new RunInfo();
   ofile->cd();
   int vl = set->VLevel();
-  set->SetHIRunNumber(run);
+  info->SetHIRunNumber(run);
   set->Write("settings",TObject::kOverwrite);
   //Initialize the data structures for the event building.
   int buffers = 0;
@@ -180,11 +181,12 @@ int main(int argc, char* argv[]){
     //Write the trees out to disk every denom events.
     buffers++;
     if(buffers % denom == 0){
-      if(wrawtree)
-       	evt->GetTree()->AutoSave();
-      // if(wcaltree)
-      // 	evt->GetCalTree()->AutoSave();
-      // sc->AutoSave();
+      if(buffers % denom*10 == 0){
+	if(wrawtree)
+	  evt->GetTree()->AutoSave();
+	if(wcaltree)
+	  evt->GetCalTree()->AutoSave();
+      }
       double time_end = get_time();
       cout << "\r" << buffers << " buffers read... "<<bytes_read/(1024*1024)<<" MB... "<<buffers/(time_end - time_start) << " buffers/s" << flush;
     }
@@ -193,14 +195,21 @@ int main(int argc, char* argv[]){
   evt->WriteLastEvent();
   cout << endl;
   cout << "Total of " << BLUE << buffers << DEFCOLOR << " data buffers ("<< BLUE <<bytes_read/(1024*1024) << DEFCOLOR << " MB) read." << endl;
+  info->SetHIBytes(bytes_read);
+  info->SetHIRawEvents(evt->NrOfEvents());
   if(wrawtree||wrawhist){
     cout << "Total of " << BLUE << evt->NrOfEvents() << DEFCOLOR << " raw events";
     if(wrawtree)
       cout <<" ("<< BLUE << evt->GetTree()->GetZipBytes()/(1024*1024)<< DEFCOLOR << " MB)";
     cout <<" written."  << endl;
-    //cout << evt->NrOfHits() << " hits and " << evt->NrOfStrangeHits() << " strange hits (bad ip) "<<setprecision(2)<< (float)evt->NrOfStrangeHits()/evt->NrOfHits()*100.<< " %"  <<setw(5)<< endl;
   }
   if(wcaltree){
+    info->SetHICalEvents(evt->NrOfCalEvents());
+    cal = evt->GetCalibration();
+    info->SetBigRIPSCtr(cal->GetBigRIPSCtr());
+    info->SetBigRIPSHitCtr(cal->GetBigRIPSHitCtr());
+    info->SetHiCARICtr(cal->GetHiCARICtr());
+    info->SetHiCARIHitCtr(cal->GetHiCARIHitCtr());
     cout << "Total of " <<BLUE << evt->NrOfCalEvents() << DEFCOLOR << " cal events ("<< BLUE <<evt->GetCalTree()->GetZipBytes()/(1024*1024) << DEFCOLOR << " MB) written."  << endl;
   }
   cout << endl;
@@ -212,6 +221,7 @@ int main(int argc, char* argv[]){
   if(wcaltree){
     evt->GetCalTree()->Write("",TObject::kOverwrite);
   }
+  info->Write("info",TObject::kOverwrite);
   double time_end = get_time();
   cout << "Program Run time " << time_end - time_start << " s." << endl;
   cout << "Unpacked " << buffers/(time_end - time_start) << " buffers/s." << endl;

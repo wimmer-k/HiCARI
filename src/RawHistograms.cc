@@ -79,10 +79,10 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
   //Mode 2 histograms
   //static bool firstEvent = true;
 
-  Fill("hraw_emult",30,0,30,m3e->GetMult());
+  Fill("hmode3_emult",30,0,30,m3e->GetMult());
   for(int i=0; i<m3e->GetMult(); i++){
     Mode3Hit* hit = m3e->GetHit(i);
-    Fill("hraw_hmult",30,0,30,hit->GetMult());
+    Fill("hmode3_hmult",30,0,30,hit->GetMult());
     for(int j=0; j<hit->GetMult(); j++){
       Trace * trace = hit->GetTrace(j);
       if(fSett->VLevel()>1){
@@ -100,24 +100,24 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
 	else
 	  cout << endl;
       }
-      Fill("hraw_hole",20,0,20,trace->GetHole());
-      Fill(Form("hraw_crys_hole%02d",trace->GetHole()),10,0,10,trace->GetCrystal());
-      Fill(Form("hraw_slot_hole%02d_crys%02d",trace->GetHole(),trace->GetCrystal()),10,0,10,trace->GetSlot());
-      Fill(Form("hraw_chan_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn());
-      Fill(Form("hraw_en_hole%02d_crys%02d_slot%02d_chan%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot(),trace->GetChn()),20000,0,1e6,trace->GetEnergy());
-      Fill(Form("hraw_en_vs_chn_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn(),1000,0,1e6,trace->GetEnergy());
+      Fill("hmode3_hole",20,0,20,trace->GetHole());
+      Fill(Form("hmode3_crys_hole%02d",trace->GetHole()),10,0,10,trace->GetCrystal());
+      Fill(Form("hmode3_slot_hole%02d_crys%02d",trace->GetHole(),trace->GetCrystal()),10,0,10,trace->GetSlot());
+      Fill(Form("hmode3_chan_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn());
+      Fill(Form("hmode3_en_hole%02d_crys%02d_slot%02d_chan%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot(),trace->GetChn()),20000,0,1e6,trace->GetEnergy());
+      Fill(Form("hmode3_en_vs_chn_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn(),1000,0,1e6,trace->GetEnergy());
       //for MB, SC only
       if(trace->GetChn()==9){
-	Fill(Form("hraw_core_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),2000,0,1e6,trace->GetEnergy());
+	Fill(Form("hmode3_core_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),2000,0,1e6,trace->GetEnergy());
 	if(fSett->TracePlots()){
 	  double baseline =0;
 	  for(int j=0;j<trace->GetLength();j++){
-	    Fill(Form("hraw_coretraces_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),200,0,200,j,1200,-10000,2000,(int)trace->GetTrace()[j]);
+	    Fill(Form("hmode3_coretraces_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),200,0,200,j,1200,-10000,2000,(int)trace->GetTrace()[j]);
 	    if(j<fSett->BaselineLength())
 	      baseline+=trace->GetTrace()[j];
 	  }
 	  baseline/=fSett->BaselineLength();
-	  Fill(Form("hraw_smoke_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),1000,0,1e6,trace->GetEnergy(),1000,0,1000,baseline);
+	  Fill(Form("hmode3_smoke_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),1000,0,1e6,trace->GetEnergy(),1000,0,1000,baseline);
 	}
       }
     }
@@ -125,7 +125,7 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
 }
 
 void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
-  Fill("h_mult",30,0,30,ge->GetMult());
+  Fill("hraw_mult",30,0,30,ge->GetMult());
   for(int i=0; i<ge->GetMult(); i++){
     int segs = 6;
     HiCARIHit* hit = ge->GetHit(i);
@@ -133,21 +133,21 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
       segs = 40;
     if(hit->IsSuperClo())
       segs = 8;
-    Fill("h_cluster",12,0,12,hit->GetCluster());
-    Fill("h_crystal",4,0,4,hit->GetCrystal());
-    Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill("hraw_cluster",12,0,12,hit->GetCluster());
+    Fill("hraw_crystal",4,0,4,hit->GetCrystal());
+    Fill("hraw_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
     //temp increase spectrum range gain seems later for P3 pos 2
     if(hit->GetCluster()==11 && hit->GetCrystal()==1){
-      Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e6,hit->GetEnergy());
+      Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e6,hit->GetEnergy());
     }
     else{
-      Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
+      Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
     }
-    Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e6,hit->GetEnergy(),1000,0,1e6,hit->GetSegmentSum());
-    Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetMult());
+    Fill(Form("hraw_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e6,hit->GetEnergy(),1000,0,1e6,hit->GetSegmentSum());
+    Fill(Form("hraw_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetMult());
     
     for(int j=0; j<hit->GetMult(); j++){
-      Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr(j),5000,0,1e6,hit->GetSegmentEn(j));
+      Fill(Form("hraw_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr(j),5000,0,1e6,hit->GetSegmentEn(j));
     }
   }
 }

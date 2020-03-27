@@ -46,6 +46,10 @@ Hole.16.Crystal.0.Slot.3:	72
 
 ##SuperClover
 #bank14
+Hole.16.Crystal.1.Slot.0:       80
+Hole.16.Crystal.1.Slot.1:       81
+Hole.16.Crystal.1.Slot.2:       82
+Hole.16.Crystal.1.Slot.3:       83
 
 #bank15
 Hole.16.Crystal.2.Slot.0:       90
@@ -60,10 +64,10 @@ Hole.16.Crystal.3.Slot.1:       98
 Hole.16.Crystal.3.Slot.2:       98 # ignore
 Hole.16.Crystal.3.Slot.3:       99
 
-
-
-##dummy
-Hole.15.Crystal.0.Slot.0:	60
-Hole.15.Crystal.0.Slot.1:	61
-Hole.15.Crystal.0.Slot.2:       62
-Hole.15.Crystal.0.Slot.3:       63
+##
+##
+####dummy
+##Hole.15.Crystal.0.Slot.0:	60
+##Hole.15.Crystal.0.Slot.1:	61
+##Hole.15.Crystal.0.Slot.2:       62
+##Hole.15.Crystal.0.Slot.3:       63

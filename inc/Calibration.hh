@@ -85,7 +85,10 @@ public:
 #endif
 
   void PrintCtrs();
-
+  long long int GetBigRIPSCtr(){return fBigRIPSctr;}
+  long long int GetBigRIPSHitCtr(){return fBigRIPSHitctr;}
+  long long int GetHiCARICtr(){return fHiCARIctr;}
+  long long int GetHiCARIHitCtr(){return fHiCARIHitctr;}
   
 private:
   void ResetCtrs();
