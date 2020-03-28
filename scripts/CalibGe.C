@@ -30,7 +30,7 @@ double frange = 5000;
 double range[2] = {150000,450000};
 TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
-char* fileCo = (char*)"/home/gamma20/rootfiles/hist0394.root";
+char* fileCo = (char*)"/home/gamma20/rootfiles/run0399.root";
 char* fileEu = (char*)"/home/gamma20/rootfiles/Eu_281_282.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
@@ -385,6 +385,9 @@ void CalibGeCo(){
       SetRange(150000,450000);
       if(clu==5 && cry==1){
 	frange = 10000;
+      }
+      if(clu==1 && cry==1){
+	frange = 4000;
       }
       if(clu==11 && cry==1){
 	frange = 30000;

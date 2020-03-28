@@ -36,9 +36,6 @@ void RunInfo::AppendInfo(RunInfo* sec){
 
 void RunInfo::PrintRunInfo(){
   cout << "HiCARI run Number as read from inputfile:\t" << fHIrunnr << endl; 
-  cout << "BigRIPS run Number as read from inputfile:\t" << fBRrunnr << endl; 
-
-
   if(fHIrunnr>0){
     cout << "Number of Raw Bytes read from HiCARI file:\t" << fHIbytes << endl;
     cout << "Number of Raw Events built for HiCARI:\t" << fHIrawevents << endl;
@@ -50,6 +47,7 @@ void RunInfo::PrintRunInfo(){
       cout << "BigRIPS hits  \t" << fBigRIPSHitctr  << endl;
     }
   }
+  cout << "BigRIPS run Number as read from inputfile:\t" << fBRrunnr << endl; 
   if(fBRrunnr>0){
     cout << "Number of BigRIPS Events read from RIDF file:\t" << fBRevents << endl;
   }
