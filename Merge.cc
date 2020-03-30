@@ -98,7 +98,7 @@ int main(int argc, char* argv[]){
   }
   outfile->cd();
   Settings* set = new Settings(SetFile);
-
+  set->Write("settings");
   BuildEvents* evts = new BuildEvents(set);
   evts->SetVerbose(vl);
   if(mode>-1)

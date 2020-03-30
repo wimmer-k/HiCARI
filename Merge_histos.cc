@@ -92,14 +92,14 @@ int main(int argc, char* argv[]){
   }
   PPAC* ppacs = new PPAC;
   tr->SetBranchAddress("ppacs",&ppacs);
-  long long int brTS;
+  unsigned long long int brTS;
   tr->SetBranchAddress("brTS",&brTS);
   int brentry;
   tr->SetBranchAddress("brentry",&brentry);
 
   HiCARICalc* hi = new HiCARICalc;
   tr->SetBranchAddress("hicari",&hi);
-  long long int hiTS;
+  unsigned long long int hiTS;
   tr->SetBranchAddress("hiTS",&hiTS);
   int hientry;
   tr->SetBranchAddress("hientry",&hientry);
@@ -178,6 +178,7 @@ int main(int argc, char* argv[]){
 
 
   cout << "writing histograms to file" << endl;
+  outfile->cd();
   hists->Write();
   outfile->Close();
   delete tr;

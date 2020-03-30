@@ -49,7 +49,7 @@ public:
   TList* GetHList(){return fhlist;}
   void Write();
 
-  void FillHistograms(int checkADC, HiCARICalc* hi, long long int brTS, long long int hiTS);
+  void FillHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS);
 
   void Fill(string name,int bins, double low, double high, double value){
     try{
@@ -79,7 +79,7 @@ public:
   }
 
 protected:
-  void FillCorrelationHistograms(int checkADC, HiCARICalc* hi, long long int brTS, long long int hiTS);
+  void FillCorrelationHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS);
 
   TList* fhlist;
   map<string,TH1*> fhmap;

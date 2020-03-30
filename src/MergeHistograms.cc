@@ -37,7 +37,7 @@ double MergeHistograms::GetCorrRate(){
   return fhmap.at("hEcorr")->Integral()/fhmap.at("hEcorr")->GetEntries() *100;
 }
 
-void MergeHistograms::FillHistograms(int checkADC, HiCARICalc* hi, long long int brTS, long long int hiTS){
+void MergeHistograms::FillHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS){
   fentry++;
   //Determine which of the systems are present in the data.
   bool hashicari = hi->GetMult()!=0;
@@ -46,7 +46,7 @@ void MergeHistograms::FillHistograms(int checkADC, HiCARICalc* hi, long long int
   if(hashicari && hasbigrips)
     FillCorrelationHistograms(checkADC, hi, brTS,hiTS);
 }
-void MergeHistograms::FillCorrelationHistograms(int checkADC, HiCARICalc* hi, long long int brTS, long long int hiTS){
+void MergeHistograms::FillCorrelationHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS){
   Fill("hTSdiff",1000,-500,500,brTS-hiTS);
   for(UShort_t i=0; i<hi->GetMult();i++){
     HiCARIHitCalc* hit = hi->GetHit(i);
