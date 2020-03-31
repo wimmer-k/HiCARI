@@ -30,7 +30,7 @@ double frange = 5000;
 double range[2] = {150000,450000};
 TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
-char* fileCo = (char*)"/home/gamma20/rootfiles/run0420.root";
+char* fileCo = (char*)"/home/gamma20/rootfiles/hist0443.root";
 char* fileEu = (char*)"/home/gamma20/rootfiles/Eu_281_282.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
@@ -72,7 +72,7 @@ void coreCo(int m=0, int c =0){
   vector<double> v = fitCo(h,1,1);
 }
 void segment(int m=0, int c =0, int s =0){
-  resolution = 5;
+  //resolution = 5;
   TFile *f = new TFile(fileCo);
   TH2F* h2 = (TH2F*)f->Get(Form("hraw_segen_vs_nr_clus%02d_crys%02d",m,c));
   TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
@@ -437,6 +437,7 @@ void CalibGeCo(){
       if(h2==NULL)
 	continue;
       for(int s=0;s<40;s++){
+	resolution = 2;
 	//cout << s << endl;
 	TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
 	if(h==NULL || h->Integral()<10)
@@ -457,15 +458,13 @@ void CalibGeCo(){
 	  SetRange(420000,540000);
 	if(clu==11&&cry==2&&s ==33)
 	  SetRange(580000,740000);
+	if(clu==11&&cry==1&&s ==25)
+	  frange = 2000;
 	if(clu==10){
 	  SetRange(400000,600000);
 	  frange = 5000;
 	  if(cry==0){
 	    frange = 3000;
-	    if(s==6)
-	      SetRange(580000,840000);
-	    if(s==6)
-	      SetRange(580000,840000);
 	    if(s==33)
 	      SetRange(480000,620000);
 	    if(s==34)
@@ -473,11 +472,30 @@ void CalibGeCo(){
 	  }
 	  if(cry==1){
 	    frange = 5000;
+	    if(s==36||s==33)
+	      SetRange(500000,600000);
+	    if(s==20){
+	      SetRange(600000,800000);
+	      resolution = 10;
+	    }
+	    if(s==6)
+	      SetRange(600000,800000);
 	  }
-	  else
-	    continue;
+	  if(cry==2){
+	    frange = 5000;
+	    if(s==21)
+	      SetRange(600000,800000);
+	    if(s==31)
+	      SetRange(580000,760000);
+	    if(s==35){
+	      frange = 3000;
+	      SetRange(380000,500000);
+	    }
+	  }
 	  if(cry==3)
 	    frange = 8000;
+	  if(s%10==9)
+	    continue;
 	}
 	vector<double> r = fitCo(h,0);
 	//cout << " fitted " << r[0]<< endl;
@@ -487,6 +505,8 @@ void CalibGeCo(){
 	offs.push_back(r[1]);
 	res0.push_back(r[2]);
 	res1.push_back(r[3]);
+	if(r[2]>3 && r[3] <2)
+	  return;
 	//if(r[2]>3)
 	//  return;
 	//	if(r[2]<0.8)

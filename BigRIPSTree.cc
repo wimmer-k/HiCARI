@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
   if(SetFile == NULL)
     cerr<<"No settings file! Using standard values"<<endl;
   else
-    cout<<"settings file:"<<SetFile<<endl;
+    cout<<"settings file: "<<SetFile<<endl;
 
   cout << "creating outputfile " << endl;
   TFile* outfile = new TFile(OutputFile,"recreate");

@@ -92,7 +92,7 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),4000,0,4000,hit->GetEnergy());
     Fill("h_segsum_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
     Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),1000,0,4000,hit->GetSegSum());
-    Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().size());
+    Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs+1,0,segs+1,hit->GetSegmentNr().size());
     
     for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
       Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));
@@ -122,7 +122,7 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     Fill(Form("hAB_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),4000,0,4000,hit->GetEnergy());
     Fill("hAB_segsum_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
     Fill(Form("hAB_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),1000,0,4000,hit->GetSegSum());
-    Fill(Form("hAB_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().size());
+    Fill(Form("hAB_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs+1,0,segs+1,hit->GetSegmentNr().size());
     
     for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
       Fill(Form("hAB_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));

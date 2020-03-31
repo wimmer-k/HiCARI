@@ -2,7 +2,7 @@ VerboseLevel:			0
 EventTimeDiff:			500
 
 HiCARI.Mapping.Table:		/home/gamma20/HiCARI/settings/mapping.dat
-HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/co_cal0327.dat
+HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/co_cal0331.dat
 HiCARI.Raw.Thresh:		3000
 BaseLine.Length:		60
 TracePlots:	   		0
