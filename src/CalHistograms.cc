@@ -75,6 +75,8 @@ void CalHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* z
 #else
 void CalHistograms::FillHistograms(HiCARICalc* hi){
   Fill("h_mult",30,0,30,hi->GetMult());
+  
+  long long int firstTS = -1;
   for(int i=0; i<hi->GetMult(); i++){
     int segs = 6;
     HiCARIHitCalc* hit = hi->GetHit(i);
@@ -84,6 +86,10 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
       segs = 8;
     if(hit->IsBigRIPS())
       continue;
+    if(i==0)
+      firstTS = hit->GetTS();
+    else
+      Fill("h_tsdiff",500,0,1000,hit->GetTS()-firstTS);
 
     Fill("h_cluster",12,0,12,hit->GetCluster());
     Fill("h_crystal",4,0,4,hit->GetCrystal());

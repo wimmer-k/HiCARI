@@ -31,7 +31,7 @@ double range[2] = {150000,450000};
 TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
 char* fileCo = (char*)"/home/gamma20/rootfiles/hist0443.root";
-char* fileEu = (char*)"/home/gamma20/rootfiles/Eu_281_282.root";
+char* fileEu = (char*)"/home/gamma20/rootfiles/run0448.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
 Double_t fgammastep(Double_t *x, Double_t *par);
@@ -49,7 +49,7 @@ void test(int b=11, int s = 3, int c =9){
   TH1F* h = (TH1F*)f->Get(Form("hmode3_en_bank%02d_slot%02d_chan%02d",b,s,c));
   fitCo(h,1,1);
 }
-void core(int m=0, int c =0){
+void coreEu(int m=0, int c =0){
   TFile *f = new TFile(fileCo);
   TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
@@ -63,13 +63,30 @@ void core(int m=0, int c =0){
     frange = 5000;
   fitEu(h,v[0],1,1);
 }
-void coreCo(int m=0, int c =0){
+void core(int m=0, int c =0){
   TFile *f = new TFile(fileCo);
   TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
     return;
   h->Draw();
   vector<double> v = fitCo(h,1,1);
+}
+void segmentEu(int m=0, int c =0, int s =0){
+  //resolution = 5;
+  TFile *f = new TFile(fileCo);
+  TH2F* h2 = (TH2F*)f->Get(Form("hraw_segen_vs_nr_clus%02d_crys%02d",m,c));
+  TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
+  if(h==NULL || h->Integral()<100)
+    return;
+   vector<double> v = fitCo(h,0,1);
+  cout << v[0] << "\t" << v[1] << endl;
+  f = new TFile(fileEu);
+  h2 = (TH2F*)f->Get(Form("hraw_segen_vs_nr_clus%02d_crys%02d",m,c));
+  h = (TH1F*)h2->ProjectionY(Form("%s_Eu_%02d",h2->GetName(),s),s+1,s+1);
+  frange = 3000;
+  if(m==4)
+    frange = 5000;
+  fitEu(h,v[0],1,1);
 }
 void segment(int m=0, int c =0, int s =0){
   //resolution = 5;
@@ -103,7 +120,7 @@ vector <vector<double> > fitEu(TH1F* h, double rough, bool bg, bool draw){
     peaks.at(i).clear();
   for(int p=0; p<n; p++){
     intensity >> en[p] >> inten[p];
-    //cout << en[p] << "\t" << en[p]/rough-frange << "\t" << en[p]/rough+frange << endl;
+    cout << en[p] << "\t" << en[p]/rough-frange << "\t" << en[p]/rough+frange << endl;
     h->GetXaxis()->SetRangeUser(en[p]/rough-frange,en[p]/rough+frange);
     Int_t nfound = 0;
     if(draw){
@@ -307,7 +324,7 @@ vector<double> fitCo(TH1F* h, bool bg, bool draw){
   return rv;
 }
 void CalibGeEu(){
-  string abc[3] = {"A","B","C"};
+  string abc[4] = {"A","B","C","D"};
   frange = 3000;
   TFile *fco = new TFile(fileCo);                                                  
   TFile *feu = new TFile(fileEu);                                                  
@@ -316,38 +333,40 @@ void CalibGeEu(){
   vector <double> offs;
 
   ca = new TCanvas("ca","ca",1200,800);
-  ca->Divide(6,3);
+  ca->Divide(12,4);
   TCanvas *ca2 = new TCanvas("ca2","ca2",1200,800);
-  ca2->Divide(6,3);
+  ca2->Divide(12,4);
   TCanvas *ca3 = new TCanvas("ca3","ca3",1200,800);
-  ca3->Divide(6,3);
-  for(int clu=0;clu<6;clu++){
-    for(int cry=0;cry<3;cry++){
+  ca3->Divide(12,4);
+  for(int clu=0;clu<12;clu++){
+    for(int cry=0;cry<4;cry++){
       TH1F* h = (TH1F*)fco->Get(Form("hraw_en_clus%02d_crys%02d",clu,cry));
       if(h==NULL)
-	return;
+	continue;
       vector<double> vco = fitCo(h,1,0);
       if(vco[0]<0)
 	continue;
       h = (TH1F*)feu->Get(Form("hraw_en_clus%02d_crys%02d",clu,cry));
+      if(h==NULL)
+	continue;
       frange = 3000;
       if(cry==4)
 	frange = 5000;
       vector< vector<double> > veu = fitEu(h,vco[0],1,0);
-      cout << clu << "\t" << cry << "\t" << abc[cry] << "\t" << veu[0][0] << endl;
-      ca->cd(cry*6+1+clu);
+      cout << "clu " << clu << "\tcry " << cry << "\t" << abc[cry] << "\t" << veu[0][0] << endl;
+      ca->cd(cry*12+1+clu);
       TGraphErrors* gc = new TGraphErrors(veu.at(0).size(), &veu.at(0)[0], &veu.at(5)[0], &veu.at(1)[0]);
       gc->SetTitle(Form("MB%d%s Core calibration",clu,(char*)abc[cry].c_str()));
       gc->Draw("AP*");
       TF1 *fl = new TF1("fl",flinear,0,500000,2);
       fl->SetParameters(0.004,1);
       gc->Fit(fl);
-      ca2->cd(cry+1+clu*3);
+      ca2->cd(cry*12+1+clu);
       TGraphErrors* ge = new TGraphErrors(veu.at(0).size(), &veu.at(5)[0], &veu.at(6)[0],0, &veu.at(7)[0]);
       ge->SetTitle(Form("MB%d%s Core efficiency",clu,(char*)abc[cry].c_str()));
       ge->Draw("AP*");
       //ge->Fit("pol1");
-      ca3->cd(cry+1+clu*3);
+      ca3->cd(cry*12+1+clu);
       TGraphErrors* gr = new TGraphErrors(veu.at(0).size(), &veu.at(5)[0], &veu.at(2)[0],0, 0);
       gr->SetTitle(Form("MB%d%s Core resolution",clu,(char*)abc[cry].c_str()));
       gr->Draw("AP*");
