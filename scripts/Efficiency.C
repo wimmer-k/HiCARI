@@ -19,7 +19,7 @@
 #include "TSpectrum.h"
 #include "TVirtualFitter.h"
 char* fileEu = (char*)"/home/gamma20/rootfiles/run0455.root";
-char* fileBG = (char*)"/home/gamma20/rootfiles/hcal0470.root";
+char* fileBG = (char*)"/home/gamma20/rootfiles/run0470.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
 Double_t fgammastep(Double_t *x, Double_t *par);
@@ -241,7 +241,7 @@ void findall(bool AB = false, double runtime=0, double act=0, char* filen = NULL
   if(AB)
     h2 = (TH2F*)f->Get("hAB_en_summary");
   TH1F* hbg = (TH1F*)h2->ProjectionY("hbgp");
-  hbg->DrawCopy("same");
+  //hbg->DrawCopy("same");
   fu->SetParameter(2,hbg->Integral(1450,1470));//norm
   fu->SetParameter(5,hbg->GetBinContent(h->FindBin(1450)));//step
   hbg->Fit(fu,"Rn");
