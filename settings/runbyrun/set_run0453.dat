@@ -1,15 +1,15 @@
 VerboseLevel:			0
 EventTimeDiff:			500
 
-HiCARI.Mapping.Table:		/home/gamma20/HiCARI/settings/mapping.dat
-HiCARI.Calibration.File:	/home/gamma20/HiCARI/settings/eu_cal0331.dat
+HiCARI.Mapping.Table:		/home/wimmer/programs/HiCARI/settings/mapping.dat
+HiCARI.Calibration.File:	/home/wimmer/programs/HiCARI/settings/runbyrun/all_run0453_cal0411.dat
 HiCARI.Raw.Thresh:		3000
 BaseLine.Length:		60
 TracePlots:	   		0
 
 HiCARI.IgnoreTrace:		1
 
-HiCARI.Positions:		/home/gamma20/HiCARI/settings/HiCARIpos_0328.dat
+HiCARI.Positions:		/home/wimmer/programs/HiCARI/settings/HiCARIpos_0328.dat
 
 AddBackType:			1
 

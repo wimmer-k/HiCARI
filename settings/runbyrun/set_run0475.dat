@@ -1,0 +1,29 @@
+VerboseLevel:			0
+EventTimeDiff:			500
+
+HiCARI.Mapping.Table:		/home/wimmer/programs/HiCARI/settings/mapping.dat
+HiCARI.Calibration.File:	/home/wimmer/programs/HiCARI/settings/runbyrun/all_run0475_cal0411.dat
+HiCARI.Raw.Thresh:		3000
+BaseLine.Length:		60
+TracePlots:	   		0
+
+HiCARI.IgnoreTrace:		1
+
+HiCARI.Positions:		/home/wimmer/programs/HiCARI/settings/HiCARIpos_0328.dat
+
+AddBackType:			1
+
+## correlation mode: 0 = any, 1 force coinc
+Correlation.Mode:		0
+## correlation with ADC copy of one Ge signal
+Correlation.Cluster:		3
+Correlation.Crystal:		0
+
+## channel used for digitizing the BigRIPS trigger
+BigRIPS.Cluster:		9
+BigRIPS.Crystal:		9
+BigRIPS.Channel:		8
+
+## for histograms
+Trace.Plots:			0
+Mode3.Histos:			0
