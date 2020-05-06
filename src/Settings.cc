@@ -34,6 +34,7 @@ void Settings::ReadSettings(TEnv* set){
   ftargetBeta = set->GetValue("Target.Beta",0.0);
   fAveAfterBeta = set->GetValue("Average.Beta.After",0.0);
   fAddBackType = set->GetValue("AddBackType",0);
+  fCoincTimeDiff = set->GetValue("CoincTimeDiff",-1);
 
 #ifdef SIMULATION
   fResFile = set->GetValue("Sim.Resolution.File",defaultfile);
@@ -150,6 +151,7 @@ void Settings::PrintSettings(){
   cout << "Average.Beta.After\t" << fAveAfterBeta << endl;
 
   cout << "AddBackType\t" << fAddBackType << endl;
+  cout << "CoincTimeDiff\t" << fCoincTimeDiff << endl;
 
 #ifdef SIMULATION
   cout << "Sim.Resolution.File\t" << fResFile << endl;

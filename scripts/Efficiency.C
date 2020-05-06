@@ -31,10 +31,21 @@ Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
 Double_t fgammastep(Double_t *x, Double_t *par);
 Double_t fgammagaus(Double_t *x, Double_t *par);
+
 Double_t f2gammagaussbg(Double_t *x, Double_t *par);
 Double_t f2gammabg(Double_t *x, Double_t *par);
 Double_t f2gammastep(Double_t *x, Double_t *par);
 Double_t f2gammagaus(Double_t *x, Double_t *par);
+Double_t f2gammagaus0(Double_t *x, Double_t *par);
+Double_t f2gammagaus1(Double_t *x, Double_t *par);
+
+Double_t f3gammagaussbg(Double_t *x, Double_t *par);
+Double_t f3gammabg(Double_t *x, Double_t *par);
+Double_t f3gammastep(Double_t *x, Double_t *par);
+Double_t f3gammagaus(Double_t *x, Double_t *par);
+Double_t f3gammagaus0(Double_t *x, Double_t *par);
+Double_t f3gammagaus1(Double_t *x, Double_t *par);
+Double_t f3gammagaus2(Double_t *x, Double_t *par);
 vector <vector<double> > fitEu(TH1F* h, bool draw);
 double resolution = 2;
 double frange = 15;
@@ -254,6 +265,7 @@ void findall(bool AB = false, double runtime=0, double act=0, char* filen = NULL
   hbg->Fit(fu,"Rn");
   fu->Draw("same");
   p /= fu->GetParameter(2);
+  cout << "scaling " << p << endl;
   TH1F* hbgs = (TH1F*)hbg->Clone("hbgs");
   hbgs->Scale(p);
   hbgs->SetLineColor(2);
@@ -373,9 +385,9 @@ void efficiency(int run, int source, double runtime=0, double act=0, bool AB = f
   }
   
   TH2F* h2 = NULL;
-  h2 = (TH2F*)f->Get("h_en_summary");
+  h2 = (TH2F*)f->Get("h_en_summary_fine");
   if(AB)
-    h2 = (TH2F*)f->Get("hAB_en_summary");
+    h2 = (TH2F*)f->Get("hAB_en_summary_fine");
   if(h2==NULL)
     return; 
   TH1F* h = NULL;
@@ -487,9 +499,215 @@ void efficiency(int run, int source, double runtime=0, double act=0, bool AB = f
       fe.push_back(fu->GetParError(2)/h->GetBinWidth(1)/i);
     }
   }
-  for(UShort_t i=0;i<en.size();i++)
+  for(UShort_t i=0;i<en.size();i++){
     fout << en[i] << "\t" << fc[i] << "\t" << fe[i] << "\t" << source<< endl;
+    cout << en[i] << "\t" << fc[i] << "\t" << fe[i] << "\t" << source<< endl;
+  }
+  //cout << en.size() << endl;
+  TGraphErrors* g = new TGraphErrors(en.size(),&en[0],&fc[0],0,&fe[0]);
+  ca2->cd(en.size()+1);
+  g->Draw("AP");
+  f->Close();
+}
+void efficiency_twocomp(int run, int source, double runtime=0, double act=0, bool AB = false){
+  TFile *f = new TFile(Form("hist/hcal%04d.root",run));
+  if(!f->IsOpen()){
+    return;
+  }
   
+  TH2F* h2 = NULL;
+  h2 = (TH2F*)f->Get("h_en_summary_fine");
+  if(AB)
+    h2 = (TH2F*)f->Get("hAB_en_summary_fine");
+  if(h2==NULL)
+    return; 
+  TH1F* h = NULL;
+  h = (TH1F*)h2->ProjectionY("hp");
+  if(h==NULL)
+    return;
+  
+  char* infile[4] = {(char*)"./scripts/Codecay_NNDC.dat",(char*)(char*)"./scripts/Ydecay_NNDC.dat",(char*)"./scripts/Eudecay_NNDC.dat",(char*)"./scripts/Badecay_NNDC.dat"};
+  
+  ifstream intensity;
+  
+  intensity.open(infile[source]);
+  intensity.ignore(1000,'\n');
+  vector<double> en;
+  vector<double> in;
+  vector<double> fc;
+  vector<double> fe;
+  int ctr = 0;
+  TCanvas* ca2 = new TCanvas("ca2","ca2",1200,800);
+  if(source==2)
+    ca2->Divide(5,3);
+  if(source==3)
+    ca2->Divide(3,3);
+  if(source==0 || source ==1)
+    ca2->Divide(2,2);
+  while(!intensity.eof()){
+    h = (TH1F*)h2->ProjectionY("hp");
+    if(h==NULL)
+      return;
+    double e,i,sp;
+    intensity >> e >> i >> sp;
+    
+    if(intensity.eof())
+      break;
+    intensity.ignore(1000,'\n');
+    cout << e << "\t" << i << endl;
+    en.push_back(e);
+    in.push_back(i);
+    ca2->cd(en.size());
+    TF1* fu;
+    TF1 *fus[6];
+    frange = 15;
+    if(source==2 && (e>110 && e<135))
+      frange = 10;
+    if(source==2 && (e>410 && e<412))
+      frange = 20;
+    if(source==2 && (e>770 && e<810))
+      frange = 20;
+    if(source==3 && (e>150 && e<250))
+      frange = 8;
+//    if(source==1 && AB)
+//      frange = 9;
+    cout << "frange " << frange << endl;
+    h->GetXaxis()->SetRangeUser(e-frange,e+frange);
+    h->GetYaxis()->UnZoom();
+    //one peak
+    int pars = 9;
+    if(sp>0){
+      pars = 12;
+      fu = new TF1(Form("f%s_p%d",h->GetName(),(int)e),f3gammagaussbg,e-frange,e+frange,pars);
+      fus[0] = new TF1(Form("f%s_p%d_bg",h->GetName(),(int)e),f3gammabg,e-frange,e+frange,pars);
+      fus[1] = new TF1(Form("f%s_p%d_st",h->GetName(),(int)e),f3gammastep,e-frange,e+frange,pars);
+      fus[2] = new TF1(Form("f%s_p%d_ga",h->GetName(),(int)e),f3gammagaus,e-frange,e+frange,pars);
+      fus[3] = new TF1(Form("f%s_p%d_g0",h->GetName(),(int)e),f3gammagaus0,e-frange,e+frange,pars);
+      fus[4] = new TF1(Form("f%s_p%d_g1",h->GetName(),(int)e),f3gammagaus1,e-frange,e+frange,pars);
+      fus[5] = new TF1(Form("f%s_p%d_g2",h->GetName(),(int)e),f3gammagaus2,e-frange,e+frange,pars);
+    }
+    else{
+      fu = new TF1(Form("f%s_p%d",h->GetName(),(int)e),f2gammagaussbg,e-frange,e+frange,pars);
+      fus[0] = new TF1(Form("f%s_p%d_bg",h->GetName(),(int)e),f2gammabg,e-frange,e+frange,pars);
+      fus[1] = new TF1(Form("f%s_p%d_st",h->GetName(),(int)e),f2gammastep,e-frange,e+frange,pars);
+      fus[2] = new TF1(Form("f%s_p%d_ga",h->GetName(),(int)e),f2gammagaus,e-frange,e+frange,pars);
+      fus[3] = new TF1(Form("f%s_p%d_g0",h->GetName(),(int)e),f2gammagaus0,e-frange,e+frange,pars);
+      fus[4] = new TF1(Form("f%s_p%d_g1",h->GetName(),(int)e),f2gammagaus1,e-frange,e+frange,pars);
+    }
+    fu->SetLineColor(3);
+    fu->SetLineWidth(1);
+    //cout <<h->FindBin(e-frange) << "\t" << h->FindBin(e+frange) << "\t" << h->GetBinContent(h->FindBin(e-frange))  << "\t" << h->GetBinContent(h->FindBin(e+frange))  << "\t" << (h->GetBinContent(h->FindBin(e-frange))+h->GetBinContent(h->FindBin(e+frange)))*0.5 << endl;
+    fu->SetParameter(0,(h->GetBinContent(h->FindBin(e-frange))+h->GetBinContent(h->FindBin(e+frange)))*0.5);//bg const
+    double s = (h->GetBinContent(h->FindBin(e-frange))-h->GetBinContent(h->FindBin(e+frange)))/(e-frange - (e+frange));
+    fu->SetParameter(1,0);//bg slope
+    fu->SetParLimits(1,-fabs(5*s),fabs(5*s));//bg slope
+    fu->SetParameter(2,h->Integral(h->FindBin(e-frange),h->FindBin(e+frange))/2);//norm
+    fu->SetParLimits(2,0,h->Integral(h->FindBin(e-frange),h->FindBin(e+frange)));//norm
+    fu->SetParameter(3,e);//mean
+    fu->SetParLimits(3,e-2,e+2);//mean
+    fu->SetParameter(4,1);//sigma
+    fu->SetParLimits(4,0.1,3);//sigma
+    fu->SetParameter(5,h->Integral(h->FindBin(e-frange),h->FindBin(e+frange))/2);//norm
+    fu->SetParLimits(5,0,h->Integral(h->FindBin(e-frange),h->FindBin(e+frange)));//norm
+    fu->SetParameter(6,e);//mean
+    fu->SetParLimits(6,e-2,e+2);//mean
+    if(source==2)
+      fu->SetParLimits(6,e-0.2,e+0.2);//mean
+    fu->SetParameter(7,5);//sigma
+    fu->SetParLimits(7,2,7);//sigma
+    if(source==3 && (e>150 && e<250)){
+      fu->SetParLimits(4,0,1.1);//sigma
+      fu->SetParLimits(7,1,2.5);//sigma
+      fu->SetParLimits(6,e-0.2,e+0.2);//mean
+      fu->SetParLimits(3,e-0.2,e+0.2);//mean
+    }
+    if(source==2 && (e>200 && e<250)){
+      fu->SetParLimits(4,1,3.1);//sigma
+      fu->SetParLimits(7,0,1.1);//sigma
+      fu->SetParLimits(6,e-0.2,e+0.2);//mean
+    }
+    if(e>1000)
+      fu->SetParLimits(7,2,10);//sigma
+    if(source==2 && AB && e>1100 &&e<1120){
+      fu->SetParLimits(7,5,8);//sigma
+      //fu->SetParLimits(1,-1e7,0);//sigma
+      fu->SetRange(e-15,e+23);
+    }
+    if(source==2 && AB && e>1200 &&e<1220){
+      fu->SetParLimits(1,-1e7,0);//sigma
+    }
+//    if(source==1 && AB){
+//      fu->SetParLimits(6,e-0.2,e+0.2);//mean
+//      fu->SetParLimits(3,e-0.2,e+0.2);//mean
+//      fu->SetRange(e-9,e+15);
+//      if(e<1000)
+//	fu->SetRange(e-8,e+15);
+//    }
+   
+    if(pars==9){
+      fu->SetParameter(8,h->GetBinContent(h->FindBin(e-frange))/2);//step
+      fu->SetParLimits(8,0.0,h->GetBinContent(h->FindBin(e-frange)));//step
+    }
+    if(pars==12){
+      fu->SetParameter(11,h->GetBinContent(h->FindBin(e-frange))/4);//step
+      fu->SetParLimits(11,0.0,h->GetBinContent(h->FindBin(e-frange))/2);//step
+      fu->SetParameter(8,h->Integral(h->FindBin(e-frange),h->FindBin(e+frange))/20);//norm
+      fu->SetParameter(9,sp);//mean
+      fu->FixParameter(9,sp);//mean
+      //fu->SetParLimits(9,sp-1,sp+1);//mean
+      fu->SetParameter(10,1);//sigma
+      fu->SetParLimits(10,0.8,2.5);//sigma
+      if(source==2 && (e>420 && e<450)){
+	fu->SetParLimits(4,0,1.1);//sigma
+	fu->SetParLimits(7,1,2.5);//sigma
+	fu->SetParLimits(6,442.8-0.2,442.8+0.2);//mean
+      }
+      if(source==2 && (e>1089 && e<1090)){
+	//fu->SetParLimits(4,0,1.5);//sigma
+	fu->SetParLimits(1,0,10);//bg slope
+	fu->SetParLimits(7,3,3.8);//sigma
+	fu->SetParLimits(6,e-0.02,e+0.02);//mean
+	fu->SetRange(e-10,e+8);
+	//fu->FixParameter(5,0);//mean
+      }
+    }
+    h->Fit(fu,"Rn");
+    h->DrawCopy();
+    fu->Draw("same");
+	
+
+    fus[0]->SetLineColor(5);
+    fus[1]->SetLineColor(4);
+    fus[2]->SetLineColor(2);
+    fus[3]->SetLineColor(6);
+    fus[4]->SetLineColor(6);
+    int kk = 5;
+    if(pars==12)
+      kk=6;
+    for(int k=0;k<kk;k++){
+      fus[k]->SetLineWidth(1);
+      for(int j=0;j<pars;j++)
+	fus[k]->SetParameter(j,fu->GetParameter(j));
+      fus[k]->Draw("same");
+    }
+    if(runtime>0 && act >0){
+      fc.push_back((fu->GetParameter(2) + fu->GetParameter(5))/h->GetBinWidth(1)/(i/100)/runtime/act);
+      fe.push_back(sqrt(fu->GetParError(2)*fu->GetParError(2)+fu->GetParError(5)*fu->GetParError(5))/h->GetBinWidth(1)/(i/100)/runtime/act);
+      // if(source==2 && e> 1089 && e< 1090){
+      // 	cout << "asdasdffsdf  " <<fu->GetParameter(2) << "\t" << fu->GetParameter(2)/h->GetBinWidth(1)/(i/100)/runtime/act << endl;
+      // 	fc.back() = fu->GetParameter(2)/h->GetBinWidth(1)/(i/100)/runtime/act;
+      // 	fe.back() = fu->GetParError(2)/h->GetBinWidth(1)/(i/100)/runtime/act;
+      // }
+    }
+    else{
+      fc.push_back((fu->GetParameter(2) + fu->GetParameter(5))/h->GetBinWidth(1)/i);
+      fe.push_back(sqrt(fu->GetParError(2)*fu->GetParError(2)+fu->GetParError(5)*fu->GetParError(5))/h->GetBinWidth(1)/i);
+    }
+  }
+  for(UShort_t i=0;i<en.size();i++){
+    fout << en[i] << "\t" << fc[i] << "\t" << fe[i] << "\t" << source<< endl;
+    cout << en[i] << "\t" << fc[i] << "\t" << fe[i] << "\t" << source<< endl;
+  }  
   //cout << en.size() << endl;
   TGraphErrors* g = new TGraphErrors(en.size(),&en[0],&fc[0],0,&fe[0]);
   ca2->cd(en.size()+1);
@@ -523,18 +741,32 @@ void checkruns(){
   }
 }
 void effcurve(){
-  fout.open("python/data/effcurve.dat");
+  fout.open("python/data/effcurve_twocomp.dat");
+  efficiency_twocomp(475, 0, 3735.0, 23484.2);
+  efficiency_twocomp(469, 1, 2703.1, 26565.8);
+  efficiency_twocomp(455, 2, 3629.2,  6349.4);
+  efficiency_twocomp(468, 3, 2060.9, 50773.6);
+  fout.close();
+  fout.open("python/data/effcurveAB_twocomp.dat");
+  efficiency_twocomp(475, 0, 3735.0, 23484.2,1); // Co
+  efficiency_twocomp(469, 1, 2703.1, 26565.8,1); // Y
+  efficiency_twocomp(455, 2, 3629.2,  6349.4,1); // Eu 
+  efficiency_twocomp(468, 3, 2060.9, 50773.6,1); // Ba
+  fout.close();
+  /*
+  fout.open("python/data/effcurve_onecomp.dat");
   efficiency(475, 0, 3735.0, 23484.2);
   efficiency(469, 1, 2703.1, 26565.8);
   efficiency(455, 2, 3629.2,  6349.4);
   efficiency(468, 3, 2060.9, 50773.6);
   fout.close();
-  fout.open("python/data/effcurveAB.dat");
+  fout.open("python/data/effcurveAB_onecomp.dat");
   efficiency(475, 0, 3735.0, 23484.2,1);
   efficiency(469, 1, 2703.1, 26565.8,1);
   efficiency(455, 2, 3629.2,  6349.4,1);
   efficiency(468, 3, 2060.9, 50773.6,1);
   fout.close();
+  */
 }
 Double_t effcurve(Double_t *x, Double_t *p){
   double xx = log(x[0]);
@@ -551,43 +783,53 @@ Double_t effcurve3(Double_t *x, Double_t *p){
   return exp( pow(  pow(p[0] + p[1]*xx + p[2]*pow(xx,2),-p[6]) + pow(p[3] + p[4]*yy + p[5]*pow(yy,2),-p[6]) , -1./p[6]) );
 }
 void fiteff(){
-  ifstream data;
-  data.open("python/data/effcurve.dat");
-  vector<double> ve,vf,vu;
-  while(!data.eof()){
-    double e,f,u;
-    data >> e >> f >> u;
-    data.ignore(100,'\n');
-    if(data.eof())
-      break;
-    ve.push_back(e);
-    vf.push_back(f*100);
-    vu.push_back(u*100);
+  ifstream data[2];
+  //data[0].open("python/data/effcurve_twocomp.dat");
+  //data[1].open("python/data/effcurve_onecomp.dat");
+  data[0].open("python/data/effcurveAB_twocomp.dat");
+  data[1].open("python/data/bkp/effcurveAB_twocomp.dat");
+  vector<double> ve[2],vf[2],vu[2];
+  TGraphErrors* g[2];
+  TF1 *ff3[2];
+  for(int j=0;j<2;j++){
+    while(!data[j].eof()){
+      double e,f,u;
+      data[j] >> e >> f >> u;
+      data[j].ignore(100,'\n');
+      if(data[j].eof())
+	break;
+      ve[j].push_back(e);
+      vf[j].push_back(f*100);
+      vu[j].push_back(u*100);
+    }
+    g[j] = new TGraphErrors(ve[j].size(),&ve[j][0],&vf[j][0],0,&vu[j][0]);
+    g[j]->SetMarkerStyle(20+j);
+    if(j==0)
+      g[j]->Draw("AP");
+    else
+      g[j]->Draw("P");
+    // TF1 *ff = new TF1("effcurve",effcurve,0,2000,4);
+    // ff->SetParameters(2,-0.2,0.02,-0.002);
+    // g->Fit(ff,"Rn");
+    // ff->Draw("same");
+    // TF1 *ff2 = new TF1("effcurve2",effcurve2,0,2000,5);
+    // ff2->SetParameters(1,-0.2,0.02,-0.002,0.02,-0.002);
+    // g->Fit(ff2,"Rn");
+    // ff2->Draw("same");
+    ff3[j] = new TF1(Form("effcurve3_%d",j),effcurve3,0,2000,7);
+    ff3[j]->SetParameter(0,1);
+    ff3[j]->SetParameter(1,1);
+    ff3[j]->SetParameter(2,0);
+    ff3[j]->SetParameter(3,0.5);
+    ff3[j]->SetParameter(4,-0.5);
+    ff3[j]->SetParameter(5,0.05);
+    ff3[j]->SetParameter(6,10);
+    ff3[j]->FixParameter(2,0);
+    ff3[j]->FixParameter(6,10);
+    g[j]->Fit(ff3[j],"Rn");
+    //ff3->Draw();
+    ff3[j]->Draw("same");
   }
-  TGraphErrors* g = new TGraphErrors(ve.size(),&ve[0],&vf[0],0,&vu[0]);
-  g->Draw("AP");
-  // TF1 *ff = new TF1("effcurve",effcurve,0,2000,4);
-  // ff->SetParameters(2,-0.2,0.02,-0.002);
-  // g->Fit(ff,"Rn");
-  // ff->Draw("same");
-  // TF1 *ff2 = new TF1("effcurve2",effcurve2,0,2000,5);
-  // ff2->SetParameters(1,-0.2,0.02,-0.002,0.02,-0.002);
-  // g->Fit(ff2,"Rn");
-  // ff2->Draw("same");
-  TF1 *ff3 = new TF1("effcurve3",effcurve3,0,2000,7);
-  ff3->SetParameter(0,1);
-  ff3->SetParameter(1,1);
-  ff3->SetParameter(2,0);
-  ff3->SetParameter(3,0.5);
-  ff3->SetParameter(4,-0.5);
-  ff3->SetParameter(5,0.05);
-  ff3->SetParameter(6,10);
-  ff3->FixParameter(2,0);
-  ff3->FixParameter(6,10);
-  g->Fit(ff3,"Rn");
-  //ff3->Draw();
-  ff3->Draw("same");
-   
 }
 // one peak fitting function
 Double_t fgammagaussbg(Double_t *x, Double_t *par){
@@ -713,6 +955,187 @@ Double_t f2gammagaus(Double_t *x, Double_t *par){
   result += 1/(sqrt2pi*sigma1) * norm1 * exp(-arg*arg);
   arg = (x[0]-mean2)/(sqrt2*sigma2);
   result += 1/(sqrt2pi*sigma2) * norm2 * exp(-arg*arg);
+
+  return result;
+
+}
+Double_t f2gammagaus0(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  double result = 0;
+  arg = (x[0]-mean1)/(sqrt2*sigma1);
+  result += 1/(sqrt2pi*sigma1) * norm1 * exp(-arg*arg);
+
+  return result;
+
+}
+Double_t f2gammagaus1(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  double result = 0;
+  arg = (x[0]-mean2)/(sqrt2*sigma2);
+  result += 1/(sqrt2pi*sigma2) * norm2 * exp(-arg*arg);
+
+  return result;
+
+}
+// three peak fitting function
+Double_t f3gammagaussbg(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+  Double_t result = par[0] + par[1]*x[0];
+  
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  Double_t norm3  = par[8];
+  Double_t mean3  = par[9];
+  Double_t sigma3 = par[10];
+
+  Double_t step = par[11];
+
+  arg = (x[0]-mean1)/(sqrt2*sigma1);
+  result += 1/(sqrt2pi*sigma1) * norm1 * exp(-arg*arg);
+  result += step/pow(1+exp(sqrt2*arg),2);
+  arg = (x[0]-mean2)/(sqrt2*sigma2);
+  result += 1/(sqrt2pi*sigma2) * norm2 * exp(-arg*arg);
+  arg = (x[0]-mean3)/(sqrt2*sigma3);
+  result += 1/(sqrt2pi*sigma3) * norm3 * exp(-arg*arg);
+  result += step/pow(1+exp(sqrt2*arg),2);
+
+  return result;
+
+}
+Double_t f3gammabg(Double_t *x, Double_t *par){
+  Double_t result = par[0] + par[1]*x[0]; 
+  return result;
+
+}
+Double_t f3gammastep(Double_t *x, Double_t *par){
+  static Float_t sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+  Double_t result = 0;
+  
+  
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  Double_t norm3  = par[8];
+  Double_t mean3  = par[9];
+  Double_t sigma3 = par[10];
+
+  Double_t step = par[11];
+
+  arg = (x[0]-mean1)/(sqrt2*sigma1);
+  result += step/pow(1+exp(sqrt2*arg),2);
+  arg = (x[0]-mean2)/(sqrt2*sigma2);
+  result += step/pow(1+exp(sqrt2*arg),2);
+  arg = (x[0]-mean3)/(sqrt2*sigma3);
+  result += step/pow(1+exp(sqrt2*arg),2);
+
+  return result;
+
+}
+Double_t f3gammagaus(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  Double_t norm3  = par[8];
+  Double_t mean3  = par[9];
+  Double_t sigma3 = par[10];
+  double result = 0;
+  arg = (x[0]-mean1)/(sqrt2*sigma1);
+  result += 1/(sqrt2pi*sigma1) * norm1 * exp(-arg*arg);
+  arg = (x[0]-mean2)/(sqrt2*sigma2);
+  result += 1/(sqrt2pi*sigma2) * norm2 * exp(-arg*arg);
+  arg = (x[0]-mean3)/(sqrt2*sigma3);
+  result += 1/(sqrt2pi*sigma3) * norm3 * exp(-arg*arg);
+
+  return result;
+
+}
+Double_t f3gammagaus0(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  Double_t norm3  = par[8];
+  Double_t mean3  = par[9];
+  Double_t sigma3 = par[10];
+  double result = 0;
+  arg = (x[0]-mean1)/(sqrt2*sigma1);
+  result += 1/(sqrt2pi*sigma1) * norm1 * exp(-arg*arg);
+
+  return result;
+
+}
+Double_t f3gammagaus1(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  Double_t norm3  = par[8];
+  Double_t mean3  = par[9];
+  Double_t sigma3 = par[10];
+  double result = 0;
+  arg = (x[0]-mean2)/(sqrt2*sigma2);
+  result += 1/(sqrt2pi*sigma2) * norm2 * exp(-arg*arg);
+
+  return result;
+
+}
+Double_t f3gammagaus2(Double_t *x, Double_t *par){
+  static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+
+  Double_t norm1  = par[2];
+  Double_t mean1  = par[3];
+  Double_t sigma1 = par[4];
+  Double_t norm2  = par[5];
+  Double_t mean2  = par[6];
+  Double_t sigma2 = par[7];
+  Double_t norm3  = par[8];
+  Double_t mean3  = par[9];
+  Double_t sigma3 = par[10];
+  double result = 0;
+  arg = (x[0]-mean3)/(sqrt2*sigma3);
+  result += 1/(sqrt2pi*sigma3) * norm3 * exp(-arg*arg);
 
   return result;
 

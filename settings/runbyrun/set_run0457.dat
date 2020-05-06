@@ -12,6 +12,7 @@ HiCARI.IgnoreTrace:		1
 HiCARI.Positions:		/home/wimmer/programs/HiCARI/settings/HiCARIpos_0328.dat
 
 AddBackType:			1
+CoincTimeDiff:			40
 
 ## correlation mode: 0 = any, 1 force coinc
 Correlation.Mode:		0

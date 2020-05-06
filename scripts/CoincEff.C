@@ -15,7 +15,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TF1.h"
-char* fileCo = (char*)"./hist/hcal0469.root";
+char* fileCo = (char*)"./hist/hcal0475_notin.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
 Double_t fgammastep(Double_t *x, Double_t *par);
@@ -28,8 +28,8 @@ Double_t f2gammagaus0(Double_t *x, Double_t *par);
 Double_t f2gammagaus1(Double_t *x, Double_t *par);
 vector<double> notinthis(int clu, int cry, bool AB = false, bool draw = false);
 void eff(int clu, int cry, bool AB =false, bool draw = false);
-//double xpeaks[2] = {1173,1332};
-double xpeaks[2] = {898,1831};
+double xpeaks[2] = {1173,1332};
+//double xpeaks[2] = {898,1831};
 double grange = 8;
 double crange = 7;
 double frange[2] = {20,13};
@@ -68,18 +68,24 @@ void func(TF1* f, double from, double to, int steps, char* foldername = "python"
 void setCo(){
   xpeaks[0] = 1173;
   xpeaks[1] = 1332;
-  fileCo = (char*)"./hist/hcal0475.root";
+  fileCo = (char*)"./hist/hcal0475_notin.root";
   crange = 4;
 }
+void setY(){
+  xpeaks[0] = 898;
+  xpeaks[1] = 1831;
+  fileCo = (char*)"./hist/hcal0469_notin.root";
+  crange = 7;
+}
 void eff(){
-  fout.open("python/data/efficienciesY.dat");
+  fout.open("python/data/efficienciesCo.dat");
   for(int clu=0;clu<12;clu++){
     for(int cry=0;cry<4;cry++){
       eff(clu, cry);
     }
   }
   fout.close();
-  fout.open("python/data/efficienciesABY.dat");
+  fout.open("python/data/efficienciesABCo.dat");
   for(int clu=0;clu<12;clu++){
     for(int cry=0;cry<4;cry++){
       eff(clu, cry, 1);
@@ -114,6 +120,8 @@ void eff(int clu, int cry, bool AB, bool draw){
   for(int p=0;p<2;p++){
     h[p] = (TH1F*)h2->ProjectionX(Form("gated_p%d_cry%02d_clu%02d",p,clu,cry),h2->GetYaxis()->FindBin(xpeaks[p]-grange),h2->GetYaxis()->FindBin(xpeaks[p]+grange));
     c[p] = h[p]->Integral(h[p]->FindBin(xpeaks[1-p]-crange), h[p]->FindBin(xpeaks[1-p]+crange));
+    if(clu==3 && cry==0)// MB3A with double peak
+      c[p] = h[p]->Integral(h[p]->FindBin(xpeaks[1-p]-crange), h[p]->FindBin(xpeaks[1-p]+crange*3));
     e[p] = sqrt(c[p]);
     //d[p] = h[p]->Integral(h[p]->FindBin(xpeaks[p]-grange), h[p]->FindBin(xpeaks[p]+grange)); //fake coincidences
     //e[p] = sqrt(c[p] + d[p]);

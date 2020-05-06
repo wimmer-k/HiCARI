@@ -107,29 +107,29 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     int clu = hit->GetCluster();
     int cry = hit->GetCrystal();
     
-    // for(int j=i+1; j<hi->GetMult(); j++){
-    //   HiCARIHitCalc* sec = hi->GetHit(j);
-    //   Fill("h_engg_symm",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-    //   Fill("h_engg_symm",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
-    //   if(sec->GetEnergy() > hit->GetEnergy()){
-    // 	Fill("h_hengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,sec->GetEnergy());
-    // 	Fill("h_lengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,hit->GetEnergy());
-    //   }
-    //   else{
-    // 	Fill("h_hengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,hit->GetEnergy());
-    // 	Fill("h_lengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,sec->GetEnergy());
-    //   }
-    //   if(fabs(hit->GetTS()-sec->GetTS()) < 40){
-    // 	Fill("h_engg_symm_TC",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-    // 	Fill("h_engg_symm_TC",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
-    //   }
-    // }
+    for(int j=i+1; j<hi->GetMult(); j++){
+      HiCARIHitCalc* sec = hi->GetHit(j);
+      Fill("h_engg_symm",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+      Fill("h_engg_symm",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+      if(sec->GetEnergy() > hit->GetEnergy()){
+    	Fill("h_hengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,sec->GetEnergy());
+    	Fill("h_lengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,hit->GetEnergy());
+      }
+      else{
+    	Fill("h_hengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,hit->GetEnergy());
+    	Fill("h_lengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,sec->GetEnergy());
+      }
+      if(fabs(hit->GetTS()-sec->GetTS()) < fSett->CoincTimeDiff()){
+    	Fill("h_engg_symm_TC",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+    	Fill("h_engg_symm_TC",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+      }
+    }
     // for(int j=0; j<hi->GetMult(); j++){
     //   HiCARIHitCalc* sec = hi->GetHit(j);
     //   if(sec->GetCluster() == clu && sec->GetCrystal() == cry)
     // 	continue;
-    //   Fill(Form("h_engg_clus%02d_crys%02d",clu,cry),4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-    //   if(fabs(hit->GetTS()-sec->GetTS()) < 40){
+    //   //Fill(Form("h_engg_clus%02d_crys%02d",clu,cry),4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+    //   if(fabs(hit->GetTS()-sec->GetTS()) < fSett->CoincTimeDiff()){
     // 	Fill(Form("h_engg_TC_clus%02d_crys%02d",clu,cry),4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
     //   }      
     // }
@@ -161,29 +161,29 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     }
     int clu = hit->GetCluster();
     int cry = hit->GetCrystal();
-    // for(int j=i+1; j<hi->GetMultAB(); j++){
-    //   HiCARIHitCalc* sec = hi->GetHitAB(j);
-    //   Fill("hAB_engg_symm",1000,0,4000,hit->GetEnergy(),1000,0,4000,sec->GetEnergy());
-    //   Fill("hAB_engg_symm",1000,0,4000,sec->GetEnergy(),1000,0,4000,hit->GetEnergy());
-    //   if(sec->GetEnergy() > hit->GetEnergy()){
-    // 	Fill("hAB_hengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,sec->GetEnergy());
-    // 	Fill("hAB_lengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,hit->GetEnergy());
-    //   }
-    //   else{
-    // 	Fill("hAB_hengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,hit->GetEnergy());
-    // 	Fill("hAB_lengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,sec->GetEnergy());
-    //   }
-    //   if(fabs(hit->GetTS()-sec->GetTS()) < 40){
-    // 	Fill("hAB_engg_symm_TC",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-    // 	Fill("hAB_engg_symm_TC",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
-    //   }
-    // }
+    for(int j=i+1; j<hi->GetMultAB(); j++){
+      HiCARIHitCalc* sec = hi->GetHitAB(j);
+      Fill("hAB_engg_symm",1000,0,4000,hit->GetEnergy(),1000,0,4000,sec->GetEnergy());
+      Fill("hAB_engg_symm",1000,0,4000,sec->GetEnergy(),1000,0,4000,hit->GetEnergy());
+      if(sec->GetEnergy() > hit->GetEnergy()){
+    	Fill("hAB_hengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,sec->GetEnergy());
+    	Fill("hAB_lengg_tsdiff",500,-500,500,sec->GetTS()-hit->GetTS(),4000,0,4000,hit->GetEnergy());
+      }
+      else{
+    	Fill("hAB_hengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,hit->GetEnergy());
+    	Fill("hAB_lengg_tsdiff",500,-500,500,hit->GetTS()-sec->GetTS(),4000,0,4000,sec->GetEnergy());
+      }
+      if(fabs(hit->GetTS()-sec->GetTS()) < fSett->CoincTimeDiff()){
+    	Fill("hAB_engg_symm_TC",4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+    	Fill("hAB_engg_symm_TC",4000,0,4000,sec->GetEnergy(),4000,0,4000,hit->GetEnergy());
+      }
+    }
     // for(int j=0; j<hi->GetMultAB(); j++){
     //   HiCARIHitCalc* sec = hi->GetHitAB(j);
     //   if(sec->GetCluster() == clu && sec->GetCrystal() == cry)
     // 	continue;
-    //   Fill(Form("hAB_engg_clus%02d_crys%02d",clu,cry),4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
-    //   if(fabs(hit->GetTS()-sec->GetTS()) < 40){
+    //   //Fill(Form("hAB_engg_clus%02d_crys%02d",clu,cry),4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
+    //   if(fabs(hit->GetTS()-sec->GetTS()) < fSett->CoincTimeDiff()){
     // 	Fill(Form("hAB_engg_TC_clus%02d_crys%02d",clu,cry),4000,0,4000,hit->GetEnergy(),4000,0,4000,sec->GetEnergy());
     //   }      
     // }

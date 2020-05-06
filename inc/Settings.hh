@@ -48,6 +48,7 @@ public:
   Float_t TargetBeta(){return ftargetBeta;}
   Float_t AverageAfterBeta(){return fAveAfterBeta;}
   int AddBackType(){return fAddBackType;}
+  int CoincTimeDiff(){return fCoincTimeDiff;}
 #ifdef SIMULATION
   const char* SimResolutionFile(){return fResFile.c_str();}
   const char* SimThresholdFile(){return fThreshFile.c_str();}
@@ -156,6 +157,7 @@ protected:
   Float_t ftargetBeta;
   Float_t fAveAfterBeta;
   int fAddBackType;
+  int fCoincTimeDiff;
 
 #ifdef SIMULATION
   double fTargetAngleRes;

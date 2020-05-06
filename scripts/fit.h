@@ -53,6 +53,22 @@ Double_t fgammastep(Double_t *x, Double_t *par){
   return result;
 
 }
+Double_t fgammabgstep(Double_t *x, Double_t *par){
+  static Float_t sqrt2 = TMath::Sqrt(2.);
+  Double_t arg;
+  Double_t result = par[0] + par[1]*x[0];
+  
+  //  Double_t norm  = par[2];
+  Double_t mean  = par[3];
+  Double_t sigma = par[4];
+
+  Double_t step = par[5];
+  arg = (x[0]-mean)/(sqrt2*sigma);
+  result += step/pow(1+exp(sqrt2*arg),2);
+
+  return result;
+
+}
 Double_t fgammagaus(Double_t *x, Double_t *par){
   static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);
   Double_t arg;
