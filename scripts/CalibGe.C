@@ -30,8 +30,11 @@ double frange = 5000;
 double range[2] = {150000,450000};
 TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
-char* fileCo = (char*)"/home/gamma20/rootfiles/hist0443.root";
-char* fileEu = (char*)"/home/gamma20/rootfiles/run0448.root";
+//char* fileCo = (char*)"./rootfiles/hist0443.root";
+char* fileCo = (char*)"./hist/hraw0475.root";
+char* fileEu = (char*)"./hist/hraw0448.root";
+char* fileBa = (char*)"./hist/hraw0468.root";
+char* fileYy = (char*)"./hist/hraw0469.root";
 Double_t fgammagaussbg(Double_t *x, Double_t *par);
 Double_t fgammabg(Double_t *x, Double_t *par);
 Double_t fgammastep(Double_t *x, Double_t *par);
@@ -39,6 +42,10 @@ Double_t fgammagaus(Double_t *x, Double_t *par);
 Double_t flinear(Double_t *x, Double_t *par);
 vector<double> fitCo(TH1F* h, bool bg = true, bool draw = false);
 vector <vector<double> > fitEu(TH1F* h, double roguh, bool bg = true, bool draw = false);
+TGraph* core(int m, int c, bool draw=false);
+TGraph* corerun(int m, int c, int run, bool draw=false);
+double fitonepeak(TH1F* h, double low, double hig, bool draw = false);
+ofstream fout;
 
 void SetRange(double low, double hig){
   range[0] = low;
@@ -63,7 +70,7 @@ void coreEu(int m=0, int c =0){
     frange = 5000;
   fitEu(h,v[0],1,1);
 }
-void core(int m=0, int c =0){
+void coreCo(int m=0, int c =0){
   TFile *f = new TFile(fileCo);
   TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
@@ -107,7 +114,7 @@ vector <vector<double> > fitEu(TH1F* h, double rough, bool bg, bool draw){
   sp->SetResolution(resolution);
   const int n = 10;
   ifstream intensity;
-  intensity.open("/home/gamma20/HiCARI/scripts/Eudecay.dat");
+  intensity.open("./scripts/Eudecay.dat");
   intensity.ignore(1000,'\n');
   double en[n], inten[n];//, eff[n];
   if(draw){
@@ -592,9 +599,337 @@ void CalibMode3(){
   ca->cd(2);
   TGraph* gr = new TGraph(res0.size(),&res0[0],&res1[0]);
   gr->Draw("AP*");
-  
-  
+    
 }
+void CalibCore(){
+  string abc[4] = {"A","B","C","D"};
+  ca = new TCanvas("ca","ca",1200,800);
+  ca->Divide(12,4);
+  // fileCo = (char*)"./hist/hraw0475.root";
+  // fileEu = (char*)"./hist/hraw0448.root";
+  // fileBa = (char*)"./hist/hraw0468.root";
+  // fileYy = (char*)"./hist/hraw0469.root";
+  // TEnv *cf = new TEnv("settings/all_cal0410.dat");
+  fileCo = (char*)"./hist/hraw0478.root";
+  fileEu = (char*)"./hist/hraw0482.root";
+  fileBa = (char*)"./hist/hraw0481.root";
+  fileYy = (char*)"./hist/hrawXXXX.root";
+  TEnv *cf = new TEnv("settings/all2_cal0410.dat");
+  for(int clu=0;clu<12;clu++){
+    for(int cry=0;cry<4;cry++){
+      ca->cd(cry*12+1+clu);
+      TGraph *g = core(clu,cry);
+      if(!g)
+	continue;
+      g->SetTitle(Form("DET %d%s Core calibration",clu,(char*)abc[cry].c_str()));
+
+      g->Draw("AP*");
+      TF1 *fl = new TF1("fl",flinear,0,500000,2);
+      fl->SetParameters(0.004,1);
+      g->Fit(fl,"q");
+      double gain = fl->GetParameter(0);
+      double offs = fl->GetParameter(1);
+      cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",clu,cry),gain);
+      cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",clu,cry),offs);
+      
+    }
+  }
+  cf->SaveLevel(kEnvLocal);
+}
+TGraph* core(int m, int c, bool draw){
+  vector<double> ene;
+  vector<double> chn;
+  TFile *f = new TFile(fileCo);
+  TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  if(h==NULL || h->Integral(h->FindBin(100000),h->FindBin(1000000))<100)
+    return NULL;
+  
+  //h->Draw();
+  vector<double> v = fitCo(h,1,0);
+  const int nEu = 12;
+  double enEu[nEu] = {121.77, 244.66, 344.28, 411.11, 443.96, 778.90, 867.3, 963.38, 1085.84, 1112.08, 1299.14, 1408.01};
+  const int nCo = 3;
+  double enCo[nCo] = {1173.23, 1332.49, 2505.69};
+  const int nBa = 5;
+  double enBa[nBa] = {81.00, 276.40, 302.85, 356.01, 383.85};
+  const int nYy = 2;
+  double enYy[nYy] = {898.04, 1836.06};
+
+  frange = 3000;
+
+  f = new TFile(fileEu);
+  h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  for(int i=0;i<nEu;i++){
+    double fr = fitonepeak(h,(enEu[i]-20)/v[0] ,(enEu[i]+20)/v[0],0);
+    if(fr>0){
+      ene.push_back(enEu[i]);
+      chn.push_back(fr);
+    }
+  }
+  f = new TFile(fileCo);
+  h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  for(int i=0;i<nCo;i++){
+    double fr = fitonepeak(h,(enCo[i]-20)/v[0] ,(enCo[i]+20)/v[0],0);
+    if(fr>0){
+      ene.push_back(enCo[i]);
+      chn.push_back(fr);
+    }
+  }
+  f = new TFile(fileBa);
+  h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  for(int i=0;i<nBa;i++){
+    double fr = fitonepeak(h,(enBa[i]-20)/v[0] ,(enBa[i]+20)/v[0],0);
+    if(fr>0){
+      ene.push_back(enBa[i]);
+      chn.push_back(fr);
+    }
+  }
+  f = new TFile(fileYy);
+  if(f->IsOpen()){
+    h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+    for(int i=0;i<nYy;i++){
+      double fr = fitonepeak(h,(enYy[i]-20)/v[0] ,(enYy[i]+20)/v[0],0);
+      if(fr>0){
+	ene.push_back(enYy[i]);
+	chn.push_back(fr);
+      }
+    }
+  }
+  TGraph* g = new TGraph(ene.size(),&chn[0],&ene[0]);
+  TF1 *fl = new TF1("fl",flinear,0,500000,2);
+  fl->SetParameters(0.004,1);
+  if(draw){
+    ca = new TCanvas("ca","ca",1200,800);
+    ca->Divide(1,2);
+    ca->cd(1);
+    g->Draw("AP*");
+    g->Fit(fl);
+    double gain = fl->GetParameter(0);
+    double offs = fl->GetParameter(1);
+    ca->cd(2);
+    
+    vector<double> res;
+    fout.open("python/data/calcurve.dat");
+    for(UShort_t i=0; i<ene.size(); i++){
+      res.push_back(chn[i]*gain+offs - ene[i]);
+      fout << ene[i] << "\t" << chn[i] << "\t" << res.back() << endl;
+    }
+    fout.close();
+    TGraph *gr = new TGraph(ene.size(),&ene[0],&res[0]);
+    gr->Draw("AP*");
+  }
+  else
+    g->Fit(fl,"qn");
+
+  f->Close();
+  
+
+  return g;
+
+}
+void CalibCore(int run){
+  string abc[4] = {"A","B","C","D"};
+  TFile *f = new TFile(Form("hist/hraw%04d.root",run));
+  if(!f->IsOpen()){
+    return;
+  }
+  ca = new TCanvas("ca","ca",1200,800);
+  ca->Divide(12,4);
+  TEnv *cf = new TEnv(Form("settings/runbyrun/all_run%04d_cal0411.dat",run));
+  for(int clu=0;clu<12;clu++){
+    for(int cry=0;cry<4;cry++){
+      ca->cd(cry*12+1+clu);
+      TGraph *g = corerun(clu,cry,run);
+      if(!g)
+	continue;
+      g->Draw("AP*");
+      TF1 *fl = new TF1("fl",flinear,0,500000,2);
+      fl->SetParameters(0.004,1);
+      g->Fit(fl,"q");
+      double gain = fl->GetParameter(0);
+      double offs = fl->GetParameter(1);
+      cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",clu,cry),gain);
+      cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",clu,cry),offs);
+      
+    }
+  }
+  cf->SaveLevel(kEnvLocal);
+}
+void allruns(){
+  for(int r=447; r<483;r++){
+    if(r==470)
+      continue;
+    CalibCore(r);
+  }
+}
+TGraph* corerun(int m, int c, int run, bool draw){
+  vector<double> ene;
+  vector<double> chn;
+  TFile *f = new TFile(Form("hist/hraw%04d.root",run));
+  TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  if(h==NULL || h->Integral(h->FindBin(100000),h->FindBin(1000000))<100)
+    return NULL;
+
+  TEnv *prev;
+  if(run<476)
+    prev = new TEnv("./settings/all_cal0410.dat");
+  else
+    prev = new TEnv("./settings/all2_cal0410.dat");
+  double rough = prev->GetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",m,c),0.0);
+
+  const int nEu = 12;
+  double enEu[nEu] = {121.77, 244.66, 344.28, 411.11, 443.96, 778.90, 867.3, 963.38, 1085.84, 1112.08, 1299.14, 1408.01};
+  const int nCo = 3;
+  double enCo[nCo] = {1173.23, 1332.49, 2505.69};
+  const int nBa = 5;
+  double enBa[nBa] = {81.00, 276.40, 302.85, 356.01, 383.85};
+  const int nYy = 2;
+  double enYy[nYy] = {898.04, 1836.06};
+
+  frange = 3000;
+  if((run>447 && run<458) || run==474 || run==479 || run ==482){
+    for(int i=0;i<nEu;i++){
+      double c = fitonepeak(h,(enEu[i]-20)/rough ,(enEu[i]+20)/rough,0);
+      if(c>0){
+	ene.push_back(enEu[i]);
+	chn.push_back(c);
+      }
+    }
+  }
+  if(run==475 || run==478){
+    for(int i=0;i<nCo;i++){
+      double c = fitonepeak(h,(enCo[i]-20)/rough ,(enCo[i]+20)/rough,0);
+      if(c>0){
+	ene.push_back(enCo[i]);
+	chn.push_back(c);
+      }
+    }
+  }
+  if((run>457 && run<469) || run==480 || run==481){
+    for(int i=0;i<nBa;i++){
+      double c = fitonepeak(h,(enBa[i]-20)/rough ,(enBa[i]+20)/rough,0);
+      if(c>0){
+	ene.push_back(enBa[i]);
+	chn.push_back(c);
+      }
+    }
+  }
+  if(run==469){
+    for(int i=0;i<nYy;i++){
+      double c = fitonepeak(h,(enYy[i]-20)/rough ,(enYy[i]+20)/rough,0);
+      if(c>0){
+	ene.push_back(enYy[i]);
+	chn.push_back(c);
+      }
+    }
+  }
+  TGraph* g = new TGraph(ene.size(),&chn[0],&ene[0]);
+  TF1 *fl = new TF1("fl",flinear,0,500000,2);
+  fl->SetParameters(0.004,1);
+  if(draw){
+    ca = new TCanvas("ca","ca",1200,800);
+    ca->Divide(1,2);
+    ca->cd(1);
+    g->Draw("AP*");
+    g->Fit(fl);
+    double gain = fl->GetParameter(0);
+    double offs = fl->GetParameter(1);
+    ca->cd(2);
+    
+    vector<double> res;
+    for(UShort_t i=0; i<ene.size(); i++){
+      res.push_back(chn[i]*gain+offs - ene[i]);
+    }
+    TGraph *gr = new TGraph(ene.size(),&ene[0],&res[0]);
+    gr->Draw("AP*");
+  }
+  else
+    g->Fit(fl,"qn");
+
+  f->Close();
+  return g;
+
+}
+
+double fitonepeak(TH1F* h, double low, double hig, bool draw){
+  h->GetXaxis()->SetRangeUser(low,hig);
+  if(h->Integral() < 10)
+    return -1;
+  TSpectrum *sp = new TSpectrum(3,resolution);
+  sp->SetResolution(resolution);
+  Int_t nfound = 0;
+  if(draw)
+    nfound = sp->Search(h,resolution,"nobackground",0.5);
+  else
+    nfound = sp->Search(h,resolution,"nobackgroundgoff",0.5);
+
+  if(nfound!=1){
+    cout << "Found " << nfound << " peaks in spectrum, not one, try again" << endl;
+    TH1F* hc = (TH1F*)h->Clone("testclone");
+    hc->Rebin(2);
+    hc->GetXaxis()->SetRangeUser(low,hig);
+    nfound = 0;
+    if(draw)
+      nfound = sp->Search(hc,resolution,"nobackground",0.4);
+    else
+      nfound = sp->Search(hc,resolution,"nobackgroundgoff",0.4);
+      
+    if(nfound!=1){
+      cout << "Found " << nfound << " peaks in spectrum, not one, aborting" << endl;
+      if(draw)
+	hc->DrawCopy();
+      return -1;
+    }      
+  }
+  Float_t xpeak = sp->GetPositionX()[0];
+  Float_t ypeak = sp->GetPositionY()[0];
+  if(draw){
+    cout << xpeak << "\t" << ypeak << endl;
+    ca = new TCanvas("ca","ca",600,600);
+    ca->cd();
+    h->DrawCopy();
+  }
+  TF1 *fu;
+  TF1 *fus[3];
+  h->GetXaxis()->SetRangeUser(xpeak-frange,xpeak+frange);
+  fu = new TF1(Form("f%s",h->GetName()),fgammagaussbg,xpeak-frange,xpeak+frange,6);
+  fu->SetLineColor(3);
+  fu->SetLineWidth(1);
+  fu->SetParameter(0,0);//bg const
+  fu->SetParameter(1,0);//bg slope
+  fu->SetParameter(2,h->Integral(xpeak-frange,xpeak+frange));//norm
+  fu->SetParameter(3,xpeak);//mean
+  fu->SetParLimits(3,xpeak-500,xpeak+500);//mean
+  fu->SetParameter(4,200);//sigma
+  fu->SetParLimits(4,100,frange);//sigma
+  fu->SetParameter(5,h->GetBinContent(h->FindBin(xpeak-frange)));//step
+  if(draw)
+    h->Fit(fu,"Rn");
+  else
+    h->Fit(fu,"Rqn");
+
+  //draw results.
+  if(draw){
+    fu->Draw("same");
+    fus[0] = new TF1(Form("f%s_bg",h->GetName()),fgammabg,xpeak-frange,xpeak+frange,6);
+    fus[1] = new TF1(Form("f%s_st",h->GetName()),fgammastep,xpeak-frange,xpeak+frange,6);
+    fus[2] = new TF1(Form("f%s_ga",h->GetName()),fgammagaus,xpeak-frange,xpeak+frange,6);
+	
+
+    fus[0]->SetLineColor(5);
+    fus[1]->SetLineColor(4);
+    fus[2]->SetLineColor(2);
+    for(int k=0;k<3;k++){
+      fus[k]->SetLineWidth(1);
+      for(int l=0;l<6;l++)
+	fus[k]->SetParameter(l,fu->GetParameter(l));
+      fus[k]->Draw("same");
+    }
+
+  }// draw
+  return fu->GetParameter(3);
+}
+
 
 Double_t fgammagaussbg(Double_t *x, Double_t *par){
   static Float_t sqrt2pi = TMath::Sqrt(2*TMath::Pi()), sqrt2 = TMath::Sqrt(2.);

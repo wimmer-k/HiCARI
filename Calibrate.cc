@@ -40,6 +40,7 @@ int main(int argc, char* argv[]){
   int nmax = 0;
   int vl = 0;
   int whist = 0;
+  int wtree = 0;
   CommandLineInterface* interface = new CommandLineInterface();
 
   interface->Add("-i", "inputfile", &InputFile);
@@ -47,6 +48,7 @@ int main(int argc, char* argv[]){
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-n", "nmax", &nmax);
   interface->Add("-h", "write histos", &whist);
+  interface->Add("-t", "write tree", &wtree);
   interface->Add("-v", "verbose", &vl);
   interface->CheckFlags(argc, argv);
 
@@ -126,14 +128,15 @@ int main(int argc, char* argv[]){
 
     cal->BuildHiCARICalc(hi,hicalc);
     if(hicalc->GetMult()>0||hicalc->HadBigRIPS()){
-      caltr->Fill();
+      if(wtree)
+	caltr->Fill();
       ncalentries++;
     }
     if(whist){
       chist->FillHistograms(hicalc);
     }
 
-    if(i%1000 == 0){
+    if(i%10000 == 0){
       double time_end = get_time();
       cout<<setw(5)<<setiosflags(ios::fixed)<<setprecision(1)<<(100.*i)/nentries<<" % done\t"<<(Float_t)i/(time_end - time_start)<<" events/s " << (nentries-i)*(time_end - time_start)/(Float_t)i<<"s to go\r"<<flush;
     }
@@ -142,7 +145,8 @@ int main(int argc, char* argv[]){
   cout << endl;
   cout << "Total of " << BLUE << nentries << DEFCOLOR << " entries ("<< BLUE <<nbytes/(1024*1024) << DEFCOLOR << " MB unzipped) read." << endl;
   cout << "Total of " << BLUE << ncalentries << DEFCOLOR << " calibrated events ("<< BLUE << caltr->GetZipBytes()/(1024*1024)<< DEFCOLOR << " MB) written."  << endl;
-  caltr->Write();
+  if(wtree)
+    caltr->Write();
   info->SetHICalEvents(ncalentries);
   info->SetBigRIPSCtr(cal->GetBigRIPSCtr());
   info->SetBigRIPSHitCtr(cal->GetBigRIPSHitCtr());

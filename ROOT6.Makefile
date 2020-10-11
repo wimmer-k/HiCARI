@@ -4,7 +4,8 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-TARTSYS=/home/gamma20/exp/anaroot
+#TARTSYS=/home/gamma20/exp/anaroot
+TARTSYS=/home/wimmer/mercurius/anaroot
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs)

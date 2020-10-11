@@ -28,3 +28,31 @@ void checkcal(int u, int y){
   }
 
 }
+void checkcores(int run){
+  f = new TFile(Form("./hist/hcal%04d.root",run));
+  h2 = (TH2F*)f->Get("h_en_summary");
+  if(h2!=NULL){
+    h2->Draw("colz");
+    h2->GetYaxis()->SetRangeUser(0,1500);
+  }
+  
+}
+void plotall(){
+  THStack *hs = new THStack("hs","hs");
+  for(int r=448;r<483;r++){
+    f = NULL;
+    f = new TFile(Form("./hist/hcal%04d.root",r));
+    if(f==NULL)
+      continue;
+    h2 = NULL;
+    h2 = (TH2F*)f->Get("h_en_summary");
+    if(h2==NULL)
+      continue;
+    h = (TH1F*)h2->ProjectionY(Form("hp_%04d",r));
+    h->GetXaxis()->SetRangeUser(100,1500);
+    h->Scale(1./h->Integral(1900,3900));
+    h->SetLineColor(r%6+1);
+    hs->Add(h);
+  }
+  hs->Draw("nostack");
+}

@@ -112,6 +112,7 @@ private:
 #endif
 
   int fAddBackType;
+  int fCoincTDiff;
 #ifdef SIMULATION
   Long64_t fgretactr;
   Long64_t fminiballctr;

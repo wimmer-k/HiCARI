@@ -18,14 +18,14 @@ double deg2rad = TMath::Pi()/180.;
 double rad2deg = 180./TMath::Pi();
 void MBPositions(){
   ifstream infile;
-  infile.open("/home/gamma20/HiCARI/settings/MBpositions_jiseok_mar26.dat");
+  infile.open("/home/wimmer/programs/HiCARI/settings/MBpositions_jiseok_mar26.dat");
   infile.ignore(1000,'\n');
   int clu, cry, seg;
   float phi, the, rho;
   TH2F* c_thetaphi = new TH2F("c_thetaphi", "c_thetaphi",180,0,180,180,-180,180);
   TH2F* s_thetaphi = new TH2F("s_thetaphi", "s_thetaphi",180,0,180,180,-180,180);
-  TH2F* c_xy = new TH2F("c_xy", "c_xy",200,-200,200,200,-200,200);
-  TH2F* s_xy = new TH2F("s_xy", "s_xy",200,-200,200,200,-200,200);
+  TH2F* c_xy = new TH2F("c_xy", "c_xy",200,-400,400,200,-400,400);
+  TH2F* s_xy = new TH2F("s_xy", "s_xy",200,-400,400,200,-400,400);
   TEnv* fout = new TEnv("/home/gamma20/HiCARI/settings/HiCARIpos_0327.dat");
   while(!infile.eof()){
   //for(int i=0;i<10;i++){
@@ -77,7 +77,7 @@ void MBPositions(){
   s_xy->SetMarkerSize(0.5);
   s_xy->Draw("same");
   
-  fout->SaveLevel(kEnvLocal);
+  //fout->SaveLevel(kEnvLocal);
 
 }
 void SCPositions(){
@@ -143,5 +143,105 @@ void SCPositions(){
   s_xy->Draw("same");
   
   fout->SaveLevel(kEnvLocal);
+
+}
+void comparewithsim(char* dat = "settings/HiCARIpos_0328.dat", char* sim = "simulation/settings/coordinates_sim.dat"){
+  //TEnv* env = new TEnv("settings/139Sn_MBcoordinates.dat");
+  TEnv* env[2];
+  env[0] = new TEnv(dat);
+  env[1] = new TEnv(sim);
+  TVector3 pdat[10][4][8];
+  TVector3 psim[10][4][8];
+  TVector3 pdatc[10][4];
+  TVector3 psimc[10][4];
+  TVector3 pdatf[10];
+  TVector3 psimf[10];
+  TH2F* h[2][4];
+  h[0][0] = new TH2F("hdat_tp","hdat_tp",100,0,100,180,-180,180);
+  h[1][0] = new TH2F("hdat_tp","hdat_tp",100,0,100,180,-180,180);
+  h[0][1] = new TH2F("hdat_xy","hdat_xy",200,-300,300,200,-300,300);
+  h[1][1] = new TH2F("hdat_xy","hdat_xy",200,-300,300,200,-300,300);
+  h[0][2] = new TH2F("hdat_xz","hdat_xz",200,-300,300,200,0,300);
+  h[1][2] = new TH2F("hdat_xz","hdat_xz",200,-300,300,200,0,300);
+  h[0][3] = new TH2F("hdat_yz","hdat_yz",200,-300,300,200,0,300);
+  h[1][3] = new TH2F("hdat_yz","hdat_yz",200,-300,300,200,0,300);
+  ofstream fout;
+  fout.open("python/data/coordinates0505.dat");
+  for(int cl=0; cl<10; cl++){
+    int fdat =0;
+    int fsim =0;
+    pdatf[cl].SetXYZ(0,0,0);
+    psimf[cl].SetXYZ(0,0,0);
+    for(int cr=0; cr<4; cr++){
+      int cdat =0;
+      int csim =0;
+      pdatc[cl][cr].SetXYZ(0,0,0);
+      psimc[cl][cr].SetXYZ(0,0,0);
+      for(int se=0; se<8; se++){
+	double x,y,z;
+	x = env[0]->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",cl,cr,se),-0.0);
+	y = env[0]->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",cl,cr,se),-0.0);
+	z = env[0]->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",cl,cr,se),-0.0);
+	pdat[cl][cr][se].SetXYZ(x,y,z);
+	if(pdat[cl][cr][se].Theta()>0){
+	  h[0][0]->Fill(pdat[cl][cr][se].Theta()*180./TMath::Pi(),pdat[cl][cr][se].Phi()*180./TMath::Pi());
+	  h[0][1]->Fill(pdat[cl][cr][se].X(),pdat[cl][cr][se].Y());
+	  h[0][2]->Fill(pdat[cl][cr][se].X(),pdat[cl][cr][se].Z());
+	  h[0][3]->Fill(pdat[cl][cr][se].Y(),pdat[cl][cr][se].Z());
+	  fout << cl << "\t" << cr << "\t" << se << "\t" << pdat[cl][cr][se].Theta()*180./TMath::Pi() << "\t" << pdat[cl][cr][se].Phi()*180./TMath::Pi() << "\t" << x << "\t" << y;
+	  pdatc[cl][cr] += pdat[cl][cr][se];
+	  cdat++;
+	  pdatf[cl] += pdat[cl][cr][se];
+	  fdat++;
+	}
+	x = env[1]->GetValue(Form("Miniball.Clu%d.Cry%d.Seg%d.X",cl,cr,se),-0.0);
+	y = env[1]->GetValue(Form("Miniball.Clu%d.Cry%d.Seg%d.Y",cl,cr,se),-0.0);
+	z = env[1]->GetValue(Form("Miniball.Clu%d.Cry%d.Seg%d.Z",cl,cr,se),-0.0);
+	//cout << x << "\t" << y << "\t" << z << endl;
+	psim[cl][cr][se].SetXYZ(x,y,z);
+	if(psim[cl][cr][se].Theta()>0){
+	  h[1][0]->Fill(psim[cl][cr][se].Theta()*180./TMath::Pi(),psim[cl][cr][se].Phi()*180./TMath::Pi());
+	  h[1][1]->Fill(psim[cl][cr][se].X(),psim[cl][cr][se].Y());
+	  h[1][2]->Fill(psim[cl][cr][se].X(),psim[cl][cr][se].Z());
+	  h[1][3]->Fill(psim[cl][cr][se].Y(),psim[cl][cr][se].Z());
+	  fout << "\t" << psim[cl][cr][se].Theta()*180./TMath::Pi() << "\t" << psim[cl][cr][se].Phi()*180./TMath::Pi() << "\t" << x << "\t" << y << endl;
+	  psimc[cl][cr] += psim[cl][cr][se];
+	  csim++;
+	  psimf[cl] += psim[cl][cr][se];
+	  fsim++;
+	}
+	// if(pdat[cl][cr][se].Theta()>0 && psim[cl][cr][se].Theta()>0){
+	//   cout << cl << "\t" << cr << "\t" << se << "\t" << pdat[cl][cr][se].Mag() << "\t" << psim[cl][cr][se].Mag() << "\t" << pdat[cl][cr][se].Mag()-psim[cl][cr][se].Mag() << endl;
+	// }
+      }//segments
+      // if(cdat>0 && csim>0){
+      // 	pdatc[cl][cr] *= 1./cdat;
+      // 	psimc[cl][cr] *= 1./csim;
+      // 	cout << cl << "\t" << cr << "\t" << pdatc[cl][cr].Mag() << "\t" << psimc[cl][cr].Mag() << "\t" << pdatc[cl][cr].Mag()-psimc[cl][cr].Mag() << endl;
+      // }
+    }//crystals
+    
+    if(fdat>0 && fsim>0){
+      pdatf[cl] *= 1./fdat;
+      psimf[cl] *= 1./fsim;
+      cout << cl << "\t" << pdatf[cl].Mag() << "\t" << psimf[cl].Mag() << "\t" << pdatf[cl].Mag()-psimf[cl].Mag() << endl;
+    }
+    
+  }
+  TCanvas *c = new TCanvas("c","c",350*4,300*4);
+  c->Divide(2,2);
+  for(int i=0;i<4;i++){
+    c->cd(1+i);    
+    h[0][i]->Draw();
+    h[0][i]->SetMarkerColor(3);
+    h[0][i]->SetMarkerSize(0.5);
+    h[0][i]->SetMarkerStyle(20);
+    h[1][i]->Draw("same");
+    h[1][i]->SetMarkerColor(2);
+    h[1][i]->SetMarkerSize(0.5);
+    h[1][i]->SetMarkerStyle(20);
+  }
+  h[0][0]->GetYaxis()->SetTitle("#phi_{lab} (deg)");
+  h[0][0]->GetXaxis()->SetTitle("#theta_{lab} (deg)");
 
 }

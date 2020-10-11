@@ -24,6 +24,7 @@ Calibration::Calibration(Settings* setting, int event){
 
   fverbose = fSett->VLevel();
   fAddBackType = fSett->AddBackType();
+  fCoincTDiff = fSett->CoincTimeDiff();
 
 #ifdef SIMULATION
   ReadMBPositions(fSett->AveMBPos());
@@ -498,7 +499,7 @@ void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
     HiCARIHitCalc* hit = *iter;
     bool addbacked = false;
     for (int j=0; j<gr->GetMultAB(); j++){
-      if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster()){
+      if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster() && (fabs(gr->GetHitAB(j)->GetTS()-hit->GetTS()) < fCoincTDiff || fCoincTDiff<0)){
 	gr->GetHitAB(j)->AddBackHiCARIHitCalc(hit);
 	addbacked = true;
 	break;
@@ -519,7 +520,8 @@ void Calibration::AddBackHiCARIEverything(HiCARICalc* gr){
     HiCARIHitCalc* hit = *iter;
     if(iter==hits.begin()){
       gr->AddHitAB(new HiCARIHitCalc(*hit));
-    } else {
+    }
+    else if(fabs(gr->GetHitAB(0)->GetTS()-hit->GetTS()) < fCoincTDiff || fCoincTDiff<0){
       gr->GetHitAB(0)->AddBackHiCARIHitCalc(hit);
     }
   }
