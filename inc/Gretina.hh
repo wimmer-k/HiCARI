@@ -8,8 +8,10 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "Gretinadefs.h"
+#ifdef SIMULATION
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
+#endif
 #include "Settings.hh"
 
 using namespace std;
@@ -343,6 +345,7 @@ public:
   //! Returns the Doppler-correction factor to correct the energy.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
   
+#ifdef SIMULATION
   //! Apply the Doppler correction using the given settings and ZeroDeg data.
   /*!
     Apply the Doppler correction using the given settings and ZeroDeg data.
@@ -362,6 +365,7 @@ public:
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   //! Returns the Doppler-correction factor to correct the energy including the MINOS information.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
+#endif
 
   void Print(){
     cout << "cluster " << fcluster << "\tcrystal " << fcrystal << "\ten " << fen << "\tmax hit " << fMaxSingleHit << endl;//"\tipoints " << fipoints.size()<< endl;
@@ -471,8 +475,10 @@ public:
     fhits_cl[c].push_back(cry);
   }
   void DopplerCorrect(Settings* set);
+#ifdef SIMULATION
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
+#endif
   void Print(){
     cout << " singles mult " <<fmult << endl;
     for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
@@ -612,12 +618,14 @@ public:
   void DopplerCorrect(Settings* set){
     fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set);
   }
+#ifdef SIMULATION
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
     fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set,zerodeg);
   }
   void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
     fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set,zerodeg,minos);
   }
+#endif
   void SetFOM(Double_t fom){ fFOM = fom; }
   void SetPermutation(Int_t perm){ fperm = perm; }
   void SetPermutation(vector<int> perm){ fpermlist = perm; }

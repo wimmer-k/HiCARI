@@ -259,6 +259,8 @@ void GretinaCalc::DopplerCorrect(Settings* set){
   }
 }
  
+#ifdef SIMULATION
+
 void HitCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
   fDCen = fen*HitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg);
   fDCen_simcheat = fen*HitCalc::DopplerCorrectionFactor(fTrueFirst,set,zerodeg);
@@ -319,3 +321,5 @@ void GretinaCalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
     (*hit)->DopplerCorrect(set,zerodeg,minos);
   }
 }
+
+#endif

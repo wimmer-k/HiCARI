@@ -211,6 +211,7 @@ void Calibration::BuildMiniballCalc(Miniball* in, MiniballCalc* out){
     cout << "unknown addback type: " << fAddBackType << endl;
   }
 }
+#endif
 
 void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
 
@@ -303,6 +304,8 @@ void Calibration::AddBackGretinaEverything(GretinaCalc* gr){
 
 }
 
+#ifdef SIMULATION
+
 void Calibration::AddBackMiniballCluster(MiniballCalc* gr){
   //All hits within a cluster 
   vector<MBHitCalc*> hits= gr->GetHits();
@@ -338,16 +341,19 @@ void Calibration::AddBackMiniballEverything(MiniballCalc* gr){
 
 }
 
+void Calibration::GammaTrack(GretinaCalc* gr, GretinaEvent* gt){
+  ftracking->SetGretina(gr);
+  ftracking->SortInClusters();    
+  gt = ftracking->GetEvent();
+}
+
+#endif
+
 void Calibration::AllGretinaHits(GretinaCalc* gr, Gretina* in){
   //monstercluster for Ragnar
   vector<HitCalc*> cluster = ExtractAllHits(in);
   if (cluster.size() > 0 )
     gr->AddHitCL(cluster,0);
-}
-void Calibration::GammaTrack(GretinaCalc* gr, GretinaEvent* gt){
-  ftracking->SetGretina(gr);
-  ftracking->SortInClusters();    
-  gt = ftracking->GetEvent();
 }
 
 void Calibration::ClusterGretina(GretinaCalc* gr, Gretina* in){
@@ -395,6 +401,9 @@ void Calibration::ClusterGretina(GretinaCalc* gr, Gretina* in){
     c++;
   }
 }
+
+#ifdef SIMULATION
+
 void Calibration::BuildZeroDeg(ZeroDeg* zerodeg){
   //azita azimutal angle at target = phi
   double xsin, ysin;
@@ -512,7 +521,7 @@ void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
 }
 
 void Calibration::AddBackHiCARIEverything(HiCARICalc* gr){
-  //All hits within Gretina are summed.
+  //All hits within HiCARI are summed.
   vector<HiCARIHitCalc*> hits = gr->GetHits();
   if(hits.size() < 1)
     return;

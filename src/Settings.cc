@@ -152,6 +152,11 @@ void Settings::PrintSettings(){
 
   cout << "AddBackType\t" << fAddBackType << endl;
   cout << "CoincTimeDiff\t" << fCoincTimeDiff << endl;
+  cout << "ClusterAngle\t" << fClusterAngle << endl;
+  cout << "StoreAllIPoints\t" << fStoreAllIPoints << endl;
+  cout << "OverflowThreshold\t"<< fOverflowThreshold << endl;
+
+  cout << "DoTracking\t"<< fTracking << endl;
 
 #ifdef SIMULATION
   cout << "Sim.Resolution.File\t" << fResFile << endl;
@@ -175,11 +180,6 @@ void Settings::PrintSettings(){
   cout << "Gretina.Matrix.File\t" << fMatrixFile << endl;
   cout << "Gretina.Neighbor.File\t" << fNeighborFile << endl;
 
-  cout << "ClusterAngle\t" << fClusterAngle << endl;
-  cout << "StoreAllIPoints\t" << fStoreAllIPoints << endl;
-  cout << "OverflowThreshold\t"<< fOverflowThreshold << endl;
-
-  cout << "DoTracking\t"<< fTracking << endl;
 #else
   cout << "HiCARI.IgnoreTrace\t" << fIgnoreTrace << endl;
   cout << "HiCARI.Positions\t" << fHiCARIPos << endl;

@@ -120,6 +120,7 @@ int main(int argc, char* argv[]){
   info->SetHIRunNumber(run);
   set->Write("settings",TObject::kOverwrite);
   //Initialize the data structures for the event building.
+  struct crys_ips_abcd5678 inbuf_abcd5678[1];
   int buffers = 0;
   long long int bytes_read = 0;
   UnpackedEvent *evt = new UnpackedEvent(set);
@@ -159,6 +160,27 @@ int main(int argc, char* argv[]){
     //Decode the event differently depending on which type of data is identified in the header.
     //For each, pass the data from the file into the UnpackedEvent to be read.
 
+    if(header[0]==GRETINA_ID){
+      if(vl>1){
+	cout << "---------------------starting gretina------------------------------- " << endl;
+	cout << "gret timestamp:\t"<< ts << "\tlength: "<< header[1] << "\thex: " <<(hex) << ts << "\tlength: "<< header[1] <<(dec)<< endl;
+      }
+      Crystal* crys;
+      if(header[1]==sizeof(crys_ips_abcd5678)){
+	bsize = fread(&inbuf_abcd5678[0], sizeof(crys_ips_abcd5678), 1, infile);
+	bytes_read += sizeof(struct crys_ips_abcd5678);
+	crys = new Crystal(inbuf_abcd5678[0]);
+      } 
+      else{
+	cout << "Unknown size for mode2 data" << endl;
+	break;
+      }
+      int error = evt->DecodeGretina(crys,ts);
+      if(error){
+	cout << "An error ("<<error<<") occured in DecodeGretina() while processing file: " << InputFile << ". Continuing ..." << endl;
+	continue;
+      }
+    }
     if(header[0]==TRACE_ID){
       if(vl>1){
 	cout << "---------------------starting trace------------------------------- " << endl;

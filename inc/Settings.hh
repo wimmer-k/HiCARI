@@ -49,6 +49,12 @@ public:
   Float_t AverageAfterBeta(){return fAveAfterBeta;}
   int AddBackType(){return fAddBackType;}
   int CoincTimeDiff(){return fCoincTimeDiff;}
+  int StoreAllIPoints(){return fStoreAllIPoints;}
+
+  double ClusterAngle(){return fClusterAngle;}
+  void SetAddBackType(int val){fAddBackType = val;}
+  double OverflowThreshold(){return fOverflowThreshold;}
+
 #ifdef SIMULATION
   const char* SimResolutionFile(){return fResFile.c_str();}
   const char* SimThresholdFile(){return fThreshFile.c_str();}
@@ -69,10 +75,6 @@ public:
   const char* NeighborFile(){return fNeighborFile.c_str();}
 
 
-  double ClusterAngle(){return fClusterAngle;}
-  int StoreAllIPoints(){return fStoreAllIPoints;}
-  void SetAddBackType(int val){fAddBackType = val;}
-  double OverflowThreshold(){return fOverflowThreshold;}
 
   const char* AveMBPos(){return fAveMBPos.c_str();}
 
@@ -158,6 +160,17 @@ protected:
   Float_t fAveAfterBeta;
   int fAddBackType;
   int fCoincTimeDiff;
+  int fStoreAllIPoints;
+  double fOverflowThreshold;
+  string fMatrixFile;
+  string fNeighborFile;
+
+  map<int,int> fdet2clu;
+  map<int,int> fclu2det;
+
+  double fClusterAngle;
+  bool fTracking;
+
 
 #ifdef SIMULATION
   double fTargetAngleRes;
@@ -176,17 +189,6 @@ protected:
 
   string fAveMBPos;
   //gretina
-  string fMatrixFile;
-  string fNeighborFile;
-
-  map<int,int> fdet2clu;
-  map<int,int> fclu2det;
-
-  double fClusterAngle;
-  int fStoreAllIPoints;
-  double fOverflowThreshold;
-  bool fTracking;
-
 #else
   bool fIgnoreTrace;
   string fHiCARIPos;

@@ -24,8 +24,8 @@
 
 #include "Calibration.hh"
 #include "Trace.hh"
+#include "Gretina.hh" //now also for data as we take mode2 for P3 and Quad
 #ifdef SIMULATION
-#include "Gretina.hh"
 #include "Miniball.hh"
 #include "GammaSim.hh"
 #include "ZeroDeg.hh"
@@ -63,9 +63,9 @@ public:
   UnpackedEvent(){};
   UnpackedEvent(Settings* settings = NULL);
   ~UnpackedEvent(){
-#ifdef SIMULATION
     delete fGretina;
     delete fGretinaCalc;
+#ifdef SIMULATION
     delete fZeroDeg;
 #ifdef USEMINOS
     delete fMINOS;
@@ -127,14 +127,14 @@ public:
   //! Read the specified buffer and make the MINOSPhysicsData event.
   int DecodeMINOSPhysicsData(MINOS_DATA*, long long int);
 #endif
-  //! Passed a gretina Crystal, make a new crystal in the Gretina object.
-  int DecodeGretina(Crystal* cryst, long long int gts);
   //! Passed a miniball Crystal, make a new crystal in the Miniball object.
   int DecodeMiniball(MBCrystal* cryst, long long int gts);
 #endif
 
   //! Read the specified buffer and make the Mode3Event.
   int DecodeMode3(char* cBuf, int len, long long int ts);
+  //! Passed a gretina Crystal, make a new crystal in the Gretina object.
+  int DecodeGretina(Crystal* cryst, long long int gts);
 
   //! Write the last event to file.
   void WriteLastEvent();
@@ -187,13 +187,13 @@ protected:
   TTree *ftr;
   TTree *fcaltr;
 
+  Gretina*      fGretina;
+  GretinaCalc*  fGretinaCalc;
 #ifdef SIMULATION
   ZeroDeg*      fZeroDeg;
 #ifdef USEMINOS
   MINOS*        fMINOS;
 #endif
-  Gretina*      fGretina;
-  GretinaCalc*  fGretinaCalc;
   Miniball*     fMiniball;
   MiniballCalc* fMiniballCalc;
   GammaSim*     fGammaSim;
@@ -209,6 +209,7 @@ protected:
   int fvl;
   int fnentries;
   int fncalentries;
+  int fstrangehits;
 #ifdef SIMULATION
   int fnsimentries;
   int fGRhits;
@@ -221,7 +222,6 @@ protected:
   bool fwcalhist;
 #ifdef SIMULATION
   bool fwsimtree;
-  int fstrangehits;
   int frecalibrate;
 #endif
   int fEventTimeDiff;

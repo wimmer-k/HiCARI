@@ -43,11 +43,11 @@ void UnpackedEvent::Init(){
 
   fEventTimeDiff = fSett->EventTimeDiff();
 
+  fGretina = new Gretina;
+  fGretinaCalc = new GretinaCalc;
 #ifdef SIMULATION  
   fRand = new TRandom();
   fGammaSim = new GammaSim;
-  fGretina = new Gretina;
-  fGretinaCalc = new GretinaCalc;
   fMiniball = new Miniball;
   fMiniballCalc = new MiniballCalc;
   fZeroDeg = new ZeroDeg;
@@ -104,11 +104,11 @@ void UnpackedEvent::Init(){
 #endif
   
   fnentries = 0;
+  fstrangehits = 0;
+  fGretina->Clear();
 #ifdef SIMULATION
   fGRhits = 0;
   fMBhits = 0;
-  fstrangehits = 0;
-  fGretina->Clear();
   fMiniball->Clear();
   fZeroDeg->Clear();
 #ifdef USEMINOS
@@ -124,8 +124,9 @@ void UnpackedEvent::Init(){
   fctr = 0;
 
   fncalentries = 0;
-#ifdef SIMULATION
   fGretinaCalc->Clear();
+
+#ifdef SIMULATION
   fMiniballCalc->Clear();
 
   ReadSimResolution(fSett->SimResolutionFile());
@@ -383,7 +384,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
 
   return curTrace;
 }
-#else
+
 int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
   if(fvl>0)
     cout << __PRETTY_FUNCTION__  << " time stamp " << gts << endl;
@@ -415,7 +416,10 @@ int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
     cout << "UnpackedEvent: " <<"-----------------------------"<< endl;
   }
 
+#ifdef SIMULATIOM
   fGRhits++;
+#endif
+  
 
   //the events which have no good interaction points
   if(cryst->GetMaxIPNr()<0){
@@ -462,7 +466,7 @@ int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
   }
   return 0;
 }
-
+#else
 int UnpackedEvent::DecodeMiniball(MBCrystal* cryst, long long int gts){
   if(fvl>0)
     cout << __PRETTY_FUNCTION__  << " time stamp " << gts << endl;
@@ -854,10 +858,9 @@ bool UnpackedEvent::SimThresholds(Miniball* mb){
 void UnpackedEvent::ClearEvent(){
   fhasdata = false;
   fMode3Event->Clear();
-  fHiCARI->Clear();
-#ifdef SIMULATION
   fGretina->Clear();
   fGretinaCalc->Clear();
+#ifdef SIMULATION
   fMiniball->Clear();
   fMiniballCalc->Clear();
   fZeroDeg->Clear();
@@ -865,6 +868,7 @@ void UnpackedEvent::ClearEvent(){
   fMINOS->Clear();
 #endif
 #else
+  fHiCARI->Clear();
   fHiCARICalc->Clear();
 #endif
   return;
@@ -896,7 +900,7 @@ void UnpackedEvent::CloseEvent(){
     }
 
 
-    if (fwhist){
+    if(fwhist){
 #ifdef SIMULATION
 #ifdef USEMINOS
       frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,fMINOS);
@@ -908,7 +912,7 @@ void UnpackedEvent::CloseEvent(){
 #endif
     }
     //Write the raw tree.
-    if (fwtree){
+    if(fwtree){
       ftr->Fill();
     }
     fnentries++;
@@ -929,6 +933,7 @@ void UnpackedEvent::CloseEvent(){
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
 #endif
 #else
+    fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
     fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
 #endif
 

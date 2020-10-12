@@ -19,8 +19,8 @@
 #include "TF1.h"
 
 #include "Settings.hh"
-#ifdef SIMULATION
 #include "Gretina.hh"
+#ifdef SIMULATION
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
@@ -52,6 +52,18 @@ public:
   //! Read the HiCARI calibration parameters
   void ReadHiCARICalibration(const char* filename);
 #endif
+  //! Build the GretinaCalc object, given a raw Gretina object.
+  void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
+  void AddBackGretinaCrystal(GretinaCalc* gr);
+  void AddBackGretinaCluster(GretinaCalc* gr);
+  void AddBackGretinaEverything(GretinaCalc* gr);
+
+  void ClusterGretina(GretinaCalc* gr, Gretina *in);
+  vector<HitCalc*> ExtractAllHits(Gretina* in);
+  void AllGretinaHits(GretinaCalc* gr, Gretina *in);
+
+  //! Construct tracked gamma events
+  void GammaTrack(GretinaCalc* gr, GretinaEvent* gt);
 
 #ifdef SIMULATION
   //! Construct all calibrated objects.
@@ -59,24 +71,13 @@ public:
   
   //! Build the MiniballCalc object, given a raw Miniball object.
   void BuildMiniballCalc(Miniball* in, MiniballCalc* out);
-  //! Build the GretinaCalc object, given a raw Gretina object.
-  void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
   //! Build the ZeroDeg object.
   void BuildZeroDeg(ZeroDeg *zerodeg);
   //! Build the MINOS object.
   void BuildMINOS(MINOS *minos);
 
-  void AddBackGretinaCrystal(GretinaCalc* gr);
-  void AddBackGretinaCluster(GretinaCalc* gr);
-  void AddBackGretinaEverything(GretinaCalc* gr);
   void AddBackMiniballCluster(MiniballCalc* gr);
   void AddBackMiniballEverything(MiniballCalc* gr);
-  void ClusterGretina(GretinaCalc* gr, Gretina *in);
-  vector<HitCalc*> ExtractAllHits(Gretina* in);
-  void AllGretinaHits(GretinaCalc* gr, Gretina *in);
-
-  //! Construct tracked gamma events
-  void GammaTrack(GretinaCalc* gr, GretinaEvent* gt);
 #else
   //! Build the HiCARICalc object, given a raw HiCARI object.
   void BuildHiCARICalc(HiCARI* in, HiCARICalc* out);
