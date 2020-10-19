@@ -110,6 +110,26 @@ $(LIB_DIR)/libCommandLineInterface.so: build/CommandLineInterface.o
 	@echo "Making $@"
 	@$(CPP) $(CLILFLAGS) -o $@ $^ -lc
 
+build/UnpackedEvent.o: src/UnpackedEvent.cc inc/UnpackedEvent.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
+build/Calibration.o: src/Calibration.cc inc/Calibration.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
+build/RawHistograms.o: src/RawHistograms.cc inc/RawHistograms.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
+build/CalHistograms.o: src/CalHistograms.cc inc/CalHistograms.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
 build/%.o: src/%.cc inc/%.hh
 	@echo "Compiling $@"
 	@mkdir -p $(dir $@)

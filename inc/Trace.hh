@@ -133,6 +133,7 @@ public:
   void AddTrace(Trace add){
     if(fmult>39){
       cout << "adding segment mult > 39" << endl;
+      cout << " fhole=" << add.GetHole() << " fcrystal=" << add.GetCrystal() << " fslot=" << add.GetSlot() << " fchn=" << add.GetChn() << endl;
       if (add.GetCore()){
 	cout << "    the dropped trace was the core trace" << endl;
       } else {
@@ -140,6 +141,9 @@ public:
       }
       return;
     }
+    //if(add.GetHole()==11 && add.GetCrystal()==2 /*&& (add.GetSlot()==0 || add.GetSlot()==1)*/)
+    //  cout << fmult<< "!!!!!!!!!!! All good fhole=" << add.GetHole() << " fcrystal=" << add.GetCrystal() << " fslot=" << add.GetSlot() << " fchn=" << add.GetChn()<< endl;
+
     ftrace.push_back(add);
     if(add.GetCore()){
       fcore = fmult;

@@ -165,7 +165,6 @@ int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
       cout << "UnpackedEvent: " << *wBuf << " " << (hex) << *wBuf << (dec) << endl;
       cout << "UnpackedEvent: " << *(wBuf+1) << " " << (hex) << *(wBuf+1) << (dec) << endl;
     }
-
     // 1st & 2nd word are 0xaaaa
     if( (*wBuf != 0xaaaa) && (*(wBuf+1) != 0xaaaa) ) {
       cerr << RED << "0xAAAA header missing" << DEFCOLOR <<  endl;

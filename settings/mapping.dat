@@ -1,4 +1,28 @@
-##SuperClover
+##MB
+#bank08
+Hole.07.Crystal.3.Slot.0:	00
+Hole.07.Crystal.3.Slot.1:	01
+Hole.07.Crystal.3.Slot.2:	11
+Hole.07.Crystal.3.Slot.3:	12
+#bank09
+Hole.11.Crystal.0.Slot.0:	20
+Hole.11.Crystal.0.Slot.1:	21
+Hole.11.Crystal.0.Slot.2:	22
+Hole.11.Crystal.0.Slot.3:	30
+#bank10
+Hole.11.Crystal.1.Slot.0:	31
+Hole.11.Crystal.1.Slot.1:	32
+Hole.11.Crystal.1.Slot.2:	40
+Hole.11.Crystal.1.Slot.3:	41
+#bank11
+Hole.11.Crystal.2.Slot.0:	42
+Hole.11.Crystal.2.Slot.1:	50
+Hole.11.Crystal.2.Slot.2:	51
+Hole.11.Crystal.2.Slot.3:	52
+
+
+
+##IMP Clover
 #bank12
 Hole.11.Crystal.3.Slot.0:	60
 Hole.11.Crystal.3.Slot.1:	62
