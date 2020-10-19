@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
     //Write the trees out to disk every denom events.
     buffers++;
     if(buffers % denom == 0){
-      if(buffers % denom*10 == 0){
+      if(buffers % denom*1000 == 0){
 	if(wrawtree)
 	  evt->GetTree()->AutoSave();
 	if(wcaltree)

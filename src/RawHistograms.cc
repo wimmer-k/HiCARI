@@ -132,7 +132,7 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
     if(hit->IsTracking())
       segs = 40;
     if(hit->IsSuperClo())
-      segs = 8;
+      segs = 4;
     Fill("hraw_cluster",12,0,12,hit->GetCluster());
     Fill("hraw_crystal",4,0,4,hit->GetCrystal());
     Fill("hraw_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());

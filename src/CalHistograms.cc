@@ -83,7 +83,7 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     if(hit->IsTracking())
       segs = 40;
     if(hit->IsSuperClo())
-      segs = 8;
+      segs = 4;
     if(hit->IsBigRIPS())
       continue;
     if(i==0)

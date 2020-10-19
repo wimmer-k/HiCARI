@@ -31,8 +31,8 @@ public:
   Short_t GetCluster(){return fcluster;}
   Short_t GetCrystal(){return fcrystal;}
   Float_t GetEnergy(){
-    if(IsSuperClo())
-      return -fen;
+    // if(IsSuperClo())
+    //   return -fen;
     return fen;
   }
 
@@ -60,8 +60,8 @@ public:
   bool GetTraking(){return ftracking;}
   bool IsTracking(){return ftracking;}
   
-  bool IsMiniball(){return (fcluster>-1 && fcluster<8);}
-  bool IsSuperClo(){return (fcluster> 7 && fcluster<10);}
+  bool IsMiniball(){return (fcluster>-1 && fcluster<6);}
+  bool IsSuperClo(){return (fcluster> 5 && fcluster<10);}
   void PrintEvent();
 
 protected:

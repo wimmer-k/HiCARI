@@ -288,7 +288,8 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   if((int) *(wBuf) == 0)
     en = 0;
   int sign = *(wBuf+3) & 0x0100;
-
+  // if(curTrace.GetChn()==8 || curTrace.GetChn()==9 )
+  //   cout << " chn = "<<curTrace.GetChn() << " sign " << sign << " en before " << en;
   if(sign){
     if(curTrace.GetChn()==9) //core
       en = (int)(en - (int)0x01000000); // (2^24)
@@ -301,6 +302,8 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     if(curTrace.GetChn()!=9) // not core
       en = - en;
   }
+  // if(curTrace.GetChn()==8 || curTrace.GetChn()==9 )
+  //   cout << " chn = "<<curTrace.GetChn()<< " en after " << en << endl;
 
   curTrace.SetEnergy(en);
   curTrace.SetEnSign(sign);
@@ -996,6 +999,7 @@ void UnpackedEvent::MakeMode2(){
       if(fSett->VLevel()>1){
 	cout << "Trace " << j << " Length " << trace->GetLength() << 
 	  "\tEnergy " << trace->GetEnergy() <<
+	  "\tCFD " << trace->GetCFD() <<
 	  "\tBoard " << trace->GetBoard() <<
 	  "\tSlot " << trace->GetSlot() <<
 	  "\tChannel " << trace->GetChn() <<
@@ -1018,12 +1022,6 @@ void UnpackedEvent::MakeMode2(){
       int clu = fSett->HiCARICluster(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
       int cry = fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot());
       int chn = trace->GetChn();
-      // for tracking detectors, channel will be 0-39 = chn+slot*10
-      if(clu>9){
-	tracking =true;
-	chn+=trace->GetSlot()*10;
-      }
-
       // check if cluster and crystal are valid
       if(clu<0 || cry<0){
 	cout << RED << "invalid cluster or crystal for hole = " << trace->GetHole()<<", crys = "<<trace->GetCrystal()<<", slot = "<<trace->GetSlot()<< DEFCOLOR<<endl;
@@ -1044,6 +1042,57 @@ void UnpackedEvent::MakeMode2(){
 	cout << "cluster = " << fSett->HiCARICluster(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << "\tcrystal" << fSett->HiCARICrystal(trace->GetHole(),trace->GetCrystal(),trace->GetSlot()) << endl;
 	continue;
       }
+
+      // for tracking detectors, channel will be 0-39 = chn+slot*10
+      if(clu>9){
+	tracking =true;
+	chn+=trace->GetSlot()*10;
+      }
+      if(clu>5 && clu<10){ // for clovers, two per digitizer
+	// bank12  bank13
+	// CL0 CL1 CL2 CL3
+	// D C D C D C D C  
+	// A B A B A B A B
+	  
+	// cores are 0 and 5
+	//cout << "clu = " << clu << ", cry = " << cry << ", chn = " << chn << " , en  = " << en << endl;
+	if(cry==0 && chn <5){// D
+	  cry = 3;
+	  if(chn==0)
+	    chn = 9; //core
+	  else
+	    chn = chn - 1;
+	}
+	else if(cry==0 && chn >4){// A
+	  cry = 0;
+	  if(chn==9)
+	    en = - en;
+	  if(chn==5)
+	    chn = 9; //core
+	  else
+	    chn = chn - 6;
+	}
+	else if(cry==2 && chn <5){// C
+	  cry = 2;
+	  if(chn==0)
+	    chn = 9; //core
+	  else
+	    chn = chn - 1;
+	}
+	else if(cry==2 && chn >4){// B
+	  cry = 1;
+	  if(chn==9)
+	    en = - en;
+	  if(chn==5)
+	    chn = 9; //core
+	  else
+	    chn = chn - 6;
+	}
+	//cout << "-> clu = " << clu << ", cry = " << cry << ", chn = " << chn << endl;
+	// if(chn==3) // segments D only
+	//   cout << "clu = " << clu << ", cry = " << cry << ", chn = " << chn << " , en  = " << en << endl;
+      }
+      
       
       if(fSett->VLevel()>1){
 	cout << "clu = " << clu << ", cry = " << cry << ", chn = " << chn;
@@ -1053,17 +1102,14 @@ void UnpackedEvent::MakeMode2(){
       }
 
       HiCARIHit* hit = fHiCARI->GetHit(clu,cry);
-      if(hit){
-	//cout << "hit exists, ";
+      if(hit){	
 	if((!tracking&&chn==9) || (tracking&&chn==39)){
-	  //cout << "inserting core" << endl;
 	  hit->InsertCore(clu, cry, en, trace->GetTS());
 	}
 	else{
-	  //cout << "inserting segment " << endl;
 	  hit->InsertSegment(clu, cry, chn, en);
 	}
-      }
+      }// hit alredy exists
       else{
 	//cout << "creating new hit " << endl;
 	fHiCARI->AddHit(new HiCARIHit(clu, cry, chn, en, trace->GetTS(), tracking));
