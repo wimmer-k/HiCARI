@@ -63,8 +63,8 @@ void UnpackedEvent::Init(){
     //setting up tree
     cout << "setting up raw tree " << endl;
     ftr = new TTree("build","built Gamma events");
-#ifdef SIMULATION
     ftr->Branch("gretina",&fGretina, 320000);
+#ifdef SIMULATION
     ftr->Branch("miniball",&fMiniball, 320000);
 #else
     ftr->Branch("mode3Event",&fMode3Event, 320000);
@@ -78,12 +78,12 @@ void UnpackedEvent::Init(){
     //setting up tree
     cout << "setting up calibrated tree " << endl;
     fcaltr = new TTree("calib","calibrated and built events");
+    fcaltr->Branch("gretinacalc",&fGretinaCalc, 320000);
 #ifdef SIMULATION
     fcaltr->Branch("zerodeg",&fZeroDeg, 320000);
 #ifdef USEMINOS
     fcaltr->Branch("minos",&fMINOS, 320000);
 #endif
-    fcaltr->Branch("gretinacalc",&fGretinaCalc, 320000);
     fcaltr->Branch("miniballcalc",&fMiniballCalc, 320000);
 #else
     fcaltr->Branch("hicaricalc",&fHiCARICalc, 320000);
@@ -287,8 +287,8 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   if((int) *(wBuf) == 0)
     en = 0;
   int sign = *(wBuf+3) & 0x0100;
-  // if(curTrace.GetChn()==8 || curTrace.GetChn()==9 )
-  //   cout << " chn = "<<curTrace.GetChn() << " sign " << sign << " en before " << en;
+  //if(curTrace.GetChn()==9)
+  //  cout << "UnpackedEvent: " << "board " << curTrace.GetBoard() << " chn " << curTrace.GetChn() << " slot " << curTrace.GetSlot() << " cry " << curTrace.GetCrystal() << " det " << curTrace.GetHole() << " en " << en;// << endl;
   if(sign){
     if(curTrace.GetChn()==9) //core
       en = (int)(en - (int)0x01000000); // (2^24)
@@ -301,9 +301,9 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     if(curTrace.GetChn()!=9) // not core
       en = - en;
   }
-  // if(curTrace.GetChn()==8 || curTrace.GetChn()==9 )
-  //   cout << " chn = "<<curTrace.GetChn()<< " en after " << en << endl;
-
+  //if(curTrace.GetChn()==9)
+  //  cout << " after " << en << endl;
+  
   curTrace.SetEnergy(en);
   curTrace.SetEnSign(sign);
   curTrace.SetPileUp((*(wBuf+3) & 0x8000) >> 15);
@@ -369,17 +369,17 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   }
 
   //needs to be modified for MB and SC !!
-  if(curTrace.GetBoard() == 6 && curTrace.GetChn() == 9){ //board 3 = 10 , 6 = 5 MeV range
-    if(fvl>1){
-      cout << "UnpackedEvent: " << fctr << " core hit id: "<<id<<"\tts: " << curTrace.GetLED() << endl;
-    }
-    curTrace.SetCore(true);
-  }
-  else{
-    if(fvl>1){
-      cout << "UnpackedEvent: " << fctr << " segm hit id: "<<id<<"\tts: " << curTrace.GetLED() << endl;
-    }
-  }
+  // if(curTrace.GetBoard() == 6 && curTrace.GetChn() == 9){ //board 3 = 10 , 6 = 5 MeV range
+  //   if(fvl>1){
+  //     cout << "UnpackedEvent: " << fctr << " core hit id: "<<id<<"\tts: " << curTrace.GetLED() << endl;
+  //   }
+  //   curTrace.SetCore(true);
+  // }
+  // else{
+  //   if(fvl>1){
+  //     cout << "UnpackedEvent: " << fctr << " segm hit id: "<<id<<"\tts: " << curTrace.GetLED() << endl;
+  //   }
+  // }
   //end needs modification
 
   *wBuf_p = wBuf;

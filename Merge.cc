@@ -25,8 +25,9 @@ int main(int argc, char* argv[]){
   TStopwatch timer;
   timer.Start();
   signal(SIGINT,signalhandler);
-  char* BigRIPSFile;
-  char* HiCARIFile;
+  char* BigRIPSFile = NULL;
+  char* HiCARIFile = NULL;
+  char* Mode2File = NULL;
   char* OutputFile = NULL;
   char* SetFile = NULL;
   int LastEvent = -1;
@@ -36,30 +37,35 @@ int main(int argc, char* argv[]){
   CommandLineInterface* interface = new CommandLineInterface();
   interface->Add("-b", "BigRIPS tree input file", &BigRIPSFile);
   interface->Add("-h", "HiCARI tree input file", &HiCARIFile);
+  interface->Add("-m", "Mode2 tree input file", &Mode2File);
   interface->Add("-o", "output file", &OutputFile);
   interface->Add("-s", "settings file", &SetFile);
   interface->Add("-le", "last event to be read", &LastEvent);
   interface->Add("-v", "verbose", &vl);
-  interface->Add("-m", "coincidence mode", &mode);
+  interface->Add("-c", "coincidence mode", &mode);
   interface->CheckFlags(argc, argv);
 
-  if((BigRIPSFile == NULL && HiCARIFile == NULL) || OutputFile == NULL){
+  if((BigRIPSFile == NULL && HiCARIFile == NULL && Mode2File == NULL) || OutputFile == NULL){
     cerr<<"You have to provide at least one input file and the output file!"<<endl;
     exit(1);
   }
 
   TTree* trbigrips = NULL;
   TTree* trhicari = NULL;
+  TTree* trmode2 = NULL;
   TFile* inbigrips = NULL;
   TFile* inhicari = NULL;
+  TFile* inmode2 = NULL;
   int BRrunnr = -1;
   int HIrunnr = -1;
+  int M2runnr = -1;
 
   RunInfo *info = NULL;
   if(BigRIPSFile == NULL){
     cout << "No BigRIPS input file given " << endl;
   }
   else{
+    cout<<"BigRIPS file: "<<BigRIPSFile<<endl;
     inbigrips = new TFile(BigRIPSFile);
     trbigrips = (TTree*) inbigrips->Get("BRZDtr");
     if(trbigrips == NULL){
@@ -71,6 +77,7 @@ int main(int argc, char* argv[]){
     cout << "No HiCARI input file given " << endl;
   }
   else{
+    cout<<"HiCARI file: "<<HiCARIFile<<endl;
     inhicari = new TFile(HiCARIFile);
     trhicari = (TTree*) inhicari->Get("calib");
     if(trhicari == NULL){
@@ -81,9 +88,23 @@ int main(int argc, char* argv[]){
     else
       info->AppendInfo((RunInfo*) inhicari->Get("info"));
   }
-
-  cout<<"BigRIPS file: "<<BigRIPSFile<<endl;
-  cout<<"HiCARI file: "<<HiCARIFile<<endl;
+  if(Mode2File == NULL){
+    cout << "No Mode2 input file given " << endl;
+  }
+  else{
+    cout<<"Mode2 file: "<<Mode2File<<endl;
+    inmode2 = new TFile(Mode2File);
+    trmode2 = (TTree*) inmode2->Get("calib");
+    if(trmode2 == NULL){
+      cout << "could not find Mode2 tree in file " << inmode2->GetName() << endl;
+    }
+    if(info==NULL)
+      info = (RunInfo*) inmode2->Get("info");
+    else
+      info->AppendInfo((RunInfo*) inmode2->Get("info"));
+  }
+     
+  
   cout<<"output file: "<<OutputFile<< endl;
   if(SetFile == NULL)
     cerr<<"No settings file! Using standard values"<<endl;

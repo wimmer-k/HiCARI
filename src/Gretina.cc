@@ -92,6 +92,39 @@ Crystal::Crystal(crys_ips_abcd5678 inbuf){
 		     inbuf.ips[i].x,inbuf.ips[i].y,inbuf.ips[i].z,
 		     inbuf.ips[i].seg,inbuf.ips[i].seg_ener));
   }
+
+}
+
+Crystal::Crystal(crys_ips_abcd6789 inbuf){
+  Clear();
+  if (inbuf.type!=(int)0xabcd6789){
+    cout << "Error, unexpected mode 2 data format:" << hex << inbuf.type << dec
+	 << " in " << __PRETTY_FUNCTION__ << endl;
+  }
+  fcluster = inbuf.crystal_id / 4;
+  fcrystalid = inbuf.crystal_id % 4;
+  fen = inbuf.tot_e;
+  fMaxSingleCrystal = fen;
+  ftimestamp = inbuf.timestamp;
+  fits = inbuf.timestamp;
+  //ftrig_time = inbuf.trig_time;
+  ft0 = (inbuf.t0==0) ? sqrt(-1.0) : inbuf.t0;
+  for(int i=0; i<4; i++){
+    fcore_e[i] = inbuf.core_e[i];
+  }
+  fprestep = inbuf.prestep;
+  fpoststep = inbuf.poststep;
+
+  if (inbuf.pad>0){
+    SetError(inbuf.pad);
+  }
+
+  for (int i=0; i<inbuf.num; i++){
+    AddIP(new IPoint(inbuf.ips[i].e,
+		     inbuf.ips[i].x,inbuf.ips[i].y,inbuf.ips[i].z,
+		     inbuf.ips[i].seg,inbuf.ips[i].seg_ener));
+  }
+  //cout << inbuf.tot_e << "\t" << inbuf.tot_e_fixedPickOff_thisEvent << endl;
 }
 
 Crystal::Crystal(Crystal* old){

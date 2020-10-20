@@ -43,6 +43,7 @@ struct crys_ips_abcd1234{
   int pad;
   ip ips[MAX_INTPTS];
 };
+//format july 2012
 struct crys_ips_abcd5678 {
   int type;          /* defined as abcd5678 */
   int crystal_id;
@@ -60,6 +61,35 @@ struct crys_ips_abcd5678 {
   float poststep;   /* avg trace value following step */
   int pad;          /* non-0 on decomp error, value gives error type */
   ip ips[MAX_INTPTS];
+};
+//format 
+struct crys_ips_abcd6789 {
+  int type;          /* defined as abcd6789 */
+  int crystal_id;
+  int num;           /* # of int pts from decomp, or # of nets on decomp error */
+  float tot_e;       /* NOT dnl corrected */
+  int core_e[4];     /* 4 raw core energies from FPGA filter (no shift) */
+  long long int timestamp;
+  /* long long trig_time; */   /* not yet impl */
+  float tot_e_fixedPickOff_priorEvent1;
+  float tot_e_fixedPickOff_priorEvent2;
+  float t0;
+  /* float cfd; */
+  unsigned short int deltaT_priorEvent1;
+  unsigned short int deltaT_priorEvent2;
+  float chisq;
+  float norm_chisq;
+  /* float baseline; */
+  float tot_e_fixedPickOff_thisEvent;
+  float prestep;    /* avg trace value before step */
+  float poststep;   /* avg trace value following step */
+  int pad;          /* non-0 on decomp error, value gives error type */
+  ip ips[MAX_INTPTS];
+  // struct {
+  //   float x, y, z, e;       /* here e refers to the fraction */
+  //   int seg;                /* segment hit */
+  //   float seg_ener;         /* energy of hit segment */
+  // } intpts[MAX_INTPTS];
 };
 
 class IPoint : public TObject {
@@ -96,6 +126,7 @@ public:
   Crystal();
   Crystal(crys_ips_abcd1234 inbuf);
   Crystal(crys_ips_abcd5678 inbuf);
+  Crystal(crys_ips_abcd6789 inbuf);
   Crystal(Crystal* old);
   ~Crystal();
   void Clear();

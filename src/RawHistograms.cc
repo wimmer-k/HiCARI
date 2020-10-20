@@ -106,7 +106,7 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
       Fill(Form("hmode3_chan_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn());
       Fill(Form("hmode3_en_hole%02d_crys%02d_slot%02d_chan%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot(),trace->GetChn()),20000,0,1e6,trace->GetEnergy());
       Fill(Form("hmode3_en_vs_chn_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),10,0,10,trace->GetChn(),1000,0,1e6,trace->GetEnergy());
-      //for MB, SC only
+      //for MB only, tracking have several ch9 and CL have the cores on 0 and 5....
       if(trace->GetChn()==9){
 	Fill(Form("hmode3_core_hole%02d_crys%02d_slot%02d",trace->GetHole(),trace->GetCrystal(),trace->GetSlot()),2000,0,1e6,trace->GetEnergy());
 	if(fSett->TracePlots()){
@@ -136,13 +136,14 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
     Fill("hraw_cluster",12,0,12,hit->GetCluster());
     Fill("hraw_crystal",4,0,4,hit->GetCrystal());
     Fill("hraw_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
-    //temp increase spectrum range gain seems later for P3 pos 2
+    //temp increase spectrum range gain seems larger for P3 pos 2
     if(hit->GetCluster()==11 && hit->GetCrystal()==1){
       Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e6,hit->GetEnergy());
     }
     else{
       Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
     }
+    //Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
     Fill(Form("hraw_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e6,hit->GetEnergy(),1000,0,1e6,hit->GetSegmentSum());
     Fill(Form("hraw_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetMult());
     
