@@ -1,5 +1,5 @@
 void showClover(int run){
-  TFile *f = new TFile(Form("~/rootfiles/hrun%04d.root",run));
+  TFile *f = new TFile(Form("~/rootfiles/run%04d.root",run));
   TCanvas* cc = new TCanvas("cc","cc",800,800);
   cc->Divide(4,4);
   TCanvas* cs = new TCanvas("cs","cs",800,800);
@@ -21,7 +21,7 @@ void showClover(int run){
   }
 }
 void showMiniball(int run){
-  TFile *f = new TFile(Form("~/rootfiles/hrun%04d.root",run));
+  TFile *f = new TFile(Form("~/rootfiles/run%04d.root",run));
   TCanvas* cc = new TCanvas("cc","cc",800,800);
   cc->Divide(3,6);
   TCanvas* cs = new TCanvas("cs","cs",800,800);

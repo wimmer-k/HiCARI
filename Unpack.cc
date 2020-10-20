@@ -203,12 +203,12 @@ int main(int argc, char* argv[]){
     //Write the trees out to disk every denom events.
     buffers++;
     if(buffers % denom == 0){
-      // if(buffers % denom*1000 == 0){
-      // 	if(wrawtree)
-      // 	  evt->GetTree()->AutoSave();
-      // 	if(wcaltree)
-      // 	  evt->GetCalTree()->AutoSave();
-      // }
+      if(buffers % (denom*1000) == 0){
+	if(wrawtree)
+	  evt->GetTree()->AutoSave();
+	if(wcaltree)
+	  evt->GetCalTree()->AutoSave();
+      }
       double time_end = get_time();
       cout << "\r" << buffers << " buffers read... "<<bytes_read/(1024*1024)<<" MB... "<<buffers/(time_end - time_start) << " buffers/s" << flush;
     }

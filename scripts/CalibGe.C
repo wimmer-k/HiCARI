@@ -31,7 +31,8 @@ double range[2] = {150000,450000};
 TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
 //char* fileCo = (char*)"./rootfiles/hist0443.root";
-char* fileCo = (char*)"./hist/hraw0475.root";
+//char* fileCo = (char*)"./hist/hraw0475.root";
+char* fileCo = (char*)"./hist/hraw0594.root";
 char* fileEu = (char*)"./hist/hraw0448.root";
 char* fileBa = (char*)"./hist/hraw0468.root";
 char* fileYy = (char*)"./hist/hraw0469.root";
@@ -728,7 +729,6 @@ TGraph* core(int m, int c, bool draw){
 
 }
 void CalibCore(int run){
-  string abc[4] = {"A","B","C","D"};
   TFile *f = new TFile(Form("hist/hraw%04d.root",run));
   if(!f->IsOpen()){
     return;
@@ -789,8 +789,8 @@ TGraph* corerun(int m, int c, int run, bool draw){
   frange = 3000;
   if((run>447 && run<458) || run==474 || run==479 || run ==482){
     for(int i=0;i<nEu;i++){
-      double c = fitonepeak(h,(enEu[i]-20)/rough ,(enEu[i]+20)/rough,0);
-      if(c>0){
+      double g = fitonepeak(h,(enEu[i]-20)/rough ,(enEu[i]+20)/rough,0);
+      if(g>0){
 	ene.push_back(enEu[i]);
 	chn.push_back(c);
       }
@@ -798,28 +798,28 @@ TGraph* corerun(int m, int c, int run, bool draw){
   }
   if(run==475 || run==478){
     for(int i=0;i<nCo;i++){
-      double c = fitonepeak(h,(enCo[i]-20)/rough ,(enCo[i]+20)/rough,0);
-      if(c>0){
+      double g = fitonepeak(h,(enCo[i]-20)/rough ,(enCo[i]+20)/rough,0);
+      if(g>0){
 	ene.push_back(enCo[i]);
-	chn.push_back(c);
+	chn.push_back(g);
       }
     }
   }
   if((run>457 && run<469) || run==480 || run==481){
     for(int i=0;i<nBa;i++){
-      double c = fitonepeak(h,(enBa[i]-20)/rough ,(enBa[i]+20)/rough,0);
-      if(c>0){
+      double g = fitonepeak(h,(enBa[i]-20)/rough ,(enBa[i]+20)/rough,0);
+      if(g>0){
 	ene.push_back(enBa[i]);
-	chn.push_back(c);
+	chn.push_back(g);
       }
     }
   }
   if(run==469){
     for(int i=0;i<nYy;i++){
-      double c = fitonepeak(h,(enYy[i]-20)/rough ,(enYy[i]+20)/rough,0);
-      if(c>0){
+      double g = fitonepeak(h,(enYy[i]-20)/rough ,(enYy[i]+20)/rough,0);
+      if(g>0){
 	ene.push_back(enYy[i]);
-	chn.push_back(c);
+	chn.push_back(g);
       }
     }
   }
