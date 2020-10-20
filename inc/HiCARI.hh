@@ -7,7 +7,6 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "TMath.h"
-//#include "Settings.hh"
 
 using namespace std;
 
@@ -30,11 +29,7 @@ public:
   Short_t GetID(){return fcluster*4 + fcrystal;}
   Short_t GetCluster(){return fcluster;}
   Short_t GetCrystal(){return fcrystal;}
-  Float_t GetEnergy(){
-    // if(IsSuperClo())
-    //   return -fen;
-    return fen;
-  }
+  Float_t GetEnergy(){return fen;}
 
   Float_t GetSegmentSum();
   int GetMult(){return fmult;}
@@ -192,8 +187,8 @@ public:
   // //! Returns the Doppler-correction factor to correct the energy.
   // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   // //static double DopplerCorrectionFactor(TVector3 PosToTarget, double beta, double z);
-  bool IsMiniball(){return (fcluster>-1 && fcluster<8);}
-  bool IsSuperClo(){return (fcluster> 7 && fcluster<10 && fcrystal<4);}
+  bool IsMiniball(){return (fcluster>-1 && fcluster<6);}
+  bool IsSuperClo(){return (fcluster> 5 && fcluster<10 && fcrystal<4);}
   bool IsTracking(){return (fcluster> 9 && fcluster<12);}
   bool IsBigRIPS(){return (fcluster==9 && fcrystal==9);}
 

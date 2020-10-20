@@ -894,13 +894,13 @@ void UnpackedEvent::CloseEvent(){
   SimResolution(fMiniball);
   SimThresholds(fMiniball);
 #endif
-  if(fwtree || fwhist){
-    if(fmakemode2){
-      //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << endl;   
-      MakeMode2();
-      //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << "-----------after " << endl;   
-    }
+  if(fmakemode2){
+    //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << endl;   
+    MakeMode2();
+    //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << "-----------after " << endl;   
+  }
 
+  if(fwtree || fwhist){
 
     if(fwhist){
 #ifdef SIMULATION

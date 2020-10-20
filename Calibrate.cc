@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
   int nmax = 0;
   int vl = 0;
   int whist = 0;
-  int wtree = 0;
+  int wtree = 1;
   CommandLineInterface* interface = new CommandLineInterface();
 
   interface->Add("-i", "inputfile", &InputFile);

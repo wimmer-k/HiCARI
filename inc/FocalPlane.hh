@@ -2,7 +2,6 @@
 #define __FOCALPLANE_HH
 #include <iostream>
 #include <vector>
-#include <cstdlib>
 #include <math.h>
 
 #include "TObject.h"
@@ -71,10 +70,10 @@ public:
     fchargeR = sqrt(-1.);
   }
   //! Set the time
-  void SetTime(double timeL, double timeR){
+  void SetTime(Float_t timeL, Float_t timeR){
     ftimeL = timeL;
     ftimeR = timeR;
-    if(!isnan(timeL) && !isnan(timeR))
+    if( !isnan(timeL) && !isnan(timeR))
       ftime = (timeL + timeR)/2;
   }
   //! Set the charge
@@ -98,17 +97,17 @@ public:
   
 protected:
   //! timing of the plastic (TL + TR)
-  double ftime;
+  Float_t ftime;
   //! charge deposit in the plastic (sqrt(QL*QR))
-  double fcharge;
+  Float_t fcharge;
   //! timing of left PMT
-  double ftimeL;
+  Float_t ftimeL;
   //! timing of right PMT
-  double ftimeR;
+  Float_t ftimeR;
   //! charge of left PMT
-  double fchargeL;
+  Float_t fchargeL;
   //! charge of right PMT
-  double fchargeR;
+  Float_t fchargeR;
 
   /// \cond CLASSIMP
   ClassDef(Plastic,1);

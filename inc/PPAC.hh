@@ -2,7 +2,6 @@
 #define __PPAC_HH
 #include <iostream>
 #include <vector>
-#include <cstdlib>
 #include <math.h>
 
 #include "TObject.h"
@@ -124,21 +123,21 @@ public:
   }
 protected:
   //! ID
-  short fID;
+  Short_t fID;
   //! x position
-  double fx;
+  Float_t fx;
   //! y position
-  double fy;
+  Float_t fy;
   //! z position
-  double fz;
+  Float_t fz;
   //! xz position
-  double fxz;
+  Float_t fxz;
   //! yz position
-  double fyz;
+  Float_t fyz;
   //! timing sum x
-  double ftsumx;
+  Float_t ftsumx;
   //! timing sum y
-  double ftsumy;
+  Float_t ftsumy;
 
   /// \cond CLASSIMP
   ClassDef(SinglePPAC,1);

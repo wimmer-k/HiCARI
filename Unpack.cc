@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
   char *InputFile = NULL;
   char *RootFile = NULL;
   vector<char*> SettingFile;
-  int denom = 10000;
+  int denom = 100000;
   int wrawtree = 1;
   int wrawhist = 0;
   int wcaltree = 0;
@@ -60,6 +60,11 @@ int main(int argc, char* argv[]){
   interface->Add("--no-HFC","do not use HFC as an intermediate step",&noHFC);
   interface->CheckFlags(argc, argv);
 
+  if(wrawtree == 0 && wcaltree == 0)
+    denom*=10;
+  if(wcaltree || wcalhist)
+    makemode2 = 1;
+  
   //Complain about missing mandatory arguments
   if(InputFile == NULL){
     cout << "No input file given " << endl;
@@ -177,8 +182,12 @@ int main(int argc, char* argv[]){
       }
       int error = evt->DecodeGretina(crys,ts);
       if(error){
-	cout << "An error ("<<error<<") occured in DecodeGretina() while processing file: " << InputFile << ". Continuing ..." << endl;
-	continue;
+	if(error==1)
+	  cout << GREEN << "end of file reached " << DEFCOLOR << endl;
+	else{
+	  cout << "An error ("<<error<<") occured at buffer nr " << buffers << " in DecodeGretina() while processing file: " << InputFile << ". Continuing ..." << endl;
+	  continue;
+	}
       }
     }
     if(header[0]==TRACE_ID){
@@ -195,20 +204,21 @@ int main(int argc, char* argv[]){
       if(error){
 	if(error==1)
 	  cout << GREEN << "end of file reached " << DEFCOLOR << endl;
-	else
+	else{
 	  cout << "An error ("<<error<<") occured at buffer nr " << buffers << " in DecodeMode3() while processing file: " << InputFile << ". Continuing ..." << endl;
-      	//continue;
+	  continue;
+	}
       }
     }
     //Write the trees out to disk every denom events.
     buffers++;
     if(buffers % denom == 0){
-      if(buffers % (denom*1000) == 0){
-	if(wrawtree)
-	  evt->GetTree()->AutoSave();
-	if(wcaltree)
-	  evt->GetCalTree()->AutoSave();
-      }
+      // if(buffers % (denom*1000) == 0){
+      // 	if(wrawtree)
+      // 	  evt->GetTree()->AutoSave();
+      // 	if(wcaltree)
+      // 	  evt->GetCalTree()->AutoSave();
+      // }
       double time_end = get_time();
       cout << "\r" << buffers << " buffers read... "<<bytes_read/(1024*1024)<<" MB... "<<buffers/(time_end - time_start) << " buffers/s" << flush;
     }

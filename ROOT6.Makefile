@@ -4,7 +4,8 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-TARTSYS=/home/gamma20/exp/anaroot
+TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
+#TARTSYS=/home/gamma20/exp/anaroot
 #TARTSYS=/home/wimmer/mercurius/anaroot
 
 ROOTCFLAGS  := $(shell root-config --cflags)
@@ -36,7 +37,7 @@ ifeq ($(SWITCH),-DSIMULATION)
     HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
 else
     LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
-    BRLIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
+    BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
     O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
     MO_FILES = build/BuildEvents.o build/MergeHistograms.o
     HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
@@ -62,9 +63,10 @@ Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
-UnpackMode3: UnpackMode3.cc $(O_FILES)
-	@echo "Compiling $@"
-	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
+#UnpackMode3: UnpackMode3.cc $(O_FILES)
+#	@echo "Compiling $@"
+#	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
+#
 
 Unpack: Unpack.cc $(O_FILES)
 	@echo "Compiling $@"
