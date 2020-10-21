@@ -15,6 +15,8 @@ HiCARIHit::HiCARIHit(int clu, int cry, Short_t nr, double en,  long long int ts,
     ftimestamp = ts;
   }
   else{
+    if(tracking && (nr%10)==9)
+      return;
     AddSegment(nr,en);
     fen=0;
     ftimestamp = ts;

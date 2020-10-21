@@ -301,6 +301,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
     if(curTrace.GetChn()!=9) // not core
       en = - en;
   }
+  en = en >> 7;
   //if(curTrace.GetChn()==9)
   //  cout << " after " << en << endl;
   
@@ -1106,6 +1107,8 @@ void UnpackedEvent::MakeMode2(){
 	  hit->InsertCore(clu, cry, en, trace->GetTS());
 	}
 	else{
+	  if(tracking&& (chn%10)==9)
+	    continue;
 	  hit->InsertSegment(clu, cry, chn, en);
 	}
       }// hit alredy exists

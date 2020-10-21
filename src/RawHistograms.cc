@@ -138,17 +138,17 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
     Fill("hraw_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
     //temp increase spectrum range gain seems larger for P3 pos 2
     if(hit->GetCluster()==11 && hit->GetCrystal()==1){
-      Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e6,hit->GetEnergy());
+      Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,3e4,hit->GetEnergy());
     }
     else{
-      Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
+      Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e4,hit->GetEnergy());
     }
     //Fill(Form("hraw_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),5000,0,1e6,hit->GetEnergy());
-    Fill(Form("hraw_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e6,hit->GetEnergy(),1000,0,1e6,hit->GetSegmentSum());
+    Fill(Form("hraw_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,1e4,hit->GetEnergy(),1000,0,1e4,hit->GetSegmentSum());
     Fill(Form("hraw_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetMult());
     
     for(int j=0; j<hit->GetMult(); j++){
-      Fill(Form("hraw_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr(j),5000,0,1e6,hit->GetSegmentEn(j));
+      Fill(Form("hraw_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr(j),5000,0,1e4,hit->GetSegmentEn(j));
     }
   }
 }
