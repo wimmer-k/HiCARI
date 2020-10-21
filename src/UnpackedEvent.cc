@@ -936,12 +936,14 @@ void UnpackedEvent::CloseEvent(){
     fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
 #endif
 #else
-    fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
-    fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
+    if(fHiCARI->GetMult()>0)
+      fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
+    if(fGretina->GetMult()>0)
+      fcal->BuildGretinaCalc(fGretina,fGretinaCalc);
 #endif
 
     if(fwcaltree){
-      if(fHiCARICalc->GetMult()>0||fHiCARICalc->HadBigRIPS()){
+      if(fHiCARICalc->GetMult()>0||fHiCARICalc->HadBigRIPS()||fGretinaCalc->GetMult()>0){
 	fcaltr->Fill();
 	fncalentries++;
       }
@@ -1114,6 +1116,8 @@ void UnpackedEvent::MakeMode2(){
       }// hit alredy exists
       else{
 	//cout << "creating new hit " << endl;
+	if(tracking&& (chn%10)==9)
+	  continue;
 	fHiCARI->AddHit(new HiCARIHit(clu, cry, chn, en, trace->GetTS(), tracking));
       }
     }//traces

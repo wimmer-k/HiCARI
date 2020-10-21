@@ -56,9 +56,6 @@ int main(int argc, char* argv[]){
   TFile* inbigrips = NULL;
   TFile* inhicari = NULL;
   TFile* inmode2 = NULL;
-  int BRrunnr = -1;
-  int HIrunnr = -1;
-  int M2runnr = -1;
 
   RunInfo *info = NULL;
   if(BigRIPSFile == NULL){
@@ -124,7 +121,7 @@ int main(int argc, char* argv[]){
   evts->SetVerbose(vl);
   if(mode>-1)
     evts->SetCorrelationMode(mode);
-  evts->Init(trbigrips,trhicari);
+  evts->Init(trbigrips,trhicari,trmode2);
   evts->SetLastEvent(LastEvent);
 
   double time_last = get_time();

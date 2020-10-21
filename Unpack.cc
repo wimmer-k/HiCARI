@@ -82,10 +82,21 @@ int main(int argc, char* argv[]){
   //get the run number from the filename
   int run;
   TString ifname(InputFile);
-  ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/GlobalRaw.dat
+  cout << "Analyzing ";
+  bool mode3 = false;
+  if(ifname.Contains("Raw")){
+    mode3 = true;
+    ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/GlobalRaw.dat
+    cout <<BLUE  << "mode3" << DEFCOLOR << " data " << endl;
+  } 
+  else{
+    ifname.Remove(0,ifname.Length()-18); // Last 21 characters: RunXXXX/GlobalRaw.dat
+    cout <<GREEN << "mode2" << DEFCOLOR << " data " << endl;
+  }
+  
   //cout << "ifname.Data() " << ifname.Data() << endl;
   sscanf(ifname.Data(),"run%04d/%*s",&run);
-
+  
   //Open the input and output files.
   TFile *ofile = new TFile(RootFile,"RECREATE");
   cout<<"input file: "<<InputFile<< endl;
@@ -122,7 +133,11 @@ int main(int argc, char* argv[]){
   RunInfo* info = new RunInfo();
   ofile->cd();
   int vl = set->VLevel();
-  info->SetHIRunNumber(run);
+  if(mode3)
+    info->SetHIRunNumber(run);
+  else
+    info->SetM2RunNumber(run);
+  
   set->Write("settings",TObject::kOverwrite);
   //Initialize the data structures for the event building.
   struct crys_ips_abcd6789 inbuf_abcd6789[1];
@@ -213,12 +228,12 @@ int main(int argc, char* argv[]){
     //Write the trees out to disk every denom events.
     buffers++;
     if(buffers % denom == 0){
-      // if(buffers % (denom*1000) == 0){
-      // 	if(wrawtree)
-      // 	  evt->GetTree()->AutoSave();
-      // 	if(wcaltree)
-      // 	  evt->GetCalTree()->AutoSave();
-      // }
+      if(buffers % (denom*1000) == 0){
+      	if(wrawtree)
+      	  evt->GetTree()->AutoSave();
+      	if(wcaltree)
+      	  evt->GetCalTree()->AutoSave();
+      }
       double time_end = get_time();
       cout << "\r" << buffers << " buffers read... "<<bytes_read/(1024*1024)<<" MB... "<<buffers/(time_end - time_start) << " buffers/s" << flush;
     }
@@ -227,8 +242,14 @@ int main(int argc, char* argv[]){
   evt->WriteLastEvent();
   cout << endl;
   cout << "Total of " << BLUE << buffers << DEFCOLOR << " data buffers ("<< BLUE <<bytes_read/(1024*1024) << DEFCOLOR << " MB) read." << endl;
-  info->SetHIBytes(bytes_read);
-  info->SetHIRawEvents(evt->NrOfEvents());
+  if(mode3){
+    info->SetHIBytes(bytes_read);
+    info->SetHIRawEvents(evt->NrOfEvents());
+  }
+  else{
+    info->SetM2Bytes(bytes_read);
+    info->SetM2RawEvents(evt->NrOfEvents());
+  }
   if(wrawtree||wrawhist){
     cout << "Total of " << BLUE << evt->NrOfEvents() << DEFCOLOR << " raw events";
     if(wrawtree)
@@ -236,12 +257,20 @@ int main(int argc, char* argv[]){
     cout <<" written."  << endl;
   }
   if(wcaltree){
-    info->SetHICalEvents(evt->NrOfCalEvents());
     cal = evt->GetCalibration();
-    info->SetBigRIPSCtr(cal->GetBigRIPSCtr());
-    info->SetBigRIPSHitCtr(cal->GetBigRIPSHitCtr());
-    info->SetHiCARICtr(cal->GetHiCARICtr());
-    info->SetHiCARIHitCtr(cal->GetHiCARIHitCtr());
+    if(mode3){
+      info->SetHICalEvents(evt->NrOfCalEvents());
+      info->SetBigRIPSCtr(cal->GetBigRIPSCtr());
+      info->SetBigRIPSHitCtr(cal->GetBigRIPSHitCtr());
+      info->SetHiCARICtr(cal->GetHiCARICtr());
+      info->SetHiCARIHitCtr(cal->GetHiCARIHitCtr());
+    }
+    else{
+      info->SetGretinaCtr(cal->GetGretinaCtr());
+      info->SetGretinaHitCtr(cal->GetGretinaHitCtr());
+      info->SetGretinaHitABCtr(cal->GetGretinaHitABCtr());
+    }
+    
     cout << "Total of " <<BLUE << evt->NrOfCalEvents() << DEFCOLOR << " cal events ("<< BLUE <<evt->GetCalTree()->GetZipBytes()/(1024*1024) << DEFCOLOR << " MB) written."  << endl;
   }
   cout << endl;

@@ -13,24 +13,30 @@ BuildEvents::BuildEvents(Settings* set){
   \param brtr tree with input bigrips data
   \param hitr tree with input hicari data
 */
-void BuildEvents::Init(TTree* brtr, TTree* hitr){
+void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
 
   flastevent = -1;
   fhasBR = false;
   fhasHI = false;
+  fhasM2 = false;
   fBRentries = 0;
   fHIentries = 0;
+  fM2entries = 0;
   
   if(brtr!=NULL)
     fhasBR = true;
   if(hitr!=NULL)
     fhasHI = true;
+  if(m2tr!=NULL)
+    fhasM2 = true;
   
   fBRtr = brtr;
   fHItr = hitr;
+  fM2tr = m2tr;
 
   fBRentry = 0;
   fHIentry = 0;
+  fM2entry = 0;
   fnbytes = 0;
 
   fBRts = 0;
@@ -42,6 +48,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
   }
   fHIts = 0;
   fhicari = new HiCARICalc;
+  fM2ts = 0;
+  fmode2 = new GretinaCalc;
 
   //local copy for intermediate storing
   flocalBRts = 0;
@@ -53,6 +61,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
   }
   flocalHIts = 0;
   flocalhicari = new HiCARICalc;
+  flocalM2ts = 0;
+  flocalmode2 = new GretinaCalc;
 
   if(fhasBR){
     fBRtr->SetBranchAddress("timestamp",&flocalBRts);
@@ -70,6 +80,11 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
     fHIentries = fHItr->GetEntries();
     cout << fHIentries << " entries in HiCARI tree" << endl;
   }
+  if(fhasM2){
+    fM2tr->SetBranchAddress("gretinacalc",&flocalmode2);
+    fM2entries = fM2tr->GetEntries();
+    cout << fM2entries << " entries in Mode2 tree" << endl;
+  }
     
   fmtr = new TTree("tr","merged tree");
   fmtr->Branch("beam",&fbeam,320000);
@@ -83,35 +98,57 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
   fmtr->Branch("hicari",&fhicari,320000);
   fmtr->Branch("hiTS",&fHIts,320000);
   fmtr->Branch("hientry",&fHIentry,320000);
+  fmtr->Branch("mode2",&fmode2,320000);
+  fmtr->Branch("m2TS",&fM2ts,320000);
+  fmtr->Branch("m2entry",&fM2entry,320000);
   fmtr->BranchRef();
 
 
-  if(fverbose>-1){
-    Int_t status = 0;
-    if(fhasBR){
-      status = fBRtr->GetEvent(0);
-      if(status<0)
-	cout << "first BigRIPS entry faulty!" << endl;
-      cout << "first BigRIPS timestamp: " << flocalBRts << endl;
-      status = fBRtr->GetEvent(fBRentries-1);
-      if(status<0)
-	cout << "last BigRIPS entry faulty!" << endl;
-      cout << "last BigRIPS timestamp: " << flocalBRts << endl;
-    }
-    if(fhasHI){
-      status = fHItr->GetEvent(0);
-      if(status<0)
-	cout << "first HiCARI entry faulty!" << endl;
-      cout << "first HiCARI timestamp: " << flocalhicari->GetTS() << endl;
-      status = fHItr->GetEvent(fHIentries-1);
-      if(status<0)
-	cout << "last HiCARI entry faulty!" << endl;
-      cout << "last HiCARI timestamp: " << flocalhicari->GetTS() << endl;;
-    }
+  fcurrentts = 0;
+  Int_t status = 0;
+  if(fhasBR){
+    status = fBRtr->GetEvent(0);
+    if(status<0)
+      cout << "first BigRIPS entry faulty!" << endl;
+    fcurrentts = flocalBRts;
+    cout << "first BigRIPS timestamp: " << flocalBRts << endl;
+    status = fBRtr->GetEvent(fBRentries-1);
+    if(status<0)
+      cout << "last BigRIPS entry faulty!" << endl;
+    cout << "last BigRIPS timestamp: " << flocalBRts << endl;
   }
-
+  if(fhasHI){
+    status = fHItr->GetEvent(0);
+    if(status<0)
+      cout << "first HiCARI entry faulty!" << endl;
+    if(fcurrentts <1 || flocalhicari->GetTS() <  fcurrentts)
+      fcurrentts = flocalhicari->GetTS();
+    cout << "first HiCARI timestamp: " << flocalhicari->GetTS() << endl;
+    status = fHItr->GetEvent(fHIentries-1);
+    if(status<0)
+      cout << "last HiCARI entry faulty!" << endl;
+    cout << "last HiCARI timestamp: " << flocalhicari->GetTS() << endl;;
+  }
+  if(fhasM2){
+    status = fM2tr->GetEvent(0);
+    if(status<0)
+      cout << "first Mode2 entry faulty!" << endl;
+    if(fcurrentts <1 || flocalmode2->GetTS() <  fcurrentts)
+      fcurrentts = flocalmode2->GetTS();
+    cout << "first Mode2 timestamp: " << flocalmode2->GetTS() << endl;
+    status = fM2tr->GetEvent(fM2entries-1);
+    if(status<0)
+      cout << "last Mode2 entry faulty!" << endl;
+    cout << "last Mode2 timestamp: " << flocalmode2->GetTS() << endl;;
+  }
+  if(fcurrentts<1){
+    cout << RED << "cannot find first timestamp, Aborting." << DEFCOLOR << endl;
+    return;
+  }
+  
   flocalBRts = 0;
   flocalHIts = 0;
+  flocalM2ts = 0;
   flocalcheckADC = -1;
   flocaltrigbit = -1;
   flocalbeam->Clear();
@@ -119,11 +156,14 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr){
     flocalfp[f]->Clear();
   }
   flocalhicari->Clear();
+  flocalmode2->Clear();
 
   flastBRts = 0;
   flastHIts = 0;
+  flastM2ts = 0;
   fBRtsjump = false;
   fHItsjump = false;
+  fM2tsjump = false;
 
 
   fmhist = new MergeHistograms(fSett);
@@ -214,18 +254,61 @@ bool BuildEvents::ReadHiCARI(){
   return true;
 }
 
+bool BuildEvents::ReadMode2(){
+  if(fverbose>1)
+    cout << __PRETTY_FUNCTION__ << endl;
+  flocalmode2->Clear();
+  flocalM2ts = 0;
+  if(fM2entry==fM2entries){
+    return false;
+  }
+  Int_t status = fM2tr->GetEvent(fM2entry);
+  if(fverbose>2)
+    cout << "status " << status << endl;
+  if(status == -1){
+    cerr<<"Error occured, couldn't read entry "<<fM2entry<<" from tree "<<fM2tr->GetName()<<endl;
+    return false;
+  }
+  else if(status == 0){
+    cerr<<"Error occured, entry "<<fM2entry<<" in tree "<<fM2tr->GetName()<<" in file doesn't exist"<<endl;
+    return false;
+  }
+  fnbytes += status;
+  flocalM2ts = flocalmode2->GetTS();
+
+  if(flocalM2ts<flastM2ts){
+    cout <<"Mode2 timestamp jump detected. this = " << flocalM2ts << ", last = " << flastM2ts << endl;
+    fM2tsjump = true;
+    return false;
+  }
+  if(fverbose>0)
+    cout << "read new mode2 with TS = " << flocalM2ts << endl;
+  fM2entry++;
+
+  detector* det = new detector;
+  det->TS = flocalM2ts;
+  det->ID = 2;
+  fdetectors.push_back(det);
+
+  flastM2ts = flocalM2ts;
+  return true;
+}
+
 bool BuildEvents::ReadEach(){
   flastBRts = 0;
   flastHIts = 0;
+  flastM2ts = 0;
   bool success = false;
   if(fhasHI)
     success += ReadHiCARI();
+  if(fhasM2)
+    success += ReadMode2();
   if(fhasBR)
     success += ReadBigRIPS();
   if(success)
     return true;
   else{
-    cout << endl << "failed to read from HiCARI and BigRIPS." << endl;
+    cout << endl << "failed to read from HiCARI, Mode2, and BigRIPS." << endl;
     return false;
   }
 }
@@ -267,6 +350,8 @@ void BuildEvents::CloseEvent(){
   }
   fHIts = 0;
   fhicari->Clear();
+  fM2ts = 0;
+  fmode2->Clear();
   // if(printme){
   //   cout << "after clearing " << endl;
   //   fhicari->Print();
@@ -321,7 +406,7 @@ bool BuildEvents::Merge(){
   case 1: //HiCARI
     if(flocalHIts - fcurrentts > fwindow){
       if(fverbose>0)
-	cout << "HI larger than window" << endl;
+	cout << "HI larger than window" << flocalHIts <<" - "<<fcurrentts<<" > "<<fwindow << endl;
       CloseEvent();
     }
     fHIts = flocalHIts;
@@ -332,19 +417,34 @@ bool BuildEvents::Merge(){
     if(!ReadHiCARI()&&fHItsjump==false)
       cout << endl << MAGENTA << "failed to read HiCARI, end of file" << DEFCOLOR << endl;
     break;
+  case 2: //Mode2
+    if(flocalM2ts - fcurrentts > fwindow){
+      if(fverbose>0)
+	cout << "M2 larger than window" << endl;
+      CloseEvent();
+    }
+    fM2ts = flocalM2ts;
+    fmode2 = (GretinaCalc*)flocalmode2->Clone();
+    flocalmode2->Clear();
+    fcurrentts = fM2ts;
+    fdetectors.erase(fdetectors.begin());
+    if(!ReadMode2()&&fM2tsjump==false)
+      cout << endl << MAGENTA << "failed to read Mode2, end of file" << DEFCOLOR << endl;
+    break;
   default:
     break;
   }
-  if(flastevent>0 && flastevent == (int)(fBRentry + fHIentry)){
+  if(flastevent>0 && flastevent == (int)(fBRentry + fHIentry + fM2entry)){
     cout << endl << BLUE << "last event reached " << DEFCOLOR << endl;
     return false;
   }
 
   if(fdetectors.size()==0){
-    if(fhasBR && fhasHI && fBRtsjump==true && fHItsjump==true){
-      cout << RED << "both timestamps jumped" << DEFCOLOR << endl;
+    if(fhasBR && fhasHI && fhasM2 && fBRtsjump==true && fHItsjump==true && fM2tsjump==true){
+      cout << RED << "all timestamps jumped" << DEFCOLOR << endl;
       fBRtsjump = false;
       fHItsjump = false;
+      fM2tsjump = false;
       return ReadEach();
     }
     cout << endl << BLUE << "all files finished " << DEFCOLOR << endl;

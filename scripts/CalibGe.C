@@ -32,7 +32,7 @@ TCanvas *ca;
 //char* fileCo = (char*)"/home/gamma20/rootfiles/hist0268.root";
 //char* fileCo = (char*)"./rootfiles/hist0443.root";
 //char* fileCo = (char*)"./hist/hraw0475.root";
-char* fileCo = (char*)"./hist/hraw0594.root";
+char* fileCo = (char*)"./rootfiles/run0595.root";
 char* fileEu = (char*)"./hist/hraw0448.root";
 char* fileBa = (char*)"./hist/hraw0468.root";
 char* fileYy = (char*)"./hist/hraw0469.root";
@@ -73,6 +73,7 @@ void coreEu(int m=0, int c =0){
 }
 void coreCo(int m=0, int c =0){
   TFile *f = new TFile(fileCo);
+  f->ls();
   TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
   if(h==NULL)
     return;
@@ -86,7 +87,7 @@ void segmentEu(int m=0, int c =0, int s =0){
   TH1F* h = (TH1F*)h2->ProjectionY(Form("%s_%02d",h2->GetName(),s),s+1,s+1);
   if(h==NULL || h->Integral()<100)
     return;
-   vector<double> v = fitCo(h,0,1);
+  vector<double> v = fitCo(h,0,1);
   cout << v[0] << "\t" << v[1] << endl;
   f = new TFile(fileEu);
   h2 = (TH2F*)f->Get(Form("hraw_segen_vs_nr_clus%02d_crys%02d",m,c));
@@ -410,24 +411,6 @@ void CalibGeCo(){
 	continue;
       frange = 3000;
       SetRange(150000,450000);
-      if(clu==5 && cry==1){
-	frange = 10000;
-      }
-      if(clu==1 && cry==1){
-	frange = 4000;
-      }
-      if(clu==11 && cry==1){
-	frange = 30000;
-	SetRange(1200000,1700000);
-      }
-      if(clu==10){
-	frange = 5000;
-	if(cry==0)
-	  frange = 3000;
-	if(cry==3)
-	  frange = 8000;
-	SetRange(400000,600000);
-      }
       vector<double> r = fitCo(h,1);
       //cout << " fitted " << r[0]<< endl;
       if(r[0]<0)
@@ -471,56 +454,6 @@ void CalibGeCo(){
 	  continue;
 	frange = 3000;
 	SetRange(150000,450000);
-	if(clu==2 && cry==1 && s==0)
-	  SetRange(250000,350000);
-	if(clu==3 && cry==2 && s==4)
-	  SetRange(280000,380000);
-	if(clu==4 && cry==1 && s==2)
-	  SetRange(280000,380000);
-	if(clu==1 && cry==1 && s==2)
-       	  frange = 2000;
-	if(clu==3 && cry==0 && s==3)
-       	  frange = 2000;
-	if(clu==11)
-	  SetRange(420000,540000);
-	if(clu==11&&cry==2&&s ==33)
-	  SetRange(580000,740000);
-	if(clu==11&&cry==1&&s ==25)
-	  frange = 2000;
-	if(clu==10){
-	  SetRange(400000,600000);
-	  frange = 5000;
-	  if(cry==0){
-	    frange = 3000;
-	    if(s==33)
-	      SetRange(480000,620000);
-	    if(s==34)
-	      SetRange(440000,580000);
-	  }
-	  if(cry==1){
-	    frange = 5000;
-	    if(s==36||s==33)
-	      SetRange(500000,600000);
-	    if(s==20){
-	      SetRange(600000,800000);
-	      resolution = 10;
-	    }
-	    if(s==6)
-	      SetRange(600000,800000);
-	  }
-	  if(cry==2){
-	    frange = 5000;
-	    if(s==21)
-	      SetRange(600000,800000);
-	    if(s==31)
-	      SetRange(580000,760000);
-	    if(s==35){
-	      frange = 3000;
-	      SetRange(380000,500000);
-	    }
-	  }
-	  if(cry==3)
-	    frange = 8000;
 	  if(s%10==9)
 	    continue;
 	}

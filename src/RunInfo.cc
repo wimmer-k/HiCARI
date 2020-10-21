@@ -7,17 +7,21 @@ void RunInfo::Clear(){
   fHIbytes = -1;
   fHIrawevents = -1;
   fHIcalevents = -1;
-  fMode2events = -1;
+  fM2bytes = -1;
+  fM2rawevents = -1;
+  fM2calevents = -1;
   fBRevents = -1;
 }
 
 void RunInfo::AppendInfo(RunInfo* sec){
+  // cout << fHIrunnr << "\t" << fM2runnr << "\t" << fBRrunnr  << endl;
+  // cout << " adding " <<  sec->GetHIRunNumber() << "\t" <<  sec->GetM2RunNumber() << "\t" << sec->GetBRRunNumber()<< endl;
   if(fHIrunnr<0 && sec->GetHIRunNumber()>0){
     fHIrunnr = sec->GetHIRunNumber();
     fHIbytes = sec->GetHIBytes();
     fHIrawevents = sec->GetHIRawEvents();
   }
-  else
+  else if(fHIrunnr>-1 && sec->GetHIRunNumber()>0)
     cout <<  "HiCARI info already there, run number set to " << fHIrunnr << endl;
   if(fHIcalevents<0 && sec->GetHICalEvents()>0){
     fHIcalevents = sec->GetHICalEvents();
@@ -26,19 +30,23 @@ void RunInfo::AppendInfo(RunInfo* sec){
     fHiCARIctr = sec->GetHiCARICtr();
     fHiCARIHitctr = sec->GetHiCARIHitCtr();
   }
-  if(fM2runnr<0 && sec->GetM2RunNumber()>0)
+  if(fM2runnr<0 && sec->GetM2RunNumber()>0){
     fM2runnr = sec->GetM2RunNumber();
-  else
+    fM2bytes = sec->GetM2Bytes();
+  }
+  else if (fM2runnr>-1 && sec->GetM2RunNumber()>0)
     cout <<  "Mode2 info already there, run number set to " << fM2runnr << endl;
-  if(fMode2events<0 && sec->GetMode2Events()>0){
-    fMode2events = sec->GetMode2Events();
-    fMode2Hitctr = sec->GetMode2HitCtr();
+  if(fM2calevents<0 && sec->GetM2CalEvents()>0){
+    fM2calevents = sec->GetM2CalEvents();
+    fGretinactr = sec->GetGretinaCtr();
+    fGretinaHitctr = sec->GetGretinaHitCtr();
+    fGretinaHitABctr = sec->GetGretinaHitABCtr();
   }
     
 
   if(fBRrunnr<0 && sec->GetBRRunNumber()>0)
     fBRrunnr = sec->GetBRRunNumber();
-  else
+  else if (fBRrunnr>-1 && sec->GetBRRunNumber()>0)
     cout <<  "BigRIPS info already there, run number set to " << fBRrunnr << endl;
 
 
@@ -60,9 +68,12 @@ void RunInfo::PrintRunInfo(){
   }
   if(fM2runnr>0){
     cout << "Mode2 Run Number as read from inputfile:\t" << fM2runnr << endl; 
-    cout << "Number of Mode2 Events built for HiCARI:\t" << fMode2events << endl;
-    if(fMode2events){
-      cout << "Mode2 hits   \t" << fMode2Hitctr  << endl;
+    //cout << "Number of Mode2 Raw Events built for HiCARI:\t" << fM2rawevents << endl;
+    cout << "Number of Gretina Events built for HiCARI:\t" << fM2calevents << endl;
+    if(fM2calevents){
+      cout << "Gretina events   \t" << fGretinactr  << endl;       
+      cout << "Gretina hits     \t" << fGretinaHitctr  << endl;
+      cout << "Gretina hits AB  \t" << fGretinaHitABctr  << endl;
     }
   }
   

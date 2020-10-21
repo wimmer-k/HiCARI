@@ -217,6 +217,7 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
 
   //For no add-back, we don't need to do anything beyond copying relevant parameters.
   out->Clear();
+  fevent++;
   if (in->GetMult()==0){
     return;
   }
@@ -224,6 +225,7 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
     if(in->GetHit(i)->GetError()>0)
       continue;
     out->AddHit(new HitCalc(in->GetHit(i)));
+    fGretinaHitctr++;
   }
   //Perform the addback, which fills the add-backed vector.
   if (fAddBackType == 0){
@@ -240,6 +242,7 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
   if(fSett->StoreAllIPoints())
     AllGretinaHits(out,in);
 
+  fGretinactr++;
 }
 
 vector<HitCalc*> Calibration::ExtractAllHits(Gretina* in){
@@ -266,6 +269,7 @@ void Calibration::AddBackGretinaCrystal(GretinaCalc* gr){
   vector<HitCalc*> hits= gr->GetHits();
   for(vector<HitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
     gr->AddHitAB(new HitCalc(*iter));
+    fGretinaHitABctr++;
   }
 }
 
@@ -284,6 +288,7 @@ void Calibration::AddBackGretinaCluster(GretinaCalc* gr){
     }
     if (!addbacked){
       gr->AddHitAB(new HitCalc(*hit));
+      fGretinaHitABctr++;
     }
   }
 }
@@ -297,6 +302,7 @@ void Calibration::AddBackGretinaEverything(GretinaCalc* gr){
     HitCalc* hit = *iter;
     if(iter==hits.begin()){
       gr->AddHitAB(new HitCalc(*hit));
+      fGretinaHitABctr++;
     } else {
       gr->GetHitAB(0)->AddBackHitCalc(hit);
     }
@@ -548,6 +554,9 @@ void Calibration::ResetCtrs(){
   fBigRIPSctr = 0;
   fHiCARIHitctr = 0;
   fBigRIPSHitctr = 0;
+  fGretinactr = 0;
+  fGretinaHitctr = 0;
+  fGretinaHitABctr = 0;
 #endif
 }
 
@@ -561,9 +570,18 @@ void Calibration::PrintCtrs(){
   cout << "fzerodegctr  \t" << fzerodegctr  << endl;
   cout << "fminosctr  \t" << fminosctr  << endl;
 #else
-  cout << "HiCARI events \t" << fHiCARIctr  << endl;
-  cout << "HiCARI hits   \t" << fHiCARIHitctr  << endl;
-  cout << "BigRIPS events\t" << fBigRIPSctr  << endl;
-  cout << "BigRIPS hits  \t" << fBigRIPSHitctr  << endl;
+  if(fHiCARIctr>0){
+    cout << "HiCARI events \t" << fHiCARIctr  << endl;
+    cout << "HiCARI hits   \t" << fHiCARIHitctr  << endl;
+  }
+  if(fBigRIPSctr>0){
+    cout << "BigRIPS events\t" << fBigRIPSctr  << endl;
+    cout << "BigRIPS hits  \t" << fBigRIPSHitctr  << endl;
+  }
+  if(fGretinactr>0){
+    cout << "Gretina events \t" << fGretinactr  << endl;
+    cout << "Gretina hits   \t" << fGretinaHitctr  << endl;
+    cout << "Gretina AB hits\t" << fGretinaHitABctr  << endl;
+  }
 #endif
 }

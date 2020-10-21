@@ -546,6 +546,11 @@ public:
       return fhits[n];
     return NULL;
   }
+  unsigned long long int GetTS(){
+    if(fmult>0)
+      return fhits[0]->GetTS();
+    return sqrt(-1);
+  }
   vector<HitCalc*> GetHitsAB(){return fhits_ab;}
   int GetMultAB(){return fmult_ab;}
   HitCalc* GetHitAB(int n){

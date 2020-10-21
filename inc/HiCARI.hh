@@ -164,7 +164,7 @@ public:
   //! The position of the hit in the lab system.
   TVector3 GetPosition(){return fposition;}
   int GetHitsAdded(){return fHitsAdded;}
-  long long int GetTS(){return ftimestamp;}
+  unsigned long long int GetTS(){return ftimestamp;}
 
   // void DopplerCorrect(double beta, double z = 0){
   //   fDCen = fen * HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
@@ -253,8 +253,10 @@ public:
     fhits.push_back(cry);
     
     ftimestamp = cry->GetTS();
-    if(ftimestamp<0)
-      cout << "invalid time stamp? " << cry->GetEnergy() << endl;
+    if(ftimestamp<0){
+      cout << "invalid time stamp? " << ftimestamp << " with energy " << cry->GetEnergy() << endl;
+      cout << "clu " << cry->GetCluster() << ", cry " << cry->GetCrystal() << endl;
+    }
     if(isBigRIPS)
       fhadBigRIPS = true;
     else
@@ -297,7 +299,7 @@ public:
       return fhits_ab[n];
     return NULL;
   }
-  long long int GetTS(){return ftimestamp;}
+  unsigned long long int GetTS(){return ftimestamp;}
 
 protected:
   long long int ftimestamp;

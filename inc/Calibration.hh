@@ -90,6 +90,10 @@ public:
   long long int GetBigRIPSHitCtr(){return fBigRIPSHitctr;}
   long long int GetHiCARICtr(){return fHiCARIctr;}
   long long int GetHiCARIHitCtr(){return fHiCARIHitctr;}
+  long long int GetGretinaCtr(){return fGretinactr;}
+
+  long long int GetGretinaHitCtr(){return fGretinaHitctr;}
+  long long int GetGretinaHitABCtr(){return fGretinaHitABctr;}
   
 private:
   void ResetCtrs();
@@ -127,6 +131,9 @@ private:
   Long64_t fBigRIPSctr;
   Long64_t fHiCARIHitctr;
   Long64_t fBigRIPSHitctr;
+  Long64_t fGretinactr;
+  Long64_t fGretinaHitctr;
+  Long64_t fGretinaHitABctr;
 #endif
 };
 
