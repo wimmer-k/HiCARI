@@ -97,6 +97,8 @@ public:
   bool TracePlots(){return fTracePlots;}
   bool Mode3Histos(){return fMode3Histos;}
 
+  bool ExcludeTracking(){return fExcludeTracking;}
+  
   //! Get the beta for the Doppler correction
   double Beta(){return fbeta;}
   //! Get the BigRIPS PPAC xml file
@@ -199,7 +201,9 @@ protected:
   int fBaselineLength;
   bool fTracePlots;
   bool fMode3Histos;
+  bool fExcludeTracking;
 
+  
   int fcorrelationMode;
   int fcorrelationCluster;
   int fcorrelationCrystal;

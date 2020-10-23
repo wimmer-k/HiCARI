@@ -143,8 +143,8 @@ int main(int argc, char* argv[]){
 	cout << RED;                                                                
       cout << r << DEFCOLOR << " %\t";                                        
 
-      cout <<(Float_t)ctr/(time_end - time_start) << " events/s (average) " <<
-	10000./(time_end - time_last) << " events/s (current)\t" <<
+      cout << setw(7) <<(Float_t)ctr/(time_end - time_start) << " events/s (average) " <<
+	1000./(time_end - time_last) << " events/s (current)\t" <<
 	(total-ctr)*(time_end - time_start)/(Float_t)ctr << "s to go \r" << flush;
       time_last = time_end;
     }

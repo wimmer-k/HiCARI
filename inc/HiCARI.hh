@@ -7,6 +7,7 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "TMath.h"
+#include "Settings.hh"
 
 using namespace std;
 
@@ -169,11 +170,11 @@ public:
   // void DopplerCorrect(double beta, double z = 0){
   //   fDCen = fen * HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
   // }
-  // void DopplerCorrect(Settings* set){
-  //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set);
-  // }
-  // //! Returns the Doppler-correction factor to correct the energy.
-  // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
+  void DopplerCorrect(Settings* set){
+    fDCen = fen*DopplerCorrectionFactor(GetPosition(),set);
+  }
+  //! Returns the Doppler-correction factor to correct the energy.
+  double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
 
   // void DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
   //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg);
@@ -191,6 +192,7 @@ public:
   bool IsSuperClo(){return (fcluster> 5 && fcluster<10 && fcrystal<4);}
   bool IsTracking(){return (fcluster> 9 && fcluster<12);}
   bool IsBigRIPS(){return (fcluster==9 && fcrystal==9);}
+  bool IsHiCARI(){return !(fcluster==9 && fcrystal==9);}
 
   void Print(){
     cout << "HiCARI: cluster " << fcluster << "\tcrystal " << fcrystal << "\tmaxseg " << fmaxseg << "\tsegsum " << fsegsum << "\ten " << fen << "\tmax hit " << fmaxhit << endl;
@@ -267,8 +269,8 @@ public:
     fmult_ab++;
   }
   bool HadBigRIPS(){return fhadBigRIPS;}
-
-//  void DopplerCorrect(Settings* set);
+  
+  void DopplerCorrect(Settings* set);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
 //  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
   void Print(){

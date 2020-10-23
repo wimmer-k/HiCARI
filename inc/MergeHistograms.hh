@@ -11,6 +11,8 @@
 #include "TH2.h"
 #include "TH3.h"
 #include "TEnv.h"
+#include "TCanvas.h"
+#include "TLegend.h"
 #include "math.h"
 #include <iostream>
 #include <iomanip>
@@ -30,6 +32,7 @@
 #include "Beam.hh"
 #include "PPAC.hh"
 #include "FocalPlane.hh"
+#include "Gretina.hh"
 
 using namespace std;
 
@@ -49,7 +52,7 @@ public:
   TList* GetHList(){return fhlist;}
   void Write();
 
-  void FillHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS);
+  void FillHistograms(int checkADC, HiCARICalc* hi, GretinaCalc* gr, unsigned long long int brTS, unsigned long long int hiTS, unsigned long long int m2TS);
 
   void Fill(string name,int bins, double low, double high, double value){
     try{
@@ -79,8 +82,9 @@ public:
   }
 
 protected:
-  void FillCorrelationHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS);
-
+  void FillCorrelationHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS, unsigned long long int m2TS);
+  void PrintHistos();
+  
   TList* fhlist;
   map<string,TH1*> fhmap;
   Settings* fSett;

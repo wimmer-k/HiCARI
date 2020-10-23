@@ -234,6 +234,7 @@ bool BuildEvents::ReadHiCARI(){
     return false;
   }
   fnbytes += status;
+  
   flocalHIts = flocalhicari->GetTS();
 
   if(flocalHIts<flastHIts){
@@ -331,12 +332,12 @@ void BuildEvents::CloseEvent(){
   default:
   case 0: //write all events
     fmtr->Fill();
-    fmhist->FillHistograms(fcheckADC, fhicari, fBRts, fHIts);
+    fmhist->FillHistograms(fcheckADC, fhicari, fmode2, fBRts, fHIts, fM2ts);
     break;
   case 1://BR and HI coincidence
     if(fBRts>0 && fHIts >0){
       fmtr->Fill();
-      fmhist->FillHistograms(fcheckADC, fhicari, fBRts, fHIts);
+      fmhist->FillHistograms(fcheckADC, fhicari, fmode2, fBRts, fHIts, fM2ts);
     }
     break;
   }

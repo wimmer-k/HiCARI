@@ -485,11 +485,15 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
       out->AddHit(newHit,isBigRIPS);
     }
     else if(en>0 || sumen>0){
-      fHiCARIHitctr++;
       newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
       if(fverbose)
 	cout << "x = "<< fHiCARIpositions[clu][cry][maxnr].X() << ", y = "<< fHiCARIpositions[clu][cry][maxnr].Y()<< ", z = "<< fHiCARIpositions[clu][cry][maxnr].Z() << endl;
       newHit->SetSegments(nrs,ens);
+
+      if(fSett->ExcludeTracking() && newHit->IsTracking())
+	continue;
+      
+      fHiCARIHitctr++;
       out->AddHit(newHit,isBigRIPS);
       if(fverbose)
 	cout << "hit x = "<< newHit->GetPosition().X() << ", y = "<< newHit->GetPosition().Y()<< ", z = "<< newHit->GetPosition().Z() << endl;
@@ -514,6 +518,9 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     fBigRIPSctr++;
   if(fverbose>2 && out->HadBigRIPS())
     cout << out->GetMult() << "\t" << (out->GetHits()).size() << endl;
+
+  out->DopplerCorrect(fSett);
+  
   fevent++;
 }
 

@@ -105,6 +105,12 @@ int main(int argc, char* argv[]){
   tr->SetBranchAddress("hientry",&hientry);
   
 
+  GretinaCalc* m2 = new GretinaCalc;
+  tr->SetBranchAddress("mode2",&m2);
+  unsigned long long int m2TS;
+  tr->SetBranchAddress("m2TS",&m2TS);
+  int m2entry;
+  tr->SetBranchAddress("m2entry",&m2entry);
 
   Double_t nentries = tr->GetEntries();
 
@@ -150,6 +156,10 @@ int main(int argc, char* argv[]){
     hiTS = 0;
     hientry = 0;
     
+    m2->Clear();
+    m2TS = 0;
+    m2entry = 0;
+    
 
     if(vl>2)
       cout << "getting entry " << i << endl;
@@ -166,7 +176,7 @@ int main(int argc, char* argv[]){
     }
     nbytes += status;
 
-    hists->FillHistograms(checkADC,hi,brTS,hiTS);
+    hists->FillHistograms(checkADC,hi,m2,brTS,hiTS,m2TS);
 
     if(i%10000 == 0){
       double time_end = get_time();
