@@ -27,8 +27,8 @@
 #include <stdexcept>
 
 #include "Settings.hh"
-#ifdef SIMULATION
 #include "Gretina.hh"
+#ifdef SIMULATION
 #include "Miniball.hh"
 #include "ZeroDeg.hh"
 #include "MINOS.hh"
@@ -72,6 +72,7 @@ public:
   void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi);
 #else
   void FillHistograms(HiCARICalc* hi);
+  void FillHistograms(GretinaCalc* gr);
 #endif
 
   void FillI(string name,int bins, double low, double high, double value){

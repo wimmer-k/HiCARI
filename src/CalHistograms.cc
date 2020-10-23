@@ -191,4 +191,41 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
   }//hit mult
 
 }
+void CalHistograms::FillHistograms(GretinaCalc* gr){
+  Fill("g_mult",30,0,30,gr->GetMult());
+  long long int firstTS = -1;
+  for(UShort_t g=0; g<gr->GetMult(); g++){
+    HitCalc* hit = gr->GetHit(g);
+    if(g==0)
+      firstTS = hit->GetTS();
+    else
+      Fill("g_tsdiff",500,0,1000,hit->GetTS()-firstTS);
+
+    Fill("g_cluster",20,0,20,hit->GetCluster());
+    Fill("g_crystal",4,0,4,hit->GetCrystal());
+    Fill("g_crystal_vs_cluster",20,0,20,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill("g_en_summary",80,0,80,hit->GetCluster()*4+hit->GetCrystal(),4000,0,4000,hit->GetEnergy());
+    Fill("g_en_summary_fine",80,0,80,hit->GetCluster()*4+hit->GetCrystal(),16000,0,4000,hit->GetEnergy());
+    Fill(Form("g_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),16000,0,4000,hit->GetEnergy());
+    Fill("g_maxhit_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetMaxSingleHit());
+    Fill(Form("g_maxhit_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),1000,0,4000,hit->GetMaxSingleHit());
+    
+  }//hits
+  Fill("g_mult_multAB",30,0,30,gr->GetMult(),30,0,30,gr->GetMultAB());
+  Fill("gAB_mult",30,0,30,gr->GetMultAB());
+  for(UShort_t g=0; g<gr->GetMultAB(); g++){
+    HitCalc* hit = gr->GetHit(g);
+ 
+    Fill("gAB_cluster",20,0,20,hit->GetCluster());
+    Fill("gAB_crystal",4,0,4,hit->GetCrystal());
+    Fill("gAB_crystal_vs_cluster",20,0,20,hit->GetCluster(),4,0,4,hit->GetCrystal());
+    Fill("gAB_en_summary",80,0,80,hit->GetCluster()*4+hit->GetCrystal(),4000,0,4000,hit->GetEnergy());
+    Fill("gAB_en_summary_fine",80,0,80,hit->GetCluster()*4+hit->GetCrystal(),16000,0,4000,hit->GetEnergy());
+    Fill(Form("gAB_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),16000,0,4000,hit->GetEnergy());
+    Fill("gAB_maxhit_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetMaxSingleHit());
+    Fill(Form("gAB_maxhit_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),1000,0,4000,hit->GetMaxSingleHit());
+    
+  }//hits
+
+}
 #endif

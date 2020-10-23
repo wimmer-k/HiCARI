@@ -957,6 +957,7 @@ void UnpackedEvent::CloseEvent(){
 #endif
 #else
       fchist->FillHistograms(fHiCARICalc);
+      fchist->FillHistograms(fGretinaCalc);
 #endif
     }
   }

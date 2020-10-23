@@ -86,6 +86,8 @@ int main(int argc, char* argv[]){
   }
   HiCARICalc* hi = new HiCARICalc;
   tr->SetBranchAddress("hicaricalc",&hi);
+  GretinaCalc* gr = new GretinaCalc;
+  tr->SetBranchAddress("gretinacalc",&gr);
 
   Double_t nentries = tr->GetEntries();
 
@@ -115,6 +117,7 @@ int main(int argc, char* argv[]){
       break;
     }
     hi->Clear();
+    gr->Clear();
 
     if(vl>2)
       cout << "getting entry " << i << endl;
@@ -132,6 +135,7 @@ int main(int argc, char* argv[]){
     nbytes += status;
 
     hists->FillHistograms(hi);
+    hists->FillHistograms(gr);
 
     if(i%10000 == 0){
       double time_end = get_time();
