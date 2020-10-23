@@ -16,9 +16,12 @@
 using namespace std;
 double deg2rad = TMath::Pi()/180.;
 double rad2deg = 180./TMath::Pi();
-void MBPositions(){
+void MBPositions(int show=-1){
   ifstream infile;
-  infile.open("/home/wimmer/programs/HiCARI/settings/MBpositions_jiseok_mar26.dat");
+  //infile.open("/home/wimmer/programs/HiCARI/settings/MBpositions_jiseok_mar26.dat");
+  infile.open("/home/gamma20/packages/HiCARI/settings/MB_geometery_fall.txt");
+  infile.ignore(1000,'\n');
+  infile.ignore(1000,'\n');
   infile.ignore(1000,'\n');
   int clu, cry, seg;
   float phi, the, rho;
@@ -26,19 +29,19 @@ void MBPositions(){
   TH2F* s_thetaphi = new TH2F("s_thetaphi", "s_thetaphi",180,0,180,180,-180,180);
   TH2F* c_xy = new TH2F("c_xy", "c_xy",200,-400,400,200,-400,400);
   TH2F* s_xy = new TH2F("s_xy", "s_xy",200,-400,400,200,-400,400);
-  TEnv* fout = new TEnv("/home/gamma20/HiCARI/settings/HiCARIpos_0327.dat");
+  TEnv* fout = new TEnv("/home/gamma20/packages/HiCARI/settings/HiCARIpos_1022.dat");
   while(!infile.eof()){
   //for(int i=0;i<10;i++){
     infile >> clu >> cry >> seg >> phi >> the >> rho;
     
     infile.ignore(1000,'\n');
-    // if(clu!=1)
-    //   continue;
+    if(show > -1 && clu!=show)
+      continue;
     cout << clu << "\t" << cry << "\t" << seg << "\t" <<phi << "\t" << the << "\t" << rho << endl;
     seg -= 1;
     TVector3 v(0,0,1);
     v.SetTheta(the*deg2rad);
-    v.SetPhi(-phi*deg2rad);
+    v.SetPhi(phi*deg2rad);
     v.SetMag(rho);
     
     if(seg==-1){
@@ -77,20 +80,21 @@ void MBPositions(){
   s_xy->SetMarkerSize(0.5);
   s_xy->Draw("same");
   
-  //fout->SaveLevel(kEnvLocal);
+  fout->SaveLevel(kEnvLocal);
 
 }
-void SCPositions(){
+void SCPositions(int show=-1){
   ifstream infile;
-  infile.open("/home/gamma20/HiCARI/settings/SCpositions_jiseok_mar28.dat");
+  infile.open("/home/gamma20/packages/HiCARI/settings/SC_seg_fall_xyz.txt");
+  infile.ignore(1000,'\n');
   infile.ignore(1000,'\n');
   int clu, cry, seg;
   float x, y, z;
-  TH2F* c_thetaphi = new TH2F("c_thetaphi", "c_thetaphi",180,0,180,180,-180,180);
+  //TH2F* c_thetaphi = new TH2F("c_thetaphi", "c_thetaphi",180,0,180,180,-180,180);
   TH2F* s_thetaphi = new TH2F("s_thetaphi", "s_thetaphi",180,0,180,180,-180,180);
-  TH2F* c_xy = new TH2F("c_xy", "c_xy",200,-400,400,200,-400,400);
+  //TH2F* c_xy = new TH2F("c_xy", "c_xy",200,-400,400,200,-400,400);
   TH2F* s_xy = new TH2F("s_xy", "s_xy",200,-400,400,200,-400,400);
-  TEnv* fout = new TEnv("/home/gamma20/HiCARI/settings/HiCARIpos_0328.dat");
+  TEnv* fout = new TEnv("/home/gamma20/packages/HiCARI/settings/HiCARIpos_1022.dat");
   while(!infile.eof()){
   //for(int i=0;i<10;i++){
     if(infile.eof())
@@ -102,22 +106,26 @@ void SCPositions(){
       break;
     // if(clu!=1)
     //   continue;
+    if(show > -1 && clu!=show)
+      continue;
     cout << clu << "\t" << cry << "\t" << seg << "\t" << x << "\t" << y << "\t" << z << endl;
     seg -= 1;
     TVector3 v(x,y,z);
     
-    if(seg==-1){
-      c_thetaphi->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
-      c_xy->Fill(v.X(),v.Y());
-    }
-    else{
-      s_thetaphi->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
-      s_xy->Fill(v.X(),v.Y());
-    }
+    // if(seg==-1){
+    //   c_thetaphi->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
+    //   c_xy->Fill(v.X(),v.Y());
+    // }
+    // else{
+    //   s_thetaphi->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
+    //   s_xy->Fill(v.X(),v.Y());
+    // }
+    s_thetaphi->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
+    s_xy->Fill(v.X(),v.Y());
     if(seg>-1){
-      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",clu+8,cry,seg),v.X());
-      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",clu+8,cry,seg),v.Y());
-      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",clu+8,cry,seg),v.Z());
+      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",clu+6,cry,seg),v.X());
+      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",clu+6,cry,seg),v.Y());
+      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",clu+6,cry,seg),v.Z());
     }
     if(infile.eof())
       break;
@@ -125,22 +133,24 @@ void SCPositions(){
   TCanvas* c = new TCanvas("c","c",800,400);
   c->Divide(2,1);
   c->cd(1);
-  c_thetaphi->SetMarkerStyle(20);
-  c_thetaphi->SetMarkerSize(0.5);
-  c_thetaphi->Draw();
+  //c_thetaphi->SetMarkerStyle(20);
+  //c_thetaphi->SetMarkerSize(0.5);
+  //c_thetaphi->Draw();
   s_thetaphi->SetMarkerColor(3);
   s_thetaphi->SetMarkerStyle(20);
   s_thetaphi->SetMarkerSize(0.5);
-  s_thetaphi->Draw("same");
+  //s_thetaphi->Draw("same");
+  s_thetaphi->Draw();
   
   c->cd(2);
-  c_xy->SetMarkerStyle(20);
-  c_xy->SetMarkerSize(0.5);
-  c_xy->Draw();
+  //c_xy->SetMarkerStyle(20);
+  //c_xy->SetMarkerSize(0.5);
+  //c_xy->Draw();
   s_xy->SetMarkerColor(3);
   s_xy->SetMarkerStyle(20);
   s_xy->SetMarkerSize(0.5);
-  s_xy->Draw("same");
+  //s_xy->Draw("same");
+  s_xy->Draw();
   
   fout->SaveLevel(kEnvLocal);
 

@@ -76,9 +76,16 @@ Hole.16.Crystal.0.Slot.3:	92
 
 
 
-# BigRIPS plastic temporary, claims Takuma!
+# spare
 #bank14
-Hole.16.Crystal.1.Slot.0:       98 # ignore
-Hole.16.Crystal.1.Slot.1:       98
-Hole.16.Crystal.1.Slot.2:       98 # ignore
-Hole.16.Crystal.1.Slot.3:       99
+##Hole.16.Crystal.1.Slot.0:       98 # ignore
+##Hole.16.Crystal.1.Slot.1:       98 # ignore
+##Hole.16.Crystal.1.Slot.2:       98 # ignore
+##Hole.16.Crystal.1.Slot.3:       99         
+
+# BigRIPS plastic
+#bank15
+Hole.16.Crystal.2.Slot.0:       98 # ignore
+Hole.16.Crystal.2.Slot.1:       98 # ignore
+Hole.16.Crystal.2.Slot.2:       98 # ignore
+Hole.16.Crystal.2.Slot.3:       99         

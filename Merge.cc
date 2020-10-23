@@ -130,7 +130,7 @@ int main(int argc, char* argv[]){
   int total = evts->GetNEvents();
 
   while(evts->Merge()){
-    if(ctr%10000 == 0){
+    if(ctr%1000 == 0){
       double time_end = get_time();
       double r = evts->GetHistos()->GetCorrRate();
       cout << setw(5) << setiosflags(ios::fixed) << setprecision(1) << (100.*ctr)/total<<" % done\t" << 

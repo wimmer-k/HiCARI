@@ -19,7 +19,7 @@ Calibration::Calibration(){
 Calibration::Calibration(Settings* setting, int event){
   ResetCtrs();
   fSett = setting;
-  fevent =event;
+  fevent = event;
 
 
   fverbose = fSett->VLevel();
@@ -474,17 +474,27 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
 	nrs.push_back(segnr);
       }
     }//uncalibrated segs
-    HiCARIHitCalc* newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
-    newHit->SetSegments(nrs,ens);
+    
+    
+    HiCARIHitCalc* newHit = new HiCARIHitCalc();
     bool isBigRIPS = false;
     if(clu==fSett->BigRIPSCluster() && cry==fSett->BigRIPSCrystal()){
       fBigRIPSHitctr++;
       isBigRIPS = true;
+      newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,TVector3(0,0,0),en,ts);
+      out->AddHit(newHit,isBigRIPS);
     }
-    else if(en>0 || sumen>0)
+    else if(en>0 || sumen>0){
       fHiCARIHitctr++;
-    out->AddHit(newHit,isBigRIPS);
-  }
+      newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
+      if(fverbose)
+	cout << "x = "<< fHiCARIpositions[clu][cry][maxnr].X() << ", y = "<< fHiCARIpositions[clu][cry][maxnr].Y()<< ", z = "<< fHiCARIpositions[clu][cry][maxnr].Z() << endl;
+      newHit->SetSegments(nrs,ens);
+      out->AddHit(newHit,isBigRIPS);
+      if(fverbose)
+	cout << "hit x = "<< newHit->GetPosition().X() << ", y = "<< newHit->GetPosition().Y()<< ", z = "<< newHit->GetPosition().Z() << endl;
+    }
+  }//hit iterator
   
   if(fverbose)
     out->Print();
@@ -512,6 +522,9 @@ void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
   vector<HiCARIHitCalc*> hits= gr->GetHits();
   for(vector<HiCARIHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
     HiCARIHitCalc* hit = *iter;
+    if(hit->IsBigRIPS())
+      continue;
+	      
     bool addbacked = false;
     for (int j=0; j<gr->GetMultAB(); j++){
       if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster() && (fabs(gr->GetHitAB(j)->GetTS()-hit->GetTS()) < fCoincTDiff || fCoincTDiff<0)){
@@ -533,6 +546,8 @@ void Calibration::AddBackHiCARIEverything(HiCARICalc* gr){
     return;
   for(vector<HiCARIHitCalc*>::iterator iter = hits.begin(); iter!=hits.end(); iter++){
     HiCARIHitCalc* hit = *iter;
+    if(hit->IsBigRIPS())
+      continue;
     if(iter==hits.begin()){
       gr->AddHitAB(new HiCARIHitCalc(*hit));
     }

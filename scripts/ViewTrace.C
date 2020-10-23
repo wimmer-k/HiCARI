@@ -9,14 +9,15 @@
 #include "TGraph.h"
 #include "TLine.h"
 #include "TH2F.h"
+#include "TF1.h"
 
-#include "/home/gamma20/HiCARI/inc/Trace.hh"
-char* filename = (char*)"~/rootfiles/debug.root";
+#include "/home/gamma20/packages/HiCARI/inc/Trace.hh"
+char* filename = (char*)"~/fall2020/rootfiles/run0610.root";
 int verbose = 0;
 int frontBL = 70;
 Double_t flinear(Double_t *x, Double_t *par);
 void SetRun(int run){
-  filename = Form("~/rootfiles/run%04d.root",run);
+  filename = Form("~/fall2020/rootfiles/run%04d.root",run);
 }
 void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
   TFile *f = new TFile(filename);

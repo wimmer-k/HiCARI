@@ -277,10 +277,12 @@ int main(int argc, char* argv[]){
   ofile->cd();
   //Final cleanup and writing of files.
   if(wrawtree){
-    evt->GetTree()->Write("",TObject::kOverwrite);
+    if(evt->GetTree()!=NULL)
+      evt->GetTree()->Write("",TObject::kOverwrite);
   }
   if(wcaltree){
-    evt->GetCalTree()->Write("",TObject::kOverwrite);
+    if(evt->GetCalTree()!=NULL)
+      evt->GetCalTree()->Write("",TObject::kOverwrite);
   }
   info->Write("info",TObject::kOverwrite);
   double time_end = get_time();
@@ -288,5 +290,6 @@ int main(int argc, char* argv[]){
   cout << "Unpacked " << buffers/(time_end - time_start) << " buffers/s." << endl;
   timer.Stop();
   cout << "CPU time: " << timer.CpuTime() << "\tReal time: " << timer.RealTime() << endl;
+  ofile->Close();
   return 0;
 }

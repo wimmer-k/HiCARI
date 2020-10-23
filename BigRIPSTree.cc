@@ -219,6 +219,23 @@ int main(int argc, char* argv[]){
           trigbit = d->GetVal();
         }
       }
+      // //QDC
+      // if(fpl==63 && detector==2){
+      //   for(int j=0; j < seg->GetNumData(); j++){
+      //     TArtRawDataObject* d = seg->GetData(j);
+      // 	  if(d->GetCh() == 12)
+      // 	    cout << "QDC = " << d->GetVal() << endl;
+      //   }	
+      // }
+      // //TDC
+      // if(fpl==63 && detector==3){
+      //   for(int j=0; j < seg->GetNumData(); j++){
+      //     TArtRawDataObject* d = seg->GetData(j);
+      // 	  if(d->GetCh() == 6)
+      // 	    cout << "TDC = " << d->GetVal() << endl;
+      //   }	
+      // }
+      
     }
     //timestamp information
     TClonesArray* info_a = (TClonesArray*)sman->FindDataContainer("EventInfo");
@@ -233,7 +250,6 @@ int main(int argc, char* argv[]){
       cout << "tb = "<< trigbit << "\t bit = " << bit << "\t TS(event info) = " << timestamp << "\t diff to last" << timestamp-last_timestamp << "\t eventnumber = "  << eventnumber << "\t rawevent eventnumber = " << rawevent_number << "\t rawevent timestamp = " << rawevent_timestamp << endl;
     last_timestamp = timestamp;
     
-    /*
     TArtPPAC* tppac;
     for(unsigned short p=0;p<NPPACS;p++){
       SinglePPAC* dppac = new SinglePPAC;
@@ -260,26 +276,24 @@ int main(int argc, char* argv[]){
       track.Clear();
       tfpl = cfpl->FindFocalPlane(fpID[f]);
 
-      cout << "PPAC needed? " << endl;
-      if(0){      
-	TMatrixD xvec(2,1); xvec.Zero();
-	TMatrixD yvec(2,1); yvec.Zero();
-	TMatrixD xmat(2,2); xmat.Zero();
-	TMatrixD ymat(2,2); ymat.Zero();
-	int first = firstPPAC(fpID[f]);
-	if(first<0)
+      TMatrixD xvec(2,1); xvec.Zero();
+      TMatrixD yvec(2,1); yvec.Zero();
+      TMatrixD xmat(2,2); xmat.Zero();
+      TMatrixD ymat(2,2); ymat.Zero();
+      int first = firstPPAC(fpID[f]);
+      if(first<0)
 	continue;
-	double zpos = tfpl->GetZoffset();
-	int nfiredx[3] = {0, 0, 0}; //total, upstream, downstream
-	int nfiredy[3] = {0, 0, 0};
-	for(unsigned short p=0;p<4;p++){
+      double zpos = tfpl->GetZoffset();
+      int nfiredx[3] = {0, 0, 0}; //total, upstream, downstream
+      int nfiredy[3] = {0, 0, 0};
+      for(unsigned short p=0;p<4;p++){
 	SinglePPAC* dppac = ppacs->GetPPACID(first+p);
 	double x = dppac->GetX();
 	double y = dppac->GetY();
 	double zx = dppac->GetXZ() - zpos;
 	double zy = dppac->GetYZ() - zpos;
 	if(dppac->FiredX()){
-	xvec(0,0) += zx*x;
+	  xvec(0,0) += zx*x;
 	xvec(1,0) += x;
 	xmat(0,1) += zx;
 	xmat(1,0) += zx;
@@ -287,47 +301,46 @@ int main(int argc, char* argv[]){
 	xmat(1,1) ++;
 	nfiredx[0]++;
 	if(p<2)
-	nfiredx[1]++;
+	  nfiredx[1]++;
 	else
-	nfiredx[2]++;
+	  nfiredx[2]++;
 	}
 	if(dppac->FiredY()){
-	yvec(0,0) += zy*y;
-	yvec(1,0) += y;
-	ymat(0,1) += zy;
-	ymat(1,0) += zy;
-	ymat(0,0) += zy*zy;
-	ymat(1,1) ++;
-	nfiredy[0]++;
-	if(p<2)
-	nfiredy[1]++;
-	else
-	nfiredy[2]++;
+	  yvec(0,0) += zy*y;
+	  yvec(1,0) += y;
+	  ymat(0,1) += zy;
+	  ymat(1,0) += zy;
+	  ymat(0,0) += zy*zy;
+	  ymat(1,1) ++;
+	  nfiredy[0]++;
+	  if(p<2)
+	    nfiredy[1]++;
+	  else
+	    nfiredy[2]++;
 	}
-	}
-	if(nfiredx[1]>0 && nfiredx[2]>0){
+      }
+      if(nfiredx[1]>0 && nfiredx[2]>0){
 	TMatrixD rxvec = xmat.Invert()*xvec;
 	tfpl->SetOptVector(0,rxvec(1,0));
 	tfpl->SetOptVector(1,TMath::ATan(rxvec(0,0))*1000);
-	}
-	else{
+      }
+      else{
 	tfpl->SetOptVector(0,-99999);
 	tfpl->SetOptVector(1,-99999);
-	}
-	if(nfiredy[1]>0 && nfiredy[2]>0){
+      }
+      if(nfiredy[1]>0 && nfiredy[2]>0){
 	TMatrixD ryvec = ymat.Invert()*yvec;
 	tfpl->SetOptVector(2,ryvec(1,0));
 	tfpl->SetOptVector(3,TMath::ATan(ryvec(0,0))*1000);
-	}
-	else{
+      }
+      else{
 	tfpl->SetOptVector(2,-99999);
 	tfpl->SetOptVector(3,-99999);
-	}
-	tfpl->SetNumFiredPPACX(nfiredx[0]);
-	tfpl->SetNumFiredPPACY(nfiredy[0]);
-	tfpl->CopyPos();
       }
-
+      tfpl->SetNumFiredPPACX(nfiredx[0]);
+      tfpl->SetNumFiredPPACY(nfiredy[0]);
+      tfpl->CopyPos();
+ 
       if(vl>2)
 	cout << "FP " << fpID[f] ;
       if(tfpl){
@@ -390,7 +403,6 @@ int main(int argc, char* argv[]){
     for(unsigned short b=0;b<4;b++)
       beam->SetDelta(b ,recorips[b]->GetDelta());
 
-    */
 
     //fill the tree
     tr->Fill();

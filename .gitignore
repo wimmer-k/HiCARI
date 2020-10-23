@@ -5,4 +5,6 @@ build
 *.so
 scripts/rootlogon.C
 scripts/FitWindow
+scripts/*.pcm
 hfc/*.o
+settings/*.bak
