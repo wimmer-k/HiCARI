@@ -196,6 +196,8 @@ protected:
   Short_t fmaxip;
   //! The energy of the segment with the most deposited energy.
   Float_t fmaxen;
+  //! The energy sum of the interaction points.
+  Float_t fIPsum;
   //! The 4 core energies.
   /*!
     The 4 core energies.
@@ -255,7 +257,7 @@ public:
     Clear();
   }
   //! Manually makes a hit.
-  HitCalc(Short_t cluster, Short_t crystal, Float_t energy, long long int timestamp, TVector3 pos, Float_t t0, Float_t chisq,int index=-1){
+  HitCalc(Short_t cluster, Short_t crystal, Float_t energy, long long int timestamp, TVector3 pos, Float_t ipsum, Float_t t0, Float_t chisq,int index=-1){
     fcluster = cluster;
     fcrystal = crystal;
     fen = energy;
@@ -263,6 +265,7 @@ public:
     fDCen = sqrt(-1);
     ftimestamp = timestamp;
     fposition = pos;
+    fIPsum = ipsum;
     ftime = t0;
     fchisq = chisq;
     fHitsAdded = 1;
@@ -276,6 +279,7 @@ public:
     fen = fMaxSingleHit = cry->GetEnergy();
     fDCen = sqrt(-1);
     ftimestamp = cry->GetTS();
+    fIPsum = cry->GetIPSum();
     if (cry->GetMaxIPNr()!=-1){
       fposition = cry->GetMaxIP()->GetPosition();
       fTrueFirst = cry->GetIPoint(0)->GetPosition();
@@ -293,6 +297,7 @@ public:
     fen = hit->GetEnergy();
     fDCen = hit->GetDCEnergy();
     fMaxSingleHit = hit->GetEnergy();
+    fIPsum = hit->GetIPSum();
     fposition = hit->GetPosition();
     ftimestamp = hit->GetTS();
     fchisq = hit->GetChiSq();
@@ -306,7 +311,7 @@ public:
   void Clear(){
     fcluster = -1;
     fcrystal = -1;
-    ftime = fen = fDCen = fMaxSingleHit = sqrt(-1.0);
+    ftime = fen = fDCen = fMaxSingleHit = fIPsum = sqrt(-1.0);
     ftimestamp = -1;
     fHitsAdded = 0;
     fchisq = 0;
@@ -328,6 +333,7 @@ public:
       ftimestamp = other->GetTS();
       fMaxSingleHit = other->GetEnergy();
       fposition = other->GetPosition();
+      fIPsum = other->GetIPSum();
       ftime = other->GetTime();
       fchisq = other->GetChiSq();
     }
@@ -336,6 +342,7 @@ public:
   }
   void SetDCEnergy(float dcen){fDCen = dcen;}
   void SetPosition(TVector3 in){fposition = in;}
+  void SetIPSum(float en){fIPsum = en;}
   void SetChiSq(float chisq){fchisq = chisq;}
   //! An integer identifying the crystal, equal to 4*Cluster+(Position-1)
   Short_t GetID(){return fcluster*4 + fcrystal;}
@@ -364,6 +371,7 @@ public:
   Float_t GetMaxSingleHit(){return fMaxSingleHit;}
   //! The position of the hit in the lab system.
   TVector3 GetPosition(){return fposition;}
+  Float_t GetIPSum(){return fIPsum;}
   int GetHitsAdded(){return fHitsAdded;}
   Float_t GetTime(){return ftime;}
 
@@ -431,6 +439,7 @@ protected:
   Float_t fMaxSingleHit; //!
   long long int ftimestamp;
   TVector3 fposition;
+  Float_t fIPsum;
   int fHitsAdded;
   int fIndex;
   //Extra variables for simulations

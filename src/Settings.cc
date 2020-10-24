@@ -87,6 +87,7 @@ void Settings::ReadSettings(TEnv* set){
   fTracePlots = set->GetValue("Trace.Plots",0);
   fMode3Histos = set->GetValue("Mode3.Histos",0);
   fExcludeTracking = set->GetValue("Merge.ExcludeTracking",0);
+  fMatrixfile = set->GetValue("Matrix.File",defaultfile);
 
   fPPACfile = set->GetValue("BigRIPS.PPAC.File","/home/gamma20/exp/db/db/BigRIPSPPAC.xml");
   fPPACdefaultfile = set->GetValue("BigRIPS.PPAC.Def.File","/home/gamma20/exp/db/db/BigRIPSPPAC.xml");
@@ -192,7 +193,8 @@ void Settings::PrintSettings(){
   cout << "Trace.Plots\t"<< fTracePlots << endl;
   cout << "Mode3.Histos\t"<< fMode3Histos << endl;
   cout << "ExcludeTracking\t"<< fExcludeTracking << endl;
-  
+  cout << "MAtrixFile\t"<< fMatrixfile << endl;
+
   for(int i=0;i<6;i++)
     cout << Form("TOF offset.%d\t",i) << ftoffset[i] << endl;
 

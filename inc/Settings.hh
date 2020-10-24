@@ -98,6 +98,8 @@ public:
   bool Mode3Histos(){return fMode3Histos;}
 
   bool ExcludeTracking(){return fExcludeTracking;}
+  const char* MatrixFile(){return fMatrixfile.c_str();}
+  
   
   //! Get the beta for the Doppler correction
   double Beta(){return fbeta;}
@@ -202,7 +204,7 @@ protected:
   bool fTracePlots;
   bool fMode3Histos;
   bool fExcludeTracking;
-
+  string fMatrixfile;
   
   int fcorrelationMode;
   int fcorrelationCluster;

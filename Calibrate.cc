@@ -67,10 +67,15 @@ int main(int argc, char* argv[]){
     return 3;
   }
   RunInfo *info = (RunInfo*)infile->Get("info");
-  cout << "calibrating data from run " << GREEN << info->GetHIRunNumber() << DEFCOLOR << endl;
+  if(info->GetHIRunNumber()>0)
+    cout << "calibrating mode3 data from run " << GREEN << info->GetHIRunNumber() << DEFCOLOR << endl;
+  if(info->GetM2RunNumber()>0)
+    cout << "calibrating mode2 data from run " << GREEN << info->GetM2RunNumber() << DEFCOLOR << endl;
 
   HiCARI* hi = new HiCARI;
   tr->SetBranchAddress("hicari",&hi);
+  Gretina* gr = new Gretina;
+  tr->SetBranchAddress("gretina",&gr);
 
   Double_t nentries = tr->GetEntries();
   Int_t ncalentries = 0;
@@ -80,8 +85,10 @@ int main(int argc, char* argv[]){
   TFile* outfile = new TFile(OutputFile,"recreate");
   cout << "setting up calibrated tree " << endl;
   HiCARICalc* hicalc = new HiCARICalc;
+  GretinaCalc* grcalc = new GretinaCalc;
   TTree* caltr = new TTree("calib","calibrated and built events");
   caltr->Branch("hicaricalc",&hicalc, 320000);
+  caltr->Branch("gretinacalc",&grcalc, 320000);
   caltr->BranchRef();
 
   if(outfile->IsZombie()){
@@ -111,6 +118,9 @@ int main(int argc, char* argv[]){
     hi->Clear();
     hicalc->Clear();
 
+    gr->Clear();
+    grcalc->Clear();
+
     if(vl>2)
       cout << "getting entry " << i << endl;
     status = tr->GetEvent(i);
@@ -127,13 +137,15 @@ int main(int argc, char* argv[]){
     nbytes += status;
 
     cal->BuildHiCARICalc(hi,hicalc);
-    if(hicalc->GetMult()>0||hicalc->HadBigRIPS()){
+    cal->BuildGretinaCalc(gr,grcalc);
+    if(hicalc->GetMult()>0||grcalc->GetMult()>0||hicalc->HadBigRIPS()){
       if(wtree)
 	caltr->Fill();
       ncalentries++;
     }
     if(whist){
       chist->FillHistograms(hicalc);
+      chist->FillHistograms(grcalc);
     }
 
     if(i%10000 == 0){
@@ -147,11 +159,18 @@ int main(int argc, char* argv[]){
   cout << "Total of " << BLUE << ncalentries << DEFCOLOR << " calibrated events ("<< BLUE << caltr->GetZipBytes()/(1024*1024)<< DEFCOLOR << " MB) written."  << endl;
   if(wtree)
     caltr->Write();
-  info->SetHICalEvents(ncalentries);
+  if(cal->GetHiCARICtr()>0)
+    info->SetHICalEvents(ncalentries);
+  else
+    info->SetM2CalEvents(ncalentries);
   info->SetBigRIPSCtr(cal->GetBigRIPSCtr());
   info->SetBigRIPSHitCtr(cal->GetBigRIPSHitCtr());
   info->SetHiCARICtr(cal->GetHiCARICtr());
   info->SetHiCARIHitCtr(cal->GetHiCARIHitCtr());
+  info->SetGretinaCtr(cal->GetGretinaCtr());
+  info->SetGretinaHitCtr(cal->GetGretinaHitCtr());
+  info->SetGretinaHitABCtr(cal->GetGretinaHitABCtr());
+  
   if(whist){
     cout << "writing histograms to file" << endl;
     chist->Write();

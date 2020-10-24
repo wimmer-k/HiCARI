@@ -40,6 +40,7 @@ Calibration::Calibration(Settings* setting, int event){
   fRand = new TRandom();
   ReadHiCARIPositions(fSett->HiCARIPos());
   ReadHiCARICalibration(fSett->HiCARICalibrationFile());
+  ReadMatrix(fSett->MatrixFile());
 #endif
   
 }
@@ -117,7 +118,45 @@ void Calibration::ReadHiCARICalibration(const char* filename){
     }
   }
 }
-
+void Calibration::ReadMatrix(const char* filename){
+  if(fSett->VLevel()>0)
+    cout <<__PRETTY_FUNCTION__  << " " << filename << endl;
+  
+  ifstream infile;
+  infile.open(filename);
+  if(!infile.is_open()){
+    cout << "no matrix found" << endl;
+    return;
+  }
+  int hole,cry;
+  while(!infile.eof()){
+    //int hole,cry;
+    infile >> hole >> cry;
+    infile.ignore(100,'\n');
+    for(int i=0;i<4;i++){
+      for(int j=0;j<4;j++){
+	infile >> fcrmat[hole][cry][i][j];
+      }
+      infile.ignore(100,'\n');
+    }
+    if(infile.eof())
+      break;
+  }
+  if(fverbose>2){
+    for(int hole=0;hole<MAXDETPOS;hole++){
+      for(int cry=0;cry<MAXCRYSTALNO;cry++){
+	if(fcrmat[hole][cry][3][3] > 0){
+	  for(int i=0;i<4;i++){
+	    for(int j=0;j<4;j++){
+	      cout << fcrmat[hole][cry][i][j] << "\t";
+	    }
+	    cout << endl;
+	  }
+	}
+      }//crystals
+    }//holes
+  }//verbose
+}
 #endif
 
 #ifdef SIMULATION
@@ -224,6 +263,7 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
   for(int i=0; i<in->GetMult(); i++){
     if(in->GetHit(i)->GetError()>0)
       continue;
+    CalibrateIPoints(in->GetHit(i));
     out->AddHit(new HitCalc(in->GetHit(i)));
     fGretinaHitctr++;
   }
@@ -241,9 +281,44 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
   }
   if(fSett->StoreAllIPoints())
     AllGretinaHits(out,in);
-
+  
+  out->DopplerCorrect(fSett);
   fGretinactr++;
 }
+
+TVector3 Calibration::TransformCoordinates(int hole, int cry, TVector3 local){
+  /* Need to convert from mm to cm for this to actually work properly. */
+  double x = local.X();///10;
+  double y = local.Y();///10;
+  double z = local.Z();///10;
+  double xt = fcrmat[hole][cry][0][0] * x + fcrmat[hole][cry][0][1] * y + fcrmat[hole][cry][0][2] * z + fcrmat[hole][cry][0][3];
+  double yt = fcrmat[hole][cry][1][0] * x + fcrmat[hole][cry][1][1] * y + fcrmat[hole][cry][1][2] * z + fcrmat[hole][cry][1][3];
+  double zt = fcrmat[hole][cry][2][0] * x + fcrmat[hole][cry][2][1] * y + fcrmat[hole][cry][2][2] * z + fcrmat[hole][cry][2][3];
+  // xt*=10.;
+  // yt*=10.;
+  // zt*=10.; //in mm
+  return TVector3(xt,yt,zt) - fSett->TargetPos();
+}
+
+void Calibration::CalibrateIPoints(Crystal* cry){
+  double sum =0;
+  for(int j=0; j<cry->GetMult(); j++){
+    IPoint* ipoint = cry->GetIPoint(j);
+    ipoint->SetPosition(TransformCoordinates(cry->GetCluster(),
+					     cry->GetCrystal(),
+					     ipoint->GetPosition()));
+    sum+=ipoint->GetEnergy();
+  }
+  double core = cry->GetEnergy();
+  for(int j=0; j<cry->GetMult(); j++){
+    IPoint* ipoint = cry->GetIPoint(j);
+    double en=ipoint->GetEnergy();
+    en*=core/sum;
+    ipoint->SetEnergy(en);
+  }
+}
+
+
 
 vector<HitCalc*> Calibration::ExtractAllHits(Gretina* in){
   vector<HitCalc*> output;
@@ -258,7 +333,8 @@ vector<HitCalc*> Calibration::ExtractAllHits(Gretina* in){
       for(UShort_t j=0;j<cry->GetIPoints().size();j++){
 	Float_t en = cry->GetIPoints()[j]->GetEnergy();
 	TVector3 pos = cry->GetIPoints()[j]->GetPosition();
-	output.push_back(new HitCalc(crystal,crystal,en,ts,pos,t0,chisq));
+	Float_t ipsum = cry->GetIPSum();
+	output.push_back(new HitCalc(crystal,crystal,en,ts,pos,ipsum,t0,chisq));
       }
     }
   }

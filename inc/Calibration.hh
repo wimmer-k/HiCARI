@@ -51,9 +51,13 @@ public:
   void ReadHiCARIPositions(const char* filename);
   //! Read the HiCARI calibration parameters
   void ReadHiCARICalibration(const char* filename);
+  //! Read the matrix file for the position transformation for mode2 data
+  void ReadMatrix(const char* filename);
 #endif
   //! Build the GretinaCalc object, given a raw Gretina object.
   void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
+  TVector3 TransformCoordinates(int hole, int cry, TVector3 local);
+  void CalibrateIPoints(Crystal* cry);
   void AddBackGretinaCrystal(GretinaCalc* gr);
   void AddBackGretinaCluster(GretinaCalc* gr);
   void AddBackGretinaEverything(GretinaCalc* gr);
@@ -109,11 +113,12 @@ private:
 #else
   TRandom* fRand;
   //! HiCARI positions
-  TVector3 fHiCARIpositions[12][4][40];//cluster, crystal, segment
-  double fCoreGain[12][4];
-  double fCoreOffs[12][4];
-  double fSegGain[12][4][40];
-  double fSegOffs[12][4][40];
+  TVector3 fHiCARIpositions[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];//cluster, crystal, segment
+  double fCoreGain[MAXDETPOS][MAXCRYSTALNO];
+  double fCoreOffs[MAXDETPOS][MAXCRYSTALNO];
+  double fSegGain[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];
+  double fSegOffs[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];
+  float fcrmat[MAXDETPOS][MAXCRYSTALNO][4][4];
 #endif
 
   int fAddBackType;
