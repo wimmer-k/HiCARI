@@ -354,6 +354,10 @@ public:
   Float_t GetEnergy(){return fen;}
   //! The Doppler-corrected energy of the hit.
   Float_t GetDCEnergy(){return fDCen;}
+  Float_t GetDCEnergy(float beta){
+    TVector3 pos = GetPosition();
+    return fen/sqrt(1-beta*beta)*(1-beta*cos(pos.Theta()));
+  }
   Float_t GetDCEnergy(float beta, double x=0, double y=0, double z=0){
     TVector3 pos;
     pos.SetXYZ(x,y,z);//in mm

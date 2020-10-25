@@ -287,7 +287,7 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
 }
 
 TVector3 Calibration::TransformCoordinates(int hole, int cry, TVector3 local){
-  /* Need to convert from mm to cm for this to actually work properly. */
+  /* Need to convert from mm to cm for this to actually work properly. NOT for Aoi-san's file!*/
   double x = local.X();///10;
   double y = local.Y();///10;
   double z = local.Z();///10;

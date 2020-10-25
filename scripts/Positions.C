@@ -255,3 +255,137 @@ void comparewithsim(char* dat = "settings/HiCARIpos_0328.dat", char* sim = "simu
   h[0][0]->GetXaxis()->SetTitle("#theta_{lab} (deg)");
 
 }
+
+
+
+
+
+void ReadMatrix(const char* filename);
+TVector3 TransformCoordinates(int hole, int cry, TVector3 local);
+float fcrmat[20][4][4][4];
+
+
+void QuadPositions(){
+
+  ReadMatrix("/home/gamma20/packages/HiCARI/settings/quadmatrix.dat");
+  
+  ifstream infile;
+  int clu=15, cry=1, seg=0;
+  float x, y, z;
+
+  TEnv* fout = new TEnv("/home/gamma20/packages/HiCARI/settings/HiCARIpos_1025.dat");
+  TH2F* s_thetaphi[4];
+  TH2F* s_xy[4];
+  TH2F* s_xz[4];
+  TCanvas* c = new TCanvas("c","c",1200,400);
+  c->Divide(3,1);
+  for(cry=0;cry<4;cry++){
+    seg = 0;
+    s_thetaphi[cry] = new TH2F(Form("s_thetaphi_%d",cry), Form("s_thetaphi_%d",cry),180,0,180,180,-180,180);
+    s_xy[cry] = new TH2F(Form("s_xy_%d",cry), Form("s_xy_%d",cry),200,-400,0,200,-200,200);
+    s_xz[cry] = new TH2F(Form("s_xz_%d",cry), Form("s_xz_%d",cry),200,-400,0,200,-200,200);
+
+    infile.open(Form("/home/gamma20/packages/HiCARI/settings/cogP%d.dat",cry+1));
+    if(!infile.is_open()){
+      cout << " not found file" << endl;
+      cout << Form("/home/gamma20/packages/HiCARI/settings/cogP%d.dat",cry+1) << endl;
+      continue;
+    }
+    
+    infile.ignore(1000,'\n');
+    while(!infile.eof()){
+      infile >> x >> y >> z;
+      infile.ignore(1000,'\n');
+      cout << clu << "\t" << cry << "\t" << seg << "\t" << x << "\t" << y << "\t" << z << endl;
+      TVector3 v(x,y,z);
+      v = TransformCoordinates(15,cry,v);
+      s_thetaphi[cry]->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
+      s_xy[cry]->Fill(v.X(),v.Y());
+      s_xz[cry]->Fill(v.X(),v.Z());
+      
+      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",10,cry,seg),v.X());
+      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",10,cry,seg),v.Y());
+      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",10,cry,seg),v.Z());
+
+      seg++;
+      if(seg%10==9)
+	seg++;
+      if(infile.eof())
+	break;
+    }
+    c->cd(1);
+    s_thetaphi[cry]->SetMarkerColor(2+cry);
+    s_thetaphi[cry]->SetMarkerStyle(20);
+    s_thetaphi[cry]->SetMarkerSize(0.5);
+    if(cry==0)
+      s_thetaphi[cry]->Draw();
+    else
+      s_thetaphi[cry]->Draw("same");
+
+    c->cd(2);
+    s_xy[cry]->SetMarkerColor(2+cry);
+    s_xy[cry]->SetMarkerStyle(20);
+    s_xy[cry]->SetMarkerSize(0.5);
+    if(cry==0)
+      s_xy[cry]->Draw();
+    else
+      s_xy[cry]->Draw("same");
+
+    c->cd(3);
+    s_xz[cry]->SetMarkerColor(2+cry);
+    s_xz[cry]->SetMarkerStyle(20);
+    s_xz[cry]->SetMarkerSize(0.5);
+    if(cry==0)
+      s_xz[cry]->Draw();
+    else
+      s_xz[cry]->Draw("same");
+
+    infile.close();
+  }
+  
+  fout->SaveLevel(kEnvLocal);
+ 
+}
+void ReadMatrix(const char* filename){
+  ifstream infile;
+  infile.open(filename);
+  if(!infile.is_open()){
+    cout << "no matrix found" << endl;
+    return;
+  }
+  int hole,cry;
+  while(!infile.eof()){
+    //int hole,cry;
+    infile >> hole >> cry;
+    infile.ignore(100,'\n');
+    for(int i=0;i<4;i++){
+      for(int j=0;j<4;j++){
+	infile >> fcrmat[hole][cry][i][j];
+      }
+      infile.ignore(100,'\n');
+    }
+    if(infile.eof())
+      break;
+  }
+  for(int hole=0;hole<20;hole++){
+    for(int cry=0;cry<4;cry++){
+      if(fcrmat[hole][cry][3][3] > 0){
+	for(int i=0;i<4;i++){
+	  for(int j=0;j<4;j++){
+	    cout << fcrmat[hole][cry][i][j] << "\t";
+	  }
+	  cout << endl;
+	}
+      }
+    }//crystals
+  }//holes
+}
+TVector3 TransformCoordinates(int hole, int cry, TVector3 local){
+  double x = local.X();
+  double y = local.Y();
+  double z = local.Z();
+   double xt = fcrmat[hole][cry][0][0] * x + fcrmat[hole][cry][0][1] * y + fcrmat[hole][cry][0][2] * z + fcrmat[hole][cry][0][3];
+  double yt = fcrmat[hole][cry][1][0] * x + fcrmat[hole][cry][1][1] * y + fcrmat[hole][cry][1][2] * z + fcrmat[hole][cry][1][3];
+  double zt = fcrmat[hole][cry][2][0] * x + fcrmat[hole][cry][2][1] * y + fcrmat[hole][cry][2][2] * z + fcrmat[hole][cry][2][3];
+  return TVector3(xt,yt,zt);
+}
