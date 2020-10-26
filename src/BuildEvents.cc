@@ -389,7 +389,7 @@ bool BuildEvents::Merge(){
     }
     else if(flocalBRts - fcurrentts > fwindow){
       if(fverbose>0)
-	cout << "BR larger than window" << endl;
+	cout << "BR larger than window"  << flocalBRts <<" - "<<fcurrentts<< " = " << flocalBRts - fcurrentts << " > "<<fwindow << endl;
       CloseEvent();
     }
     fBRts = flocalBRts;
@@ -407,7 +407,7 @@ bool BuildEvents::Merge(){
   case 1: //HiCARI
     if(flocalHIts - fcurrentts > fwindow){
       if(fverbose>0)
-	cout << "HI larger than window" << flocalHIts <<" - "<<fcurrentts<<" > "<<fwindow << endl;
+	cout << "HI larger than window " << flocalHIts <<" - "<<fcurrentts<< " = " << flocalHIts - fcurrentts << " > "<<fwindow << endl;
       CloseEvent();
     }
     fHIts = flocalHIts;

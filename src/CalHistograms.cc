@@ -77,6 +77,8 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
   Fill("h_mult",30,0,30,hi->GetMult());
   
   long long int firstTS = -1;
+  long long int BRTS = -1;
+  
   for(int i=0; i<hi->GetMult(); i++){
     int segs = 6;
     HiCARIHitCalc* hit = hi->GetHit(i);
@@ -84,8 +86,10 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
       segs = 40;
     if(hit->IsSuperClo())
       segs = 4;
-    if(hit->IsBigRIPS())
+    if(hit->IsBigRIPS()){
+      BRTS = hit->GetTS();
       continue;
+    }
     if(i==0)
       firstTS = hit->GetTS();
     else
@@ -190,6 +194,20 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
 
   }//hit mult
 
+  for(int i=0; i<hi->GetMult(); i++){
+    HiCARIHitCalc* hit = hi->GetHit(i);
+    if(hit->IsBigRIPS()){
+      continue;
+    }
+    if(BRTS>0){
+      Fill("h_TS_BRTS",2000,-1000,1000,hit->GetTS() - BRTS );
+      Fill("h_TS_BRTS_egam",2000,-1000,1000,hit->GetTS() - BRTS ,2000,0,2000,hit->GetEnergy());
+      Fill("h_TS_BRTS_egamDC",2000,-1000,1000,hit->GetTS() - BRTS ,2000,0,2000,hit->GetDCEnergy());
+    }
+  }
+
+
+  
 }
 void CalHistograms::FillHistograms(GretinaCalc* gr){
   Fill("g_mult",30,0,30,gr->GetMult());

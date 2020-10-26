@@ -54,6 +54,7 @@ int main(int argc, char* argv[]){
   char* SetFile = NULL;
   int nmax = 0;
   int vl = 0;
+  int detail = 0;
 
   CommandLineInterface* interface = new CommandLineInterface();
   interface->Add("-i", "input file", &InputFile);
@@ -61,6 +62,7 @@ int main(int argc, char* argv[]){
   interface->Add("-s", "settings file", &SetFile);
   interface->Add("-n", "nmax", &nmax);
   interface->Add("-v", "verbose", &vl);
+  interface->Add("-d", "detail in the tree", &detail);
   interface->CheckFlags(argc, argv);
 
   if(InputFile == NULL || OutputFile == NULL){
@@ -163,14 +165,16 @@ int main(int argc, char* argv[]){
   FocalPlane* fp[NFPLANES];
   for(unsigned short f=0;f<NFPLANES;f++){
     fp[f] = new FocalPlane;
-    tr->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
+    if(detail>0)
+      tr->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
   }
   //branch for the beam, beta, a/q, z
   Beam* beam = new Beam;
   tr->Branch("beam",&beam,320000);
   //branch for the PPACs
   PPAC* ppacs = new PPAC;
-  tr->Branch("ppacs",&ppacs,320000);
+  if(detail>0)
+    tr->Branch("ppacs",&ppacs,320000);
 
   unsigned long long int last_timestamp = 0;
   unsigned long long int rawevent_timestamp = 0;
@@ -181,10 +185,12 @@ int main(int argc, char* argv[]){
     checkADC = -1;
     timestamp = 0;
     eventnumber++;
-    for(int f=0;f<NFPLANES;f++){
-      fp[f]->Clear();
+    if(detail>0){
+      for(int f=0;f<NFPLANES;f++){
+	fp[f]->Clear();
+      }
+      ppacs->Clear();
     }
-    ppacs->Clear();
     beam->Clear();
 
     //Making the BigRIPS tree calibration
@@ -215,26 +221,12 @@ int main(int argc, char* argv[]){
       }
       if(fpl==63 && detector==10){
         for(int j=0; j < seg->GetNumData(); j++){
-          TArtRawDataObject* d = seg->GetData(j);
-          trigbit = d->GetVal();
+	  TArtRawDataObject* d = seg->GetData(j);
+	  Short_t ch = d->GetCh();
+	  if(ch==0)
+	    trigbit = d->GetVal();
         }
       }
-      // //QDC
-      // if(fpl==63 && detector==2){
-      //   for(int j=0; j < seg->GetNumData(); j++){
-      //     TArtRawDataObject* d = seg->GetData(j);
-      // 	  if(d->GetCh() == 12)
-      // 	    cout << "QDC = " << d->GetVal() << endl;
-      //   }	
-      // }
-      // //TDC
-      // if(fpl==63 && detector==3){
-      //   for(int j=0; j < seg->GetNumData(); j++){
-      //     TArtRawDataObject* d = seg->GetData(j);
-      // 	  if(d->GetCh() == 6)
-      // 	    cout << "TDC = " << d->GetVal() << endl;
-      //   }	
-      // }
       
     }
     //timestamp information
@@ -249,140 +241,143 @@ int main(int argc, char* argv[]){
     if(vl>1)
       cout << "tb = "<< trigbit << "\t bit = " << bit << "\t TS(event info) = " << timestamp << "\t diff to last" << timestamp-last_timestamp << "\t eventnumber = "  << eventnumber << "\t rawevent eventnumber = " << rawevent_number << "\t rawevent timestamp = " << rawevent_timestamp << endl;
     last_timestamp = timestamp;
-    
-    TArtPPAC* tppac;
-    for(unsigned short p=0;p<NPPACS;p++){
-      SinglePPAC* dppac = new SinglePPAC;
-      tppac = ppaccalib->GetPPAC(p);
-      if(tppac){
-	dppac->Set(tppac->GetID(),tppac->GetX(),tppac->GetY(),tppac->GetXZPos(),tppac->GetYZPos(),tppac->GetTSumX(),tppac->GetTSumY());
-	if(tppac->IsFiredX()||tppac->IsFiredY())
-	  ppacs->AddPPAC(dppac);
+
+
+    if(detail>0){
+      TArtPPAC* tppac;
+      for(unsigned short p=0;p<NPPACS;p++){
+	SinglePPAC* dppac = new SinglePPAC;
+	tppac = ppaccalib->GetPPAC(p);
+	if(tppac){
+	  dppac->Set(tppac->GetID(),tppac->GetX(),tppac->GetY(),tppac->GetXZPos(),tppac->GetYZPos(),tppac->GetTSumX(),tppac->GetTSumY());
+	  if(tppac->IsFiredX()||tppac->IsFiredY())
+	    ppacs->AddPPAC(dppac);
+	}
       }
-    }
 
 
-    //focal plane detector information
-    TArtFocalPlane* tfpl;
-    TArtPlastic* tpla;
-    TArtIC* tic;
-    TVectorD* vec;
-    Track track;
-    Plastic plastic;
-    MUSIC music;
+      //focal plane detector information
+      TArtFocalPlane* tfpl;
+      TArtPlastic* tpla;
+      TArtIC* tic;
+      TVectorD* vec;
+      Track track;
+      Plastic plastic;
+      MUSIC music;
 
-    for(unsigned short f=0;f<NFPLANES;f++){
+      for(unsigned short f=0;f<NFPLANES;f++){
       
-      fp[f]->Clear();
-      track.Clear();
-      tfpl = cfpl->FindFocalPlane(fpID[f]);
+	fp[f]->Clear();
+	track.Clear();
+	tfpl = cfpl->FindFocalPlane(fpID[f]);
 
-      TMatrixD xvec(2,1); xvec.Zero();
-      TMatrixD yvec(2,1); yvec.Zero();
-      TMatrixD xmat(2,2); xmat.Zero();
-      TMatrixD ymat(2,2); ymat.Zero();
-      int first = firstPPAC(fpID[f]);
-      if(first>-1){
+	TMatrixD xvec(2,1); xvec.Zero();
+	TMatrixD yvec(2,1); yvec.Zero();
+	TMatrixD xmat(2,2); xmat.Zero();
+	TMatrixD ymat(2,2); ymat.Zero();
+	int first = firstPPAC(fpID[f]);
+	if(first>-1){
    
-	double zpos = tfpl->GetZoffset();
-	int nfiredx[3] = {0, 0, 0}; //total, upstream, downstream
-	int nfiredy[3] = {0, 0, 0};
-	for(unsigned short p=0;p<4;p++){
-	  SinglePPAC* dppac = ppacs->GetPPACID(first+p);
-	  double x = dppac->GetX();
-	  double y = dppac->GetY();
-	  double zx = dppac->GetXZ() - zpos;
-	  double zy = dppac->GetYZ() - zpos;
-	  if(dppac->FiredX()){
-	    xvec(0,0) += zx*x;
-	    xvec(1,0) += x;
-	    xmat(0,1) += zx;
-	    xmat(1,0) += zx;
-	    xmat(0,0) += zx*zx;
-	    xmat(1,1) ++;
-	    nfiredx[0]++;
-	    if(p<2)
-	      nfiredx[1]++;
-	    else
-	      nfiredx[2]++;
+	  double zpos = tfpl->GetZoffset();
+	  int nfiredx[3] = {0, 0, 0}; //total, upstream, downstream
+	  int nfiredy[3] = {0, 0, 0};
+	  for(unsigned short p=0;p<4;p++){
+	    SinglePPAC* dppac = ppacs->GetPPACID(first+p);
+	    double x = dppac->GetX();
+	    double y = dppac->GetY();
+	    double zx = dppac->GetXZ() - zpos;
+	    double zy = dppac->GetYZ() - zpos;
+	    if(dppac->FiredX()){
+	      xvec(0,0) += zx*x;
+	      xvec(1,0) += x;
+	      xmat(0,1) += zx;
+	      xmat(1,0) += zx;
+	      xmat(0,0) += zx*zx;
+	      xmat(1,1) ++;
+	      nfiredx[0]++;
+	      if(p<2)
+		nfiredx[1]++;
+	      else
+		nfiredx[2]++;
+	    }
+	    if(dppac->FiredY()){
+	      yvec(0,0) += zy*y;
+	      yvec(1,0) += y;
+	      ymat(0,1) += zy;
+	      ymat(1,0) += zy;
+	      ymat(0,0) += zy*zy;
+	      ymat(1,1) ++;
+	      nfiredy[0]++;
+	      if(p<2)
+		nfiredy[1]++;
+	      else
+		nfiredy[2]++;
+	    }
 	  }
-	  if(dppac->FiredY()){
-	    yvec(0,0) += zy*y;
-	    yvec(1,0) += y;
-	    ymat(0,1) += zy;
-	    ymat(1,0) += zy;
-	    ymat(0,0) += zy*zy;
-	    ymat(1,1) ++;
-	    nfiredy[0]++;
-	    if(p<2)
-	      nfiredy[1]++;
-	    else
-	      nfiredy[2]++;
+	  if(nfiredx[1]>0 && nfiredx[2]>0){
+	    TMatrixD rxvec = xmat.Invert()*xvec;
+	    tfpl->SetOptVector(0,rxvec(1,0));
+	    tfpl->SetOptVector(1,TMath::ATan(rxvec(0,0))*1000);
 	  }
-	}
-	if(nfiredx[1]>0 && nfiredx[2]>0){
-	  TMatrixD rxvec = xmat.Invert()*xvec;
-	  tfpl->SetOptVector(0,rxvec(1,0));
-	  tfpl->SetOptVector(1,TMath::ATan(rxvec(0,0))*1000);
-	}
-	else{
-	  tfpl->SetOptVector(0,-99999);
-	  tfpl->SetOptVector(1,-99999);
-	}
-	if(nfiredy[1]>0 && nfiredy[2]>0){
-	  TMatrixD ryvec = ymat.Invert()*yvec;
-	  tfpl->SetOptVector(2,ryvec(1,0));
-	  tfpl->SetOptVector(3,TMath::ATan(ryvec(0,0))*1000);
-	}
-	else{
-	  tfpl->SetOptVector(2,-99999);
-	  tfpl->SetOptVector(3,-99999);
-	}
-	tfpl->SetNumFiredPPACX(nfiredx[0]);
-	tfpl->SetNumFiredPPACY(nfiredy[0]);
-	tfpl->CopyPos();
+	  else{
+	    tfpl->SetOptVector(0,-99999);
+	    tfpl->SetOptVector(1,-99999);
+	  }
+	  if(nfiredy[1]>0 && nfiredy[2]>0){
+	    TMatrixD ryvec = ymat.Invert()*yvec;
+	    tfpl->SetOptVector(2,ryvec(1,0));
+	    tfpl->SetOptVector(3,TMath::ATan(ryvec(0,0))*1000);
+	  }
+	  else{
+	    tfpl->SetOptVector(2,-99999);
+	    tfpl->SetOptVector(3,-99999);
+	  }
+	  tfpl->SetNumFiredPPACX(nfiredx[0]);
+	  tfpl->SetNumFiredPPACY(nfiredy[0]);
+	  tfpl->CopyPos();
  
-	if(vl>2)
-	  cout << "FP " << fpID[f] ;
-	if(tfpl){
 	  if(vl>2)
-	    cout << "\tnfiredx  = " << tfpl->GetNumFiredPPACX()<< ", nfiredy  = " << tfpl->GetNumFiredPPACY();
-	  vec=tfpl->GetOptVector(); 
+	    cout << "FP " << fpID[f] ;
+	  if(tfpl){
+	    if(vl>2)
+	      cout << "\tnfiredx  = " << tfpl->GetNumFiredPPACX()<< ", nfiredy  = " << tfpl->GetNumFiredPPACY();
+	    vec=tfpl->GetOptVector(); 
+	    if(vl>2)
+	      cout << "\tx = " << (*vec)(0) <<", y = "<< (*vec)(2)<<", a = "<< (*vec)(1) <<",b = " << (*vec)(3);
+	    track.Set((*vec)(0), (*vec)(2), (*vec)(1), (*vec)(3));
+	  }
 	  if(vl>2)
-	    cout << "\tx = " << (*vec)(0) <<", y = "<< (*vec)(2)<<", a = "<< (*vec)(1) <<",b = " << (*vec)(3);
-	  track.Set((*vec)(0), (*vec)(2), (*vec)(1), (*vec)(3));
+	    cout << endl;
+	}//ppac exists
+      
+	plastic.Clear();
+
+      
+	tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
+	if(fpID[f]==11)
+	  tpla = plasticcalib->FindPlastic(Form("F%dpl-1",fpID[f]));
+
+      
+	if(tpla){
+	  //cout << f << "\t" << fpID[f] << "\t";
+	  //cout << tpla->GetTimeL() <<", "<< tpla->GetTimeR() <<", "<< tpla->GetQLRaw() <<", "<< tpla->GetQRRaw() << endl;
+	  plastic.SetTime(tpla->GetTimeL(), tpla->GetTimeR());
+	  plastic.SetCharge(tpla->GetQLRaw(), tpla->GetQRRaw());
 	}
-	if(vl>2)
-	  cout << endl;
-      }//ppac exists
       
-      plastic.Clear();
+	music.Clear();
+	tic = iccalib->FindIC(Form("F%dIC",fpID[f]));
+	if(tic){
+	  music.SetNHits(tic->GetNumHit());
+	  music.SetEnergy(tic->GetEnergyAvSum(),tic->GetEnergySqSum());
+	}
 
-      
-      tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
-      if(fpID[f]==11)
-	tpla = plasticcalib->FindPlastic(Form("F%dpl-1",fpID[f]));
-
-      
-      if(tpla){
-	//cout << f << "\t" << fpID[f] << "\t";
-	//cout << tpla->GetTimeL() <<", "<< tpla->GetTimeR() <<", "<< tpla->GetQLRaw() <<", "<< tpla->GetQRRaw() << endl;
-	plastic.SetTime(tpla->GetTimeL(), tpla->GetTimeR());
-	plastic.SetCharge(tpla->GetQLRaw(), tpla->GetQRRaw());
+	fp[f]->SetTrack(track);
+	fp[f]->SetPlastic(plastic);
+	fp[f]->SetMUSIC(music);
       }
-      
-      music.Clear();
-      tic = iccalib->FindIC(Form("F%dIC",fpID[f]));
-      if(tic){
-	music.SetNHits(tic->GetNumHit());
-	music.SetEnergy(tic->GetEnergyAvSum(),tic->GetEnergySqSum());
-      }
-
-      fp[f]->SetTrack(track);
-      fp[f]->SetPlastic(plastic);
-      fp[f]->SetMUSIC(music);
-    }
     
+    }
     //Reconstructiong the PID
     recopid->ClearData();
     recopid->ReconstructData();

@@ -40,9 +40,9 @@ void MergeHistograms::FillHistograms(int checkADC, HiCARICalc* hi, GretinaCalc* 
   FillCorrelationHistograms(checkADC, hi, brTS,hiTS,m2TS);
 }
 void MergeHistograms::FillCorrelationHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS, unsigned long long int m2TS){
-  Fill("hTSdiff_BR_HI",1000,-500,500,brTS-hiTS);
-  Fill("hTSdiff_BR_M2",1000,-500,500,brTS-m2TS);
-  Fill("hTSdiff_HI_M2",1000,-500,500,hiTS-m2TS);
+  Fill("hTSdiff_BR_HI",2000,-1000,1000,brTS-hiTS);
+  Fill("hTSdiff_BR_M2",2000,-1000,1000,brTS-m2TS);
+  Fill("hTSdiff_HI_M2",2000,-1000,1000,hiTS-m2TS);
 
   Fill("hentry_BR",1000,0,1e6,fentry,1000,0,5e12,brTS);
   Fill("hentry_HI",1000,0,1e6,fentry,1000,0,5e12,hiTS);

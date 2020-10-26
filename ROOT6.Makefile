@@ -53,7 +53,7 @@ else
 endif
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos #SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos #SimCalculate Sim_histos
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -97,6 +97,10 @@ Merge: Merge.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so $(MO_FILES)
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
 Merge_histos: Merge_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(HO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
+
+Gated_histos: Gated_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
