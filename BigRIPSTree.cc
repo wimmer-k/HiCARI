@@ -272,6 +272,7 @@ int main(int argc, char* argv[]){
     MUSIC music;
 
     for(unsigned short f=0;f<NFPLANES;f++){
+      
       fp[f]->Clear();
       track.Clear();
       tfpl = cfpl->FindFocalPlane(fpID[f]);
@@ -281,83 +282,91 @@ int main(int argc, char* argv[]){
       TMatrixD xmat(2,2); xmat.Zero();
       TMatrixD ymat(2,2); ymat.Zero();
       int first = firstPPAC(fpID[f]);
-      if(first<0)
-	continue;
-      double zpos = tfpl->GetZoffset();
-      int nfiredx[3] = {0, 0, 0}; //total, upstream, downstream
-      int nfiredy[3] = {0, 0, 0};
-      for(unsigned short p=0;p<4;p++){
-	SinglePPAC* dppac = ppacs->GetPPACID(first+p);
-	double x = dppac->GetX();
-	double y = dppac->GetY();
-	double zx = dppac->GetXZ() - zpos;
-	double zy = dppac->GetYZ() - zpos;
-	if(dppac->FiredX()){
-	  xvec(0,0) += zx*x;
-	xvec(1,0) += x;
-	xmat(0,1) += zx;
-	xmat(1,0) += zx;
-	xmat(0,0) += zx*zx;
-	xmat(1,1) ++;
-	nfiredx[0]++;
-	if(p<2)
-	  nfiredx[1]++;
-	else
-	  nfiredx[2]++;
+      if(first>-1){
+   
+	double zpos = tfpl->GetZoffset();
+	int nfiredx[3] = {0, 0, 0}; //total, upstream, downstream
+	int nfiredy[3] = {0, 0, 0};
+	for(unsigned short p=0;p<4;p++){
+	  SinglePPAC* dppac = ppacs->GetPPACID(first+p);
+	  double x = dppac->GetX();
+	  double y = dppac->GetY();
+	  double zx = dppac->GetXZ() - zpos;
+	  double zy = dppac->GetYZ() - zpos;
+	  if(dppac->FiredX()){
+	    xvec(0,0) += zx*x;
+	    xvec(1,0) += x;
+	    xmat(0,1) += zx;
+	    xmat(1,0) += zx;
+	    xmat(0,0) += zx*zx;
+	    xmat(1,1) ++;
+	    nfiredx[0]++;
+	    if(p<2)
+	      nfiredx[1]++;
+	    else
+	      nfiredx[2]++;
+	  }
+	  if(dppac->FiredY()){
+	    yvec(0,0) += zy*y;
+	    yvec(1,0) += y;
+	    ymat(0,1) += zy;
+	    ymat(1,0) += zy;
+	    ymat(0,0) += zy*zy;
+	    ymat(1,1) ++;
+	    nfiredy[0]++;
+	    if(p<2)
+	      nfiredy[1]++;
+	    else
+	      nfiredy[2]++;
+	  }
 	}
-	if(dppac->FiredY()){
-	  yvec(0,0) += zy*y;
-	  yvec(1,0) += y;
-	  ymat(0,1) += zy;
-	  ymat(1,0) += zy;
-	  ymat(0,0) += zy*zy;
-	  ymat(1,1) ++;
-	  nfiredy[0]++;
-	  if(p<2)
-	    nfiredy[1]++;
-	  else
-	    nfiredy[2]++;
+	if(nfiredx[1]>0 && nfiredx[2]>0){
+	  TMatrixD rxvec = xmat.Invert()*xvec;
+	  tfpl->SetOptVector(0,rxvec(1,0));
+	  tfpl->SetOptVector(1,TMath::ATan(rxvec(0,0))*1000);
 	}
-      }
-      if(nfiredx[1]>0 && nfiredx[2]>0){
-	TMatrixD rxvec = xmat.Invert()*xvec;
-	tfpl->SetOptVector(0,rxvec(1,0));
-	tfpl->SetOptVector(1,TMath::ATan(rxvec(0,0))*1000);
-      }
-      else{
-	tfpl->SetOptVector(0,-99999);
-	tfpl->SetOptVector(1,-99999);
-      }
-      if(nfiredy[1]>0 && nfiredy[2]>0){
-	TMatrixD ryvec = ymat.Invert()*yvec;
-	tfpl->SetOptVector(2,ryvec(1,0));
-	tfpl->SetOptVector(3,TMath::ATan(ryvec(0,0))*1000);
-      }
-      else{
-	tfpl->SetOptVector(2,-99999);
-	tfpl->SetOptVector(3,-99999);
-      }
-      tfpl->SetNumFiredPPACX(nfiredx[0]);
-      tfpl->SetNumFiredPPACY(nfiredy[0]);
-      tfpl->CopyPos();
+	else{
+	  tfpl->SetOptVector(0,-99999);
+	  tfpl->SetOptVector(1,-99999);
+	}
+	if(nfiredy[1]>0 && nfiredy[2]>0){
+	  TMatrixD ryvec = ymat.Invert()*yvec;
+	  tfpl->SetOptVector(2,ryvec(1,0));
+	  tfpl->SetOptVector(3,TMath::ATan(ryvec(0,0))*1000);
+	}
+	else{
+	  tfpl->SetOptVector(2,-99999);
+	  tfpl->SetOptVector(3,-99999);
+	}
+	tfpl->SetNumFiredPPACX(nfiredx[0]);
+	tfpl->SetNumFiredPPACY(nfiredy[0]);
+	tfpl->CopyPos();
  
-      if(vl>2)
-	cout << "FP " << fpID[f] ;
-      if(tfpl){
 	if(vl>2)
-	  cout << "\tnfiredx  = " << tfpl->GetNumFiredPPACX()<< ", nfiredy  = " << tfpl->GetNumFiredPPACY();
-	vec=tfpl->GetOptVector(); 
+	  cout << "FP " << fpID[f] ;
+	if(tfpl){
+	  if(vl>2)
+	    cout << "\tnfiredx  = " << tfpl->GetNumFiredPPACX()<< ", nfiredy  = " << tfpl->GetNumFiredPPACY();
+	  vec=tfpl->GetOptVector(); 
+	  if(vl>2)
+	    cout << "\tx = " << (*vec)(0) <<", y = "<< (*vec)(2)<<", a = "<< (*vec)(1) <<",b = " << (*vec)(3);
+	  track.Set((*vec)(0), (*vec)(2), (*vec)(1), (*vec)(3));
+	}
 	if(vl>2)
-	  cout << "\tx = " << (*vec)(0) <<", y = "<< (*vec)(2)<<", a = "<< (*vec)(1) <<",b = " << (*vec)(3);
-	track.Set((*vec)(0), (*vec)(2), (*vec)(1), (*vec)(3));
-      }
-      if(vl>2)
-	cout << endl;
+	  cout << endl;
+      }//ppac exists
+      
       plastic.Clear();
+
+      
       tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
       if(fpID[f]==11)
 	tpla = plasticcalib->FindPlastic(Form("F%dpl-1",fpID[f]));
+
+      
       if(tpla){
+	//cout << f << "\t" << fpID[f] << "\t";
+	//cout << tpla->GetTimeL() <<", "<< tpla->GetTimeR() <<", "<< tpla->GetQLRaw() <<", "<< tpla->GetQRRaw() << endl;
 	plastic.SetTime(tpla->GetTimeL(), tpla->GetTimeR());
 	plastic.SetCharge(tpla->GetQLRaw(), tpla->GetQRRaw());
       }
@@ -408,10 +417,11 @@ int main(int argc, char* argv[]){
     tr->Fill();
 
     //output
-    if(ctr%10000 == 0){
+    if(ctr%1000 == 0){
       double time_end = get_time();
       cout << setw(5) << ctr << " events done " << setiosflags(ios::fixed) << setprecision(1) << (Float_t)ctr/(time_end - time_start) << " events/s \r" << flush;
-      tr->AutoSave();
+      if(ctr%100000 == 0)
+	tr->AutoSave();
     }
     ctr++;
 

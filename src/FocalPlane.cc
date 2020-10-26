@@ -30,6 +30,10 @@ int firstPPAC(int id){
       return 10;
     case 7:
       return 15;
+    case 8:
+      return 19;
+    case 9:
+      return 23;
     case 11:
       return 33;
     default:
