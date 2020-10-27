@@ -34,13 +34,14 @@ int main(int argc, char* argv[]){
   signal(SIGINT,signalhandler);
   vector<char*> InputFiles;char* BigRIPSFile = NULL;
   char* OutputFile = NULL;
+  char* SettingFile;
   int nmax =0;
   int vl =0;
   CommandLineInterface* interface = new CommandLineInterface();
 
   interface->Add("-i", "inputfiles", &InputFiles);
   interface->Add("-o", "outputfile", &OutputFile);
-  //interface->Add("-s", "settingsfile", &SettingFile);
+  interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-n", "nmax", &nmax);
   interface->Add("-v", "verbose", &vl);
   interface->CheckFlags(argc, argv);
@@ -54,9 +55,13 @@ int main(int argc, char* argv[]){
     cout<<InputFiles[i]<<endl;
   }
   cout<<"output file: "<<OutputFile<< endl;
+  if(SettingFile == NULL){
+    cout << "Please give a settings file to use" << endl;
+    return 5;
+  }
 
 
-  TEnv* set = new TEnv("settings/anaset.dat");
+  TEnv* set = new TEnv(SettingFile);
   char* cfilename = (char*)set->GetValue("CutFile","file");
   int incuts = set->GetValue("NInCuts",0);
   int outcuts = set->GetValue("NOutCuts",0);
@@ -122,11 +127,15 @@ int main(int argc, char* argv[]){
   TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,2.2,2.8,1000,20,40);hlist->Add(zerodeg);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
   TH1F* g_egamdc = new TH1F("g_egamdc","g_egamdc",4000,0,4000);hlist->Add(g_egamdc);
+  TH1F* h_egamABdc = new TH1F("h_egamABdc","h_egamABdc",4000,0,4000);hlist->Add(h_egamABdc);
+  TH1F* g_egamABdc = new TH1F("g_egamABdc","g_egamABdc",4000,0,4000);hlist->Add(g_egamABdc);
 
   
   vector<TH2F*> zerodeg_c;
   vector<TH1F*> h_egamdc_c;
   vector<TH1F*> g_egamdc_c;
+  vector<TH1F*> h_egamABdc_c;
+  vector<TH1F*> g_egamABdc_c;
   for(int i=0;i<incuts;i++){
     TH2F* h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
 		       Form("zerodeg_%s",InCut[i]->GetName()),
@@ -146,6 +155,16 @@ int main(int argc, char* argv[]){
 		 4000,0,4000);
     g_egamdc_c.push_back(h);
     hlist->Add(g_egamdc_c.back());
+    h = new TH1F(Form("h_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		       Form("h_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		       4000,0,4000);
+    h_egamABdc_c.push_back(h);
+    hlist->Add(h_egamABdc_c.back());
+    h = new TH1F(Form("g_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		 Form("g_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		 4000,0,4000);
+    g_egamABdc_c.push_back(h);
+    hlist->Add(g_egamABdc_c.back());
   }
   
   Int_t nbytes = 0;
@@ -201,6 +220,31 @@ int main(int argc, char* argv[]){
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
 	    g_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	  }
+	}
+      }
+    }
+    for(int h=0; h<hi->GetMultAB(); h++){
+      HiCARIHitCalc* hit = hi->GetHit(h);
+      if(hit->IsBigRIPS()){
+	continue;
+      }
+      if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
+	h_egamABdc->Fill(hit->GetDCEnergy());
+	for(int o=0;o<outcuts;o++){	
+	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
+	    h_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	  }
+	}
+      }
+    }
+    for(int g=0; g<gr->GetMultAB(); g++){
+      HitCalc* hit = gr->GetHit(g);
+      if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
+	g_egamABdc->Fill(hit->GetDCEnergy());
+	for(int o=0;o<outcuts;o++){	
+	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
+	    g_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
 	  }
 	}
       }

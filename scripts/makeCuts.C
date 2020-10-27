@@ -31,7 +31,7 @@ void cut(char* name){
     cut->GetPoint(n,x[n],y[n]);
     cout << x[n] << "\t" << y[n] << endl;
   }
-  TFile cutf*;
+  TFile *cutf;
   if(filecalled==false||cutfname ==NULL)
     cutf = new TFile("cutfile.root","update");
   else
