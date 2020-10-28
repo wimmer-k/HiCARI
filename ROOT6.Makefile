@@ -20,8 +20,6 @@ INCLUDES    = -I./inc -I$(TARTSYS)/include
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib  -lXMLParser
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lBigRIPS
 
-#SWITCH = -DBACKGROUND
-SWITCH = -USIMULATION
 
 LFLAGS	    = -g -fPIC -shared
 CFLAGS 	    += -Wl,--no-as-needed $(SWITCH)
@@ -31,29 +29,19 @@ CFLAGS 	    += -Wno-unused-variable -Wno-unused-but-set-variable -Wno-write-stri
 CLICFLAGS   = -g2 -O2 -fPIC
 CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed 
 
-ifeq ($(SWITCH),-DSIMULATION)
-    LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/GammaSim.o build/GammaSimDictionary.o build/Miniball.o build/MiniballDictionary.o build/ZeroDeg.o build/ZeroDegDictionary.o build/MINOS.o build/MINOSDictionary.o build/Settings.o build/SettingsDictionary.o build/TrackSettings.o build/TrackSettingsDictionary.o build/Trace.o build/TraceDictionary.o
-    O_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/Tracking.o build/UnpackedEvent.o 
-    HO_FILES = build/SimHistograms.o build/RawHistograms.o build/CalHistograms.o 
-else
-    LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
-    BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
-    O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
-    MO_FILES = build/BuildEvents.o build/MergeHistograms.o
-    HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
-endif
+LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
+BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
+O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
+MO_FILES = build/BuildEvents.o build/MergeHistograms.o
+HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
 
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
 ifeq ($(USING_ROOT_6),1)
-ifeq ($(SWITCH),-DSIMULATION)
-	EXTRAS = GretinaDictionary_rdict.pcm GammaSimDictionary_rdict.pcm MiniballDictionary_rdict.pcm ZeroDegDictionary_rdict.pcm MINOSDictionary_rdict.pcm SettingsDictionary_rdict.pcm TrackSettingsDictionary_rdict.pcm TraceDictionary_rdict.pcm 
-else
 	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
 endif
-endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos #SimCalculate Sim_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos 
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -62,11 +50,6 @@ SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
-
-#UnpackMode3: UnpackMode3.cc $(O_FILES)
-#	@echo "Compiling $@"
-#	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
-#
 
 Unpack: Unpack.cc $(O_FILES)
 	@echo "Compiling $@"

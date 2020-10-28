@@ -29,50 +29,6 @@ using namespace std;
 static TCutG* TimeCut;
 static bool foundTCut = false;
 
-#ifdef SIMULATION
-void CalHistograms::FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi){
-
-  bool hasgret = gr->GetMult()>0;
-  
-  for (UShort_t g=0; g<gr->GetMult(); g++){
-    HitCalc* hit = gr->GetHit(g);
-    float energy = hit->GetEnergy();
-    float energy_dc = hit->GetDCEnergy();
-   Fill("egam",
-	 8000,0,8000,energy);
-    Fill("egam_tgam",
-	 2000,0,4000,energy,
-	 400,-200,200,hit->GetTime());
-    Fill("egamdc",
-	 8000,0,8000,energy_dc);
-    Fill("egamdc_tgam",
-	 2000,0,4000,energy_dc,
-	 400,-200,200,hit->GetTime());
-    Fill("egam_summary",
-	 32,-0.5,31.5,4*fSett->Clu2Det(hit->GetCluster())+hit->GetCrystal(),
-	 2000,0,4000,energy);
-   }
-  for(UShort_t g=0;g<gr->GetMultAB();g++){
-    HitCalc* hit = gr->GetHitAB(g);
-    float energy = hit->GetEnergy();
-    float energy_dc = hit->GetDCEnergy();
-    Fill("egamAB",
-	 8000,0,8000,energy);
-    Fill("egamAB_tgam",
-	 2000,0,4000,energy,
-	 400,-200,200,hit->GetTime());
-    Fill("egamABdc",
-	 8000,0,8000,energy_dc);
-    Fill("egamABdc_tgam",
-	 2000,0,4000,energy_dc,
-	 400,-200,200,hit->GetTime());
-    Fill("egamAB_summary",
-	 32,-0.5,31.5,4*fSett->Clu2Det(hit->GetCluster())+hit->GetCrystal(),
-	 2000,0,4000,energy);
-   }
-
-}
-#else
 void CalHistograms::FillHistograms(HiCARICalc* hi){
   Fill("h_mult",30,0,30,hi->GetMult());
   
@@ -246,4 +202,3 @@ void CalHistograms::FillHistograms(GretinaCalc* gr){
   }//hits
 
 }
-#endif

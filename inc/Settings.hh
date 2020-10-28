@@ -11,9 +11,6 @@
 #include "TEnv.h"
 #include "TVector3.h"
 
-#ifdef SIMULATION
-#include "Simdefs.h"
-#endif
 #include "Globaldefs.h"
 using namespace std;
 
@@ -55,35 +52,6 @@ public:
   void SetAddBackType(int val){fAddBackType = val;}
   double OverflowThreshold(){return fOverflowThreshold;}
 
-#ifdef SIMULATION
-  const char* SimResolutionFile(){return fResFile.c_str();}
-  const char* SimThresholdFile(){return fThreshFile.c_str();}
-  double SimGretinaPositionResolution(){return fGretPosRes;}
-  double EjectileMass(){return fEjectileMass;}
-
-  double TargetAngleResolution(){return fTargetAngleRes;}
-  double TargetPosResolution(){return fTargetPosRes;}
-  double TargetBetaResolution(){return fTargetBetaRes;}
-
-  double MINOSXYResolution(){return fMINOSXYRes;}
-  double MINOSZResolution(){return fMINOSZRes;}
-
-  int UseMINOS(){return fUseMINOS;}
-  double MINOSBetaCoefficient(int c){return fMINOSBetaCoeff[c];}
-  
-  const char* MatrixFile(){return fMatrixFile.c_str();}
-  const char* NeighborFile(){return fNeighborFile.c_str();}
-
-
-
-  const char* AveMBPos(){return fAveMBPos.c_str();}
-
-  int Clu2Det(int clu);
-  int Det2Clu(int det);
-
-  void SetTracking(bool tracking){fTracking = tracking;}
-  bool GetTracking(){return fTracking;}
-#else
   bool IgnoreTrace(){return fIgnoreTrace;}
   const char* HiCARIPos(){return fHiCARIPos.c_str();}
   const char* HiCARIMappingTable(){return fHiCARImapping.c_str();}
@@ -149,8 +117,6 @@ public:
   //! Get the channel used for BigRIPS time checking
   int BigRIPSChannel(){return fBigRIPSChannel;}
 
-#endif
-
 protected:
   int fEventTimeDiff;
   vector<string> fInputFiles;
@@ -176,24 +142,6 @@ protected:
   bool fTracking;
 
 
-#ifdef SIMULATION
-  double fTargetAngleRes;
-  double fTargetPosRes;
-  double fTargetBetaRes;
-
-  int fUseMINOS;
-  double fMINOSXYRes;
-  double fMINOSZRes;
-  double fMINOSBetaCoeff[3];
-  
-  string fResFile;
-  string fThreshFile;
-  double fGretPosRes;
-  double fEjectileMass;
-
-  string fAveMBPos;
-  //gretina
-#else
   bool fIgnoreTrace;
   string fHiCARIPos;
   string fHiCARImapping;
@@ -238,7 +186,6 @@ protected:
   double ff5xgate[2];
   //! gate on the delta change
   double fdeltagate[4];
-#endif 
 
   ClassDef(Settings, 1)
 };

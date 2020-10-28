@@ -36,47 +36,6 @@ void Settings::ReadSettings(TEnv* set){
   fAddBackType = set->GetValue("AddBackType",0);
   fCoincTimeDiff = set->GetValue("CoincTimeDiff",-1);
 
-#ifdef SIMULATION
-  fResFile = set->GetValue("Sim.Resolution.File",defaultfile);
-  fThreshFile = set->GetValue("Sim.Threshold.File",defaultfile);
-  fGretPosRes = set->GetValue("Sim.Gretina.Position.Resolution",0.0);
-  fEjectileMass = set->GetValue("Ejectile.Mass",0.0);
-
-  fTargetAngleRes = set->GetValue("Target.Angle.Resolution",0.0);
-  fTargetPosRes   = set->GetValue("Target.Pos.Resolution",0.0);
-  fTargetBetaRes  = set->GetValue("Target.Beta.Resolution",0.0);
-
-  fMINOSXYRes = set->GetValue("MINOS.XY.Resolution",0.0);
-  fMINOSZRes = set->GetValue("MINOS.Z.Resolution",0.0);
-
-
-  fUseMINOS = set->GetValue("Use.MINOS",0);
-  for(int i=0;i<3;i++){
-    fMINOSBetaCoeff[i] = set->GetValue(Form("MINOS.Beta.Coefficient.%d",i),0.0);
-  }
-  
-  
-  fAveMBPos = set->GetValue("Average.MBPositions",defaultfile);
-  fClusterAngle = set->GetValue("ClusterAngle",20);
-  fStoreAllIPoints = set->GetValue("StoreAllIPoints",0);
-
-  fOverflowThreshold = set->GetValue("OverflowThreshold",6000);
-
-  fMatrixFile = set->GetValue("Gretina.Matrix.File",defaultfile);
-  fNeighborFile = set->GetValue("Gretina.Neighbor.File",defaultfile);
-
-  fdet2clu.clear();
-  fclu2det.clear();
-  
-  for(int det=0; det<20; det++){
-    int clu = set->GetValue(Form("Detector.%d",det),-1);
-    if (clu!=-1){
-      fdet2clu[det] = clu;
-      fclu2det[clu] = det;
-    }
-  }
-  fTracking = set->GetValue("DoTracking",false);
-#else
   fIgnoreTrace = set->GetValue("HiCARI.IgnoreTrace",0);
   fHiCARIPos = set->GetValue("HiCARI.Positions",defaultfile);
   fHiCARImapping = set->GetValue("HiCARI.Mapping.Table",defaultfile);
@@ -123,10 +82,9 @@ void Settings::ReadSettings(TEnv* set){
   fBigRIPSCrystal = set->GetValue("BigRIPS.Crystal",9);
   fBigRIPSChannel = set->GetValue("BigRIPS.Channel",9);
 
-#endif
 }
 
-#ifdef SIMULATION
+/*
 int Settings::Det2Clu(int det){
   if (fdet2clu.count(det)==1){
     return fdet2clu[det];
@@ -142,7 +100,7 @@ int Settings::Clu2Det(int clu){
     return -1;
   }
 }
-#endif
+*/
 
 void Settings::PrintSettings(){
   //cout << __PRETTY_FUNCTION__ << endl;
@@ -160,29 +118,6 @@ void Settings::PrintSettings(){
 
   cout << "DoTracking\t"<< fTracking << endl;
 
-#ifdef SIMULATION
-  cout << "Sim.Resolution.File\t" << fResFile << endl;
-  cout << "Sim.Threshold.File\t" << fThreshFile << endl;
-  cout << "Sim.Gretina.Position.Resolution\t" << fGretPosRes << endl;
-  cout << "Ejectile.Mass\t" << fEjectileMass << endl;
-
-  cout << "MINOS.XY.Resolution\t" << fMINOSXYRes << endl;
-  cout << "MINOS.Z.Resolution\t" << fMINOSZRes << endl;
-
-  cout << "Use.MINOS\t" << fUseMINOS << endl;
-  for(int i=0;i<3;i++)
-    cout << Form("MINOS.Beta.Coefficient.%d\t",i) << fMINOSBetaCoeff[i] << endl;  
-
-  cout << "Target.Angle.Resolution\t" << fTargetAngleRes << endl;
-  cout << "Target.Pos.Resolution\t"   << fTargetPosRes << endl;
-  cout << "Target.Beta.Resolution\t"   << fTargetBetaRes << endl;
-
-  cout << "Average.MBPositions\t" << fAveMBPos << endl;
-
-  cout << "Gretina.Matrix.File\t" << fMatrixFile << endl;
-  cout << "Gretina.Neighbor.File\t" << fNeighborFile << endl;
-
-#else
   cout << "HiCARI.IgnoreTrace\t" << fIgnoreTrace << endl;
   cout << "HiCARI.Positions\t" << fHiCARIPos << endl;
   cout << "HiCARI.Mapping.Table\t"<< fHiCARImapping << endl;
@@ -224,10 +159,8 @@ void Settings::PrintSettings(){
   cout << "BigRIPS.Crystal\t" << fBigRIPSCrystal << endl;  
   cout << "BigRIPS.Channel\t" << fBigRIPSChannel << endl;  
 
-#endif
 
 }
-#ifndef SIMULATION
 void Settings::ReadHiCARIMappingTable(){
   TEnv* mapenv = new TEnv(fHiCARImapping.c_str());
   for(int h=0;h<20;h++){
@@ -261,4 +194,3 @@ void Settings::PrintHiCARIMappingTable(){
     } 
   }
 }
-#endif

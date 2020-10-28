@@ -144,11 +144,7 @@ int main(int argc, char* argv[]){
   int buffers = 0;
   long long int bytes_read = 0;
   UnpackedEvent *evt = new UnpackedEvent(set);
-#ifdef SIMULATION
-  evt->SetWrite(wrawtree, wrawhist, wcaltree, wcalhist,false);
-#else
   evt->SetWrite(wrawtree, wrawhist, wcaltree, wcalhist);
-#endif
 
   Calibration *cal = new Calibration(set);
   evt->SetCalibration(cal);

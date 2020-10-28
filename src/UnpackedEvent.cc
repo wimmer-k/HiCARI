@@ -45,31 +45,16 @@ void UnpackedEvent::Init(){
 
   fGretina = new Gretina;
   fGretinaCalc = new GretinaCalc;
-#ifdef SIMULATION  
-  fRand = new TRandom();
-  fGammaSim = new GammaSim;
-  fMiniball = new Miniball;
-  fMiniballCalc = new MiniballCalc;
-  fZeroDeg = new ZeroDeg;
-#ifdef USEMINOS
-  fMINOS = new MINOS;
-#endif
-#else
   fMode3Event = new Mode3Event;
   fHiCARI = new HiCARI;
   fHiCARICalc = new HiCARICalc;
-#endif
   if(fwtree){
     //setting up tree
     cout << "setting up raw tree " << endl;
     ftr = new TTree("build","built Gamma events");
     ftr->Branch("gretina",&fGretina, 320000);
-#ifdef SIMULATION
-    ftr->Branch("miniball",&fMiniball, 320000);
-#else
     ftr->Branch("mode3Event",&fMode3Event, 320000);
     ftr->Branch("hicari",&fHiCARI, 320000);
-#endif
     ftr->BranchRef();
     if(fvl>1)
       cout << "done setting up raw tree" << endl;
@@ -79,45 +64,17 @@ void UnpackedEvent::Init(){
     cout << "setting up calibrated tree " << endl;
     fcaltr = new TTree("calib","calibrated and built events");
     fcaltr->Branch("gretinacalc",&fGretinaCalc, 320000);
-#ifdef SIMULATION
-    fcaltr->Branch("zerodeg",&fZeroDeg, 320000);
-#ifdef USEMINOS
-    fcaltr->Branch("minos",&fMINOS, 320000);
-#endif
-    fcaltr->Branch("miniballcalc",&fMiniballCalc, 320000);
-#else
     fcaltr->Branch("hicaricalc",&fHiCARICalc, 320000);
-#endif
     fcaltr->BranchRef();
     if(fvl>1)
       cout << "done setting up calibrated tree" << endl;
   }
-#ifdef SIMULATION
-  if(fwsimtree){
-    cout << "setting up simulation tree " << endl;
-    fsimtr = new TTree("simtr","Geant4 emitted gamma rays");
-    fsimtr->Branch("GammaSim",&fGammaSim, 320000);
-    fsimtr->BranchRef();
-    if(fvl>1)
-      cout << "done setting up simulation tree" << endl;
-  }
-#endif
   
   fnentries = 0;
   fstrangehits = 0;
-  fGretina->Clear();
-#ifdef SIMULATION
-  fGRhits = 0;
-  fMBhits = 0;
-  fMiniball->Clear();
-  fZeroDeg->Clear();
-#ifdef USEMINOS
-  fMINOS->Clear();
-#endif
-#else
   fMode3Event->Clear();
+  fGretina->Clear();
   fHiCARI->Clear();
-#endif
   fhasdata = false;
   fcurrent_ts = 0;
   ffirst_ts = 0;
@@ -125,18 +82,8 @@ void UnpackedEvent::Init(){
 
   fncalentries = 0;
   fGretinaCalc->Clear();
-
-#ifdef SIMULATION
-  fMiniballCalc->Clear();
-
-  ReadSimResolution(fSett->SimResolutionFile());
-  ReadSimThresholds(fSett->SimThresholdFile());
-  fGammaSim->Clear();
-#else
   fHiCARICalc->Clear();
-#endif
 }
-#ifndef SIMULATION
 int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
   if(ffirst_ts<1){
     if(fvl>1)
@@ -419,10 +366,6 @@ int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
     cout << "UnpackedEvent: " <<"-----------------------------"<< endl;
   }
 
-#ifdef SIMULATIOM
-  fGRhits++;
-#endif
-  
 
   //the events which have no good interaction points
   if(cryst->GetMaxIPNr()<0){
@@ -469,411 +412,14 @@ int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
   }
   return 0;
 }
-#else
-int UnpackedEvent::DecodeMiniball(MBCrystal* cryst, long long int gts){
-  if(fvl>0)
-    cout << __PRETTY_FUNCTION__  << " time stamp " << gts << endl;
-  if(ffirst_ts<1){
-    if(fvl>1)
-      cout << "UnpackedEvent: " << "setting first timestamp " << gts << endl;
-    ffirst_ts = gts;
-  }
-  if(fvl>1){
-    cout << "UnpackedEvent: " << "-----------------------------next hit: "<< fnentries<< endl;
-  }
-  int det = cryst->GetCluster();
-  int cry = cryst->GetCrystal();
 
-  if(cry<0 || cry > MBCRYST){
-    cout << "UnpackedEvent: " << "invalid MB crystal number " << cry << endl;
-    return 12;
-  }
-
-
-
-  if(fvl>1){
-    cout << "UnpackedEvent: mult " << cryst->GetMult() <<"\ten " <<  cryst->GetEnergy() <<"\tts " <<  cryst->GetTS() <<"\tmax seg en " <<  cryst->GetMaxSegEn()<<"\tmax seg nr" <<  cryst->GetMaxSegNr()<< endl;
-    cout << "UnpackedEvent: " <<"-----------------------------"<< endl;
-  }
-
-  fMBhits++;
-
-  //the events which have no good interaction points
-  if(cryst->GetMaxSegNr()<0){
-    fstrangehits++;
-  }
-  if(fvl>0 && cryst->GetMaxSegNr()<0){
-    cout << "strange hit " << endl;
-    cryst->PrintEvent();
-  }
-  // now check time stamps
-  long long int deltaEvent = gts - fcurrent_ts;
-  if(fcurrent_ts>-1 && deltaEvent < 0 )
-    cout << "UnpackedEvent: " << "Inconsistent Timestamp last time was " << fcurrent_ts << " this (miniball) " << gts << " difference " << deltaEvent<< endl;
-
-  if(fvl>1){
-    cout << "UnpackedEvent: " <<fnentries<< "this ts " << gts <<" current ts " << fcurrent_ts <<" difference " << deltaEvent <<endl;
-  }
-
-  if(deltaEvent  < fEventTimeDiff){
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries<< " coincidence difference " << deltaEvent << endl;
-  }
-  else{
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries << " miniball single time difference " << deltaEvent << endl;
-    if(fcurrent_ts>-1){
-      if(fvl>2)
-	cout << "UnpackedEvent: " << "Closing event due to timestamp in Miniball." << endl;
-      fMode3Event->SetCounter(fctr);
-      fctr = 0;
-      this->CloseEvent();
-    }
-    this->ClearEvent();
-  }
-
-  fMiniball->AddHit(cryst);
-  if(fvl>1)
-    fMiniball->PrintEvent();
-  //set the current timestamp
-  fcurrent_ts = gts;
-
-  if(fvl>2){
-    cout << "UnpackedEvent: " << "Miniball event found with timestamp " << gts << endl;
-  }
-  return 0;
-}
-
-int UnpackedEvent::DecodeGammaG4Sim(G4SIM_EGS* g4Sim, long long int ts){
-  if(fvl>0)
-    cout << __PRETTY_FUNCTION__  << " time stamp " << ts << endl;
-  fGammaSim->SetTimeStamp(ts);
-  for(Int_t i = 0; i < g4Sim->num; i++){
-    fGammaSim->AddEmittedGamma(&g4Sim->gammas[i]);
-  }
-
-  if(fvl>2){
-    cout << "Simulation: GammaSim: " << endl;
-    for(Int_t i = 0; i < fGammaSim->GetMult(); i++)
-      cout << "e = " << fGammaSim->GetEmittedGamma(i)->GetEnergy()
-	   << " (x, y, z) = (" 
-	   << fGammaSim->GetEmittedGamma(i)->GetPos().X() << ", "
-	   << fGammaSim->GetEmittedGamma(i)->GetPos().Y() << ", "
-	   << fGammaSim->GetEmittedGamma(i)->GetPos().Z() 
-	   << ")  (phi, theta) = ("
-	   << fGammaSim->GetEmittedGamma(i)->GetPhi() << ", "
-	   << fGammaSim->GetEmittedGamma(i)->GetTheta() << ")" << endl;
-
-    cout << "Simulation: GammaSim event found with timestamp " << ts << endl;
-  }
-
-  // These events go into a separate tree as singles. No need to pay 
-  // attention to the time window.
-  
-  fsimtr->Fill();
-  fnsimentries++;
-  fGammaSim->Clear();
-
-  return 0;
-}
-
-int UnpackedEvent::DecodeZeroDegPhysicsData(ZD_PHYSICSDATA* zeropd, long long int ts){
-  if(fvl>0)
-    cout << __PRETTY_FUNCTION__  << " time stamp " << ts << endl;
-  // now check time stamps
-  long long int deltaEvent = ts - fcurrent_ts;
-  if(fcurrent_ts>-1 && deltaEvent < 0 )
-    cout << "UnpackedEvent: " << "Inconsistent Timestamp last time was " << fcurrent_ts << " this (zerodeg) " << ts << " difference " << deltaEvent<< endl;
-  if(fvl>1){
-    cout << "UnpackedEvent: " <<fnentries<< " this ts " << ts <<" current ts " << fcurrent_ts <<" difference " << deltaEvent <<endl;
-  }
-
-  if(deltaEvent  < fEventTimeDiff){
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries<< " coincidence difference " << deltaEvent << endl;
-    if(fhasdata==true){
-      if(fvl>2)
-	cout << "UnpackedEvent: " << "Closing event due to two ZeroDeg entries." << endl;
-      cout << "UnpackedEvent: " << " coincidence with another ZeroDeg! deltaT = " << deltaEvent << " writing and clearing last event" << endl;
-      if(fvl>1&&fhasdata==false)
-	cout << "UnpackedEvent: " <<__PRETTY_FUNCTION__<< " entry " << fnentries << " zerodeg is empty " << endl;
-      fMode3Event->SetCounter(fctr);
-      fctr = 0;
-      this->CloseEvent();
-    }
-  } else {
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries << " zerodeg single event difference " << deltaEvent << endl;
-    if(fcurrent_ts>-1&&fhasdata==true){
-      if(fvl>2)
-	cout << "UnpackedEvent: " << "Closing event due to timestamp in ZeroDeg." << endl;
-      if(fvl>1&&fhasdata==false)
-	cout << "UnpackedEvent: " <<__PRETTY_FUNCTION__<< " entry " << fnentries << " zerodeg is empty " << endl;
-      fMode3Event->SetCounter(fctr);
-      fctr = 0;
-      this->CloseEvent();
-    }
-    this->ClearEvent();
-  }
-  //set the current timestamp
-  fcurrent_ts = ts;
-
-  if(fvl>0)
-    cout << "UnpackedEvent: ZD_PHYSICSDATA: ata = " << zeropd->ata 
-	 << " bta = "  << zeropd->bta 
-	 << " xta = "  << zeropd->xta 
-	 << " yta = "  << zeropd->yta 
-	 << " betata = "  << zeropd->betata
-	 << " ts = "  << ts << endl;
-
-  fZeroDeg->SetTimeStamp(ts);
-  fZeroDeg->SetATA(fRand->Gaus(zeropd->ata, fSett->TargetAngleResolution()));
-  fZeroDeg->SetBTA(fRand->Gaus(zeropd->bta, fSett->TargetAngleResolution()));
-  fZeroDeg->SetXTA(fRand->Gaus(zeropd->xta, fSett->TargetPosResolution()));
-  fZeroDeg->SetYTA(fRand->Gaus(zeropd->yta, fSett->TargetPosResolution()));
-  fZeroDeg->SetBetaTA(fRand->Gaus(zeropd->betata, fSett->TargetBetaResolution()));
-  fhasdata = true;
-  if(fvl>2){
-    cout << "UnpackedEvent: ZeroDegPhysicsData event found with timestamp " << ts << endl;
-  }
-  return 0;
-}
-
-#ifdef USEMINOS
-int UnpackedEvent::DecodeMINOSPhysicsData(MINOS_DATA* minospd, long long int ts){
-  if(fvl>0)
-    cout << __PRETTY_FUNCTION__  << " time stamp " << ts << endl;
-  // now check time stamps
-  long long int deltaEvent = ts - fcurrent_ts;
-  if(fcurrent_ts>-1 && deltaEvent < 0 )
-    cout << "UnpackedEvent: " << "Inconsistent Timestamp last time was " << fcurrent_ts << " this (minos) " << ts << " difference " << deltaEvent<< endl;
-  if(fvl>1){
-    cout << "UnpackedEvent: " <<fnentries<< " this ts " << ts <<" current ts " << fcurrent_ts <<" difference " << deltaEvent <<endl;
-  }
-  
-  if(deltaEvent  < fEventTimeDiff){
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries<< " coincidence difference " << deltaEvent << endl;
-  } else {
-    if(fvl>1)
-      cout << "UnpackedEvent: " <<fnentries << " zerodeg single event difference " << deltaEvent << endl;
-    if(fcurrent_ts>-1){
-      if(fvl>2)
-	cout << "UnpackedEvent: " << "Closing event due to timestamp in MINOS." << endl;
-      fMode3Event->SetCounter(fctr);
-      fctr = 0;
-      this->CloseEvent();
-    }
-    this->ClearEvent();
-  }
-  //set the current timestamp
-  fcurrent_ts = ts;
-
-  if(fvl>0)
-    cout << "UnpackedEvent: MINOS_DATA: x = " << minospd->x 
-	 << " y = "  << minospd->y 
-	 << " z = "  << minospd->z 
-	 << " betare = "  << minospd->betare
-	 << " ts = "  << ts << endl;
-
-  fMINOS->SetTimeStamp(ts);
-  double x = fRand->Gaus(minospd->x, fSett->MINOSXYResolution()); 
-  double y = fRand->Gaus(minospd->y, fSett->MINOSXYResolution()); 
-  double z = fRand->Gaus(minospd->z, fSett->MINOSZResolution()); 
-  fMINOS->SetVertex(x,y,z);
-  fMINOS->SetBetaRE(minospd->betare);
-  if(fvl>2){
-    cout << "UnpackedEvent: MINOSPhysicsData event found with timestamp " << ts << endl;
-  }
-  return 0;
-}
-#endif
-
-void UnpackedEvent::ReadSimResolution(const char* filename){
-  TEnv* env = new TEnv(filename);
-   if(fvl>1){
-     env->Print();
-   }
-  double globA = env->GetValue("Detector.All.Crystal.All.A",0.0);
-  double globB = env->GetValue("Detector.All.Crystal.All.B",0.0);
-  double globC = env->GetValue("Detector.All.Crystal.All.C",0.0);
-  for(int det=0;det<MAXDETPOS;det++){
-    for(int cr=0;cr<4;cr++){
-      int toRes = env->GetValue(Form("Detector.%d.Crystal.%d.SimResolution",det,cr),0);
-      if(toRes){
-	simresolution newSimres;
-	newSimres.Detector = det;
-	newSimres.Crystal = cr;
-	newSimres.A = env->GetValue(Form("Detector.%d.Crystal.%d.A",det,cr),0.0);
-	newSimres.B = env->GetValue(Form("Detector.%d.Crystal.%d.B",det,cr),0.0);
-	newSimres.C = env->GetValue(Form("Detector.%d.Crystal.%d.C",det,cr),0.0);
-	fSimResolutions.push_back(newSimres);
-      } else {
-	simresolution newSimres;
-	newSimres.Detector = det;
-	newSimres.Crystal = cr;
-	newSimres.A = globA;
-	newSimres.B = globB;
-	newSimres.C = globC;
-	fSimResolutions.push_back(newSimres);
-      }
-    }
-  }
-}
-
-void UnpackedEvent::ReadSimThresholds(const char* filename){
-  TEnv* env = new TEnv(filename);
-  double globE = env->GetValue("Detector.All.Crystal.All.E",0.0);
-  double globdE = env->GetValue("Detector.All.Crystal.All.dE",0.001);
-  cout << "reading file " << filename << endl;
-  
-  for(int det=0;det<MAXDETPOS;det++){
-    for(int cr=0;cr<4;cr++){
-      int toThresh = env->GetValue(Form("Detector.%d.Crystal.%d.SimThreshold",det,cr),0);
-      if(toThresh){
-	simthreshold newSimthresh;
-	newSimthresh.Detector = det;
-	newSimthresh.Crystal = cr;
-	newSimthresh.E = env->GetValue(Form("Detector.%d.Crystal.%d.E",det,cr),0.0);
-	newSimthresh.dE = env->GetValue(Form("Detector.%d.Crystal.%d.dE",det,cr),0.001);
-	fSimThresholds.push_back(newSimthresh);
-      }
-      else{
-	simthreshold newSimthresh;
-	newSimthresh.Detector = det;
-	newSimthresh.Crystal = cr;
-	newSimthresh.E = globE;
-	newSimthresh.dE = globdE;
-	fSimThresholds.push_back(newSimthresh);
-      }
-    }
-  }
-}
-//! apply the resolution
-bool UnpackedEvent::SimResolution(Gretina* gr){
-  //cout << __PRETTY_FUNCTION__ << " with resolution " << fSett->SimGretinaPositionResolution() << endl;
-  for(int i=0; i<gr->GetMult(); i++){
-    Crystal* crys = gr->GetHit(i);
-    //Position resolution
-    if(fSett->SimGretinaPositionResolution()>0){
-      for(int j=0; j<crys->GetMult(); j++){
-	crys->GetIPoint(j)->SetPosition(fRand->Gaus(crys->GetIPoint(j)->GetPosition().X(),
-						    fSett->SimGretinaPositionResolution()),
-					fRand->Gaus(crys->GetIPoint(j)->GetPosition().Y(),
-						    fSett->SimGretinaPositionResolution()),
-					fRand->Gaus(crys->GetIPoint(j)->GetPosition().Z(),
-						    fSett->SimGretinaPositionResolution()) );
-      }
-    }
-    //Energy resolutions
-    int det = fSett->Clu2Det(crys->GetCluster());
-    int crysnum = crys->GetCrystal();
-    //cout << crys->GetCluster() << "\t" << det << "\t" << crysnum << endl;
-    //cout << crys->GetEnergy() << " ----> ";
-    for(vector<simresolution>::iterator it = fSimResolutions.begin(); it!=fSimResolutions.end(); it++){
-      if(det==it->Detector && crysnum==it->Crystal){
-	crys->SetEnergy(fRand->Gaus(crys->GetEnergy(),
-				    it->A*sqrt(1.0+crys->GetEnergy()*it->B) + it->C*crys->GetEnergy()));
-	for(int j=0; j<crys->GetMult(); j++){
-	  IPoint* ipoint = crys->GetIPoint(j);
-	  ipoint->SetEnergy(fRand->Gaus(ipoint->GetEnergy(),
-					it->A*sqrt(1.0+ipoint->GetEnergy()*it->B) + it->C*ipoint->GetEnergy()));
-	}
-	break;
-      }
-    }
-    //cout << crys->GetEnergy() << endl;
-  }
-
-  return true;
-}
-
-//! apply the resolution
-bool UnpackedEvent::SimResolution(Miniball* mb){
-  //cout << __PRETTY_FUNCTION__ << " with resolution " << fSett->SimGretinaPositionResolution() << endl;
-  for(int i=0; i<mb->GetMult(); i++){
-    MBCrystal* crys = mb->GetHit(i);
-    //Energy resolutions
-    int det = fSett->Clu2Det(crys->GetCluster());
-    int crysnum = crys->GetCrystal();
-    //cout << crys->GetCluster() << "\t" << det << "\t" << crysnum << endl;
-    for(vector<simresolution>::iterator it = fSimResolutions.begin(); it!=fSimResolutions.end(); it++){
-      if(det==it->Detector && crysnum==it->Crystal){
-	//cout << it->A << "\t" << it->B << "\t" << it->C << "\t" <<crys->GetEnergy();
-	crys->SetEnergy(fRand->Gaus(crys->GetEnergy(),
-				    it->A*sqrt(1.0+crys->GetEnergy()*it->B) + it->C*crys->GetEnergy()));
-	//segments
-	for(int j=0; j<crys->GetMult(); j++){
-	  crys->SetSegmentEn(j,fRand->Gaus(crys->GetSegmentEn(j),
-					it->A*sqrt(1.0+crys->GetSegmentEn(j)*it->B) + it->C*crys->GetSegmentEn(j)));
-	}
-	//cout << "\t" <<crys->GetEnergy()<< endl;
-	break;
-      }
-    }
-  }
-
-  return true;
-}
-
-bool UnpackedEvent::SimThresholds(Gretina* gr){
-  //cout << __PRETTY_FUNCTION__ << endl;
-  for(int i=0; i<gr->GetMult(); i++){
-    Crystal* crys = gr->GetHit(i);
-    //cout << crys->GetEnergy() << " -> ";
-    int det = fSett->Clu2Det(crys->GetCluster());
-    int crysnum = crys->GetCrystal();
-    //cout << "det " << det << ", clu " << crys->GetCluster() << ", crys " << crysnum << endl;
-    for(vector<simthreshold>::iterator it = fSimThresholds.begin(); it!=fSimThresholds.end(); it++){
-      if(det==it->Detector && crysnum==it->Crystal){
-	if( fRand->Uniform(0,1) >
-	    0.5*(1.0 + tanh( (crys->GetEnergy() - it->E) / it->dE ) ) ){
-	  crys->SetEnergy(0.);
-	}
-	break;
-      }
-    }
-    //cout << crys->GetEnergy() <<endl;
-  }
-
-  return true;
-}
-bool UnpackedEvent::SimThresholds(Miniball* mb){
-  //cout << __PRETTY_FUNCTION__ << endl;
-  for(int i=0; i<mb->GetMult(); i++){
-    MBCrystal* crys = mb->GetHit(i);
-    int det = fSett->Clu2Det(crys->GetCluster());
-    int crysnum = crys->GetCrystal();
-    for(vector<simthreshold>::iterator it = fSimThresholds.begin(); it!=fSimThresholds.end(); it++){
-      if(det==it->Detector && crysnum==it->Crystal){
-	if( fRand->Uniform(0,1) >
-	    0.5*(1.0 + tanh( (crys->GetEnergy() - it->E) / it->dE ) ) ){
-	  crys->SetEnergy(0.);
-	}
-	break;
-      }
-    }
-  }
-
-  return true;
-}
-#endif
 void UnpackedEvent::ClearEvent(){
   fhasdata = false;
   fMode3Event->Clear();
   fGretina->Clear();
   fGretinaCalc->Clear();
-#ifdef SIMULATION
-  fMiniball->Clear();
-  fMiniballCalc->Clear();
-  fZeroDeg->Clear();
-#ifdef USEMINOS
-  fMINOS->Clear();
-#endif
-#else
   fHiCARI->Clear();
   fHiCARICalc->Clear();
-#endif
   return;
 }
 
@@ -889,12 +435,6 @@ void UnpackedEvent::ClearEvent(){
 */
 void UnpackedEvent::CloseEvent(){
   //cout << __PRETTY_FUNCTION__ << endl;
-#ifdef SIMULATION
-  SimResolution(fGretina);
-  SimThresholds(fGretina);
-  SimResolution(fMiniball);
-  SimThresholds(fMiniball);
-#endif
   if(fmakemode2){
     //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << endl;   
     MakeMode2();
@@ -904,15 +444,8 @@ void UnpackedEvent::CloseEvent(){
   if(fwtree || fwhist){
 
     if(fwhist){
-#ifdef SIMULATION
-#ifdef USEMINOS
-      frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,fMINOS);
-#else 
-      frhist->FillHistograms(fGretina,fMiniball,fZeroDeg,NULL);
-#endif
-#else
+      //frhist->FillHistograms(fMode3Event,fHiCARI,fGretina);
       frhist->FillHistograms(fMode3Event,fHiCARI);
-#endif
     }
     //Write the raw tree.
     if(fwtree){
@@ -929,18 +462,10 @@ void UnpackedEvent::CloseEvent(){
     //    if(trackMe)
     //      fcal->GammaTrack(fgretinaCalc,fgretinaEvent);
 
-#ifdef SIMULATION
-#ifdef USEMINOS
-    fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,fMINOS);
-#else
-    fcal->BuildAllCalc(fGretina,fGretinaCalc,fMiniball, fMiniballCalc,fZeroDeg,NULL);
-#endif
-#else
     if(fHiCARI->GetMult()>0)
       fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
     if(fGretina->GetMult()>0)
       fcal->BuildGretinaCalc(fGretina,fGretinaCalc);
-#endif
 
     if(fwcaltree){
       if(fHiCARICalc->GetMult()>0||fHiCARICalc->HadBigRIPS()||fGretinaCalc->GetMult()>0){
@@ -949,16 +474,8 @@ void UnpackedEvent::CloseEvent(){
       }
     }
     if(fwcalhist){
-#ifdef SIMULATION
-#ifdef USEMINOS
-      fchist->FillHistograms(fGretinaCalc, fMiniballCalc,fZeroDeg,fMINOS);
-#else
-      fchist->FillHistograms(fGretinaCalc, fMiniballCalc,fZeroDeg,NULL);
-#endif
-#else
       fchist->FillHistograms(fHiCARICalc);
       fchist->FillHistograms(fGretinaCalc);
-#endif
     }
   }
   

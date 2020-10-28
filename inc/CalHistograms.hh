@@ -28,13 +28,7 @@
 
 #include "Settings.hh"
 #include "Gretina.hh"
-#ifdef SIMULATION
-#include "Miniball.hh"
-#include "ZeroDeg.hh"
-#include "MINOS.hh"
-#else
 #include "HiCARI.hh"
-#endif
 
 using namespace std;
 
@@ -68,12 +62,8 @@ public:
     fhlist->Sort();
     fhlist->Write();
   }
-#ifdef SIMULATION
-  void FillHistograms(GretinaCalc* gr, MiniballCalc* mb, ZeroDeg* zd, MINOS* mi);
-#else
   void FillHistograms(HiCARICalc* hi);
   void FillHistograms(GretinaCalc* gr);
-#endif
 
   void FillI(string name,int bins, double low, double high, double value){
     try{

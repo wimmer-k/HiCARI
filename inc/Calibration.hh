@@ -20,14 +20,7 @@
 
 #include "Settings.hh"
 #include "Gretina.hh"
-#ifdef SIMULATION
-#include "Miniball.hh"
-#include "ZeroDeg.hh"
-#include "MINOS.hh"
-#include "Tracking.hh"
-#else
 #include "HiCARI.hh"
-#endif
 
 using namespace std;
 
@@ -43,17 +36,12 @@ public:
  */
   Calibration(Settings*, int event =0);
   ~Calibration();
-#ifdef SIMULATION
-  //! Read the Miniball coordinates, average first interactions from file
-  void ReadMBPositions(const char* filename);
-#else
   //! Read the HiCARI coordinates, average first interactions from file
   void ReadHiCARIPositions(const char* filename);
   //! Read the HiCARI calibration parameters
   void ReadHiCARICalibration(const char* filename);
   //! Read the matrix file for the position transformation for mode2 data
   void ReadMatrix(const char* filename);
-#endif
   //! Build the GretinaCalc object, given a raw Gretina object.
   void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
   TVector3 TransformCoordinates(int hole, int cry, TVector3 local);
@@ -69,25 +57,10 @@ public:
   //! Construct tracked gamma events
   void GammaTrack(GretinaCalc* gr, GretinaEvent* gt);
 
-#ifdef SIMULATION
-  //! Construct all calibrated objects.
-  void BuildAllCalc(Gretina* inGret, GretinaCalc* outGret, Miniball* inMB, MiniballCalc* outMB, ZeroDeg *zerodeg, MINOS *minos);
-  
-  //! Build the MiniballCalc object, given a raw Miniball object.
-  void BuildMiniballCalc(Miniball* in, MiniballCalc* out);
-  //! Build the ZeroDeg object.
-  void BuildZeroDeg(ZeroDeg *zerodeg);
-  //! Build the MINOS object.
-  void BuildMINOS(MINOS *minos);
-
-  void AddBackMiniballCluster(MiniballCalc* gr);
-  void AddBackMiniballEverything(MiniballCalc* gr);
-#else
   //! Build the HiCARICalc object, given a raw HiCARI object.
   void BuildHiCARICalc(HiCARI* in, HiCARICalc* out);
   void AddBackHiCARICluster(HiCARICalc* gr);
   void AddBackHiCARIEverything(HiCARICalc* gr);
-#endif
 
   void PrintCtrs();
   long long int GetBigRIPSCtr(){return fBigRIPSctr;}
@@ -107,10 +80,6 @@ private:
 
   int fevent;
 
-#ifdef SIMULATION
-  //! averaged miniball first interaction positions
-  TVector3 fMBpositions[MBCLUST+CLOVERS][CRYST][SEGS];//cluster, crystal, segment
-#else
   TRandom* fRand;
   //! HiCARI positions
   TVector3 fHiCARIpositions[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];//cluster, crystal, segment
@@ -119,19 +88,9 @@ private:
   double fSegGain[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];
   double fSegOffs[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];
   float fcrmat[MAXDETPOS][MAXCRYSTALNO][4][4];
-#endif
 
   int fAddBackType;
   int fCoincTDiff;
-#ifdef SIMULATION
-  Long64_t fgretactr;
-  Long64_t fminiballctr;
-  Long64_t fzerodegctr;
-  Long64_t fminosctr;
-  TF1* fMINOSZett;
-  
-  Tracking* ftracking;
-#else
   Long64_t fHiCARIctr;
   Long64_t fBigRIPSctr;
   Long64_t fHiCARIHitctr;
@@ -139,7 +98,6 @@ private:
   Long64_t fGretinactr;
   Long64_t fGretinaHitctr;
   Long64_t fGretinaHitABctr;
-#endif
 };
 
 #endif

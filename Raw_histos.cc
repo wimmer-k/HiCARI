@@ -23,12 +23,8 @@
 #include "TKey.h"
 
 #include "CommandLineInterface.hh"
-#ifdef SIMULATION
 #include "Gretina.hh"
-#include "Miniball.hh"
-#else
 #include "HiCARI.hh"
-#endif
 #include "Trace.hh"
 #include "RawHistograms.hh"
 using namespace TMath;
@@ -90,15 +86,10 @@ int main(int argc, char* argv[]){
     }
     return 3;
   }
-#ifdef SIMULATION
   Gretina* gr = new Gretina;
-  Miniball* mb = new Miniball;
   tr->SetBranchAddress("gretina",&gr);
-  tr->SetBranchAddress("miniball",&mb);
-#else
   HiCARI* hi = new HiCARI;
   tr->SetBranchAddress("hicari",&hi);
-#endif
   Mode3Event* m3r = new Mode3Event;
   tr->SetBranchAddress("mode3Event",&m3r);
 
@@ -129,12 +120,8 @@ int main(int argc, char* argv[]){
     if(signal_received){
       break;
     }
-#ifdef SIMULATION
     gr->Clear();
-    mb->Clear();
-#else
     hi->Clear();
-#endif
     m3r->Clear();
 
     if(vl>2)
@@ -152,11 +139,7 @@ int main(int argc, char* argv[]){
     }
     nbytes += status;
 
-#ifdef SIMULATION
-    hists->FillHistograms(m3r,mb,gr);
-#else
     hists->FillHistograms(m3r,hi);
-#endif
 
     if(i%1000 == 0){
       double time_end = get_time();
