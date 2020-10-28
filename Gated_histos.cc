@@ -61,39 +61,42 @@ int main(int argc, char* argv[]){
   }
 
 
-  TEnv* set = new TEnv(SettingFile);
-  char* cfilename = (char*)set->GetValue("CutFile","file");
-  int incuts = set->GetValue("NInCuts",0);
-  int outcuts = set->GetValue("NOutCuts",0);
-
+  int incuts = 0;
+  int outcuts = 0;
+  
   vector<TCutG*> InCut;
   vector<TCutG*> OutCut;
   vector<int> InCut_sel;
   vector<double> beta;
 
-  TFile* cFile = new TFile(cfilename);
-  for(int i=0;i<incuts;i++){
-    char* iname = (char*)set->GetValue(Form("InCut.%d",i),"file");
-    TCutG* icg = (TCutG*)cFile->Get(iname);
-    cout << "incoming cut found "<< iname << endl;
-    InCut.push_back(icg);
-  }
-  for(int i=0;i<outcuts;i++){
-    char* oname = (char*)set->GetValue(Form("OutCut.%d",i),"file");
-    TCutG* ocg = (TCutG*)cFile->Get(oname);
-    cout << "outgoing cut found "<< oname << endl;
-    OutCut.push_back(ocg);
-    double b = set->GetValue(Form("Beta.%d",i),0.57);
-    beta.push_back(b);
-    int s = set->GetValue(Form("InCutSel.%d",i),0);
-    InCut_sel.push_back(s);
+  if(SettingFile != NULL){
+    TEnv* set = new TEnv(SettingFile);
+    char* cfilename = (char*)set->GetValue("CutFile","file");
+    incuts = set->GetValue("NInCuts",0);
+    outcuts = set->GetValue("NOutCuts",0);
     
-  }
-
-  
-
-  cFile->Close();
-
+    
+    TFile* cFile = new TFile(cfilename);
+    for(int i=0;i<incuts;i++){
+      char* iname = (char*)set->GetValue(Form("InCut.%d",i),"file");
+      TCutG* icg = (TCutG*)cFile->Get(iname);
+      cout << "incoming cut found "<< iname << endl;
+      InCut.push_back(icg);
+    }
+    for(int i=0;i<outcuts;i++){
+      char* oname = (char*)set->GetValue(Form("OutCut.%d",i),"file");
+      TCutG* ocg = (TCutG*)cFile->Get(oname);
+      cout << "outgoing cut found "<< oname << endl;
+      OutCut.push_back(ocg);
+      double b = set->GetValue(Form("Beta.%d",i),0.57);
+      beta.push_back(b);
+      int s = set->GetValue(Form("InCutSel.%d",i),0);
+      InCut_sel.push_back(s);
+      
+    }
+    
+    cFile->Close();
+  }//settings present
 
 
   
