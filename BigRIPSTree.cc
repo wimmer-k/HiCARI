@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
   char* SetFile = NULL;
   int nmax = 0;
   int vl = 0;
-  int detail = 0;
+  int detail = -1;
 
   CommandLineInterface* interface = new CommandLineInterface();
   interface->Add("-i", "input file", &InputFile);
@@ -92,6 +92,10 @@ int main(int argc, char* argv[]){
   }
   Settings* set = new Settings(SetFile);
   set->SetVLevel(vl);
+  if(detail>-1)
+    set->SetBigRIPSDetail(detail);
+  cout << "BigRIPSTree Detail Level: " << set->BigRIPSDetail() << endl;
+  
   RunInfo* info = new RunInfo();
   info->SetBRRunNumber(run);
   set->Write("settings",TObject::kOverwrite);
@@ -165,7 +169,7 @@ int main(int argc, char* argv[]){
   FocalPlane* fp[NFPLANES];
   for(unsigned short f=0;f<NFPLANES;f++){
     fp[f] = new FocalPlane;
-    if(detail>0)
+    if(set->BigRIPSDetail()>0)
       tr->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
   }
   //branch for the beam, beta, a/q, z
@@ -173,7 +177,7 @@ int main(int argc, char* argv[]){
   tr->Branch("beam",&beam,320000);
   //branch for the PPACs
   PPAC* ppacs = new PPAC;
-  if(detail>0)
+  if(set->BigRIPSDetail()>0)
     tr->Branch("ppacs",&ppacs,320000);
 
   unsigned long long int last_timestamp = 0;
@@ -185,7 +189,7 @@ int main(int argc, char* argv[]){
     checkADC = -1;
     timestamp = 0;
     eventnumber++;
-    if(detail>0){
+    if(set->BigRIPSDetail()>0){
       for(int f=0;f<NFPLANES;f++){
 	fp[f]->Clear();
       }
@@ -243,7 +247,7 @@ int main(int argc, char* argv[]){
     last_timestamp = timestamp;
 
 
-    if(detail>0){
+    if(set->BigRIPSDetail()>0){
       TArtPPAC* tppac;
       for(unsigned short p=0;p<NPPACS;p++){
 	SinglePPAC* dppac = new SinglePPAC;

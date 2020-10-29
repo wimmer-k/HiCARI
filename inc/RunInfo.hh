@@ -44,6 +44,7 @@ public:
   void SetBigRIPSHitCtr(long long int ctr){fBigRIPSHitctr = ctr;}
   void SetHiCARICtr(long long int ctr){fHiCARIctr = ctr;}
   void SetHiCARIHitCtr(long long int ctr){fHiCARIHitctr = ctr;}
+  void SetHiCARIHitABCtr(long long int ctr){fHiCARIHitABctr = ctr;}
   void SetGretinaCtr(long long int ctr){fGretinactr = ctr;}
   void SetGretinaHitCtr(long long int ctr){fGretinaHitctr = ctr;}
   void SetGretinaHitABCtr(long long int ctr){fGretinaHitABctr = ctr;}
@@ -70,6 +71,7 @@ public:
   long long int GetBigRIPSHitCtr(){return fBigRIPSHitctr;}
   long long int GetHiCARICtr(){return fHiCARIctr;}
   long long int GetHiCARIHitCtr(){return fHiCARIHitctr;}
+  long long int GetHiCARIHitABCtr(){return fHiCARIHitABctr;}
   long long int GetGretinaCtr(){return fGretinactr;}
   long long int GetGretinaHitCtr(){return fGretinaHitctr;}
   long long int GetGretinaHitABCtr(){return fGretinaHitABctr;}
@@ -92,6 +94,7 @@ protected:
   long long int fHiCARIctr;
   long long int fBigRIPSctr;
   long long int fHiCARIHitctr;
+  long long int fHiCARIHitABctr;
   long long int fBigRIPSHitctr;
 
   long long int fGretinactr;

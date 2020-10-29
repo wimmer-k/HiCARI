@@ -24,7 +24,7 @@ public:
   void AddSegment(Short_t segnr, Float_t segnen);
   void SetEnergy(Float_t val){fen = val;}
   void SetSegmentEn(int n, Float_t en){
-      fsegen[n] = en;
+    fsegen[n] = en;
   }
 
   Short_t GetID(){return fcluster*4 + fcrystal;}
@@ -147,6 +147,12 @@ public:
   Float_t GetSegSum(){return fsegsum;}
   vector<Float_t> GetSegmentEn(){return fsegen;}
   vector<Short_t> GetSegmentNr(){return fsegnr;}
+  Float_t GetTime(){return ftime;}
+
+  void CorrectTime(long long int BRTS){
+    ftime += ftimestamp - BRTS;
+  }
+ 
   //! The Doppler-corrected energy of the hit.
   Float_t GetDCEnergy(){return fDCen;}
   Float_t GetDCEnergy(float beta, double x=0, double y=0, double z=0){
@@ -167,27 +173,12 @@ public:
   int GetHitsAdded(){return fHitsAdded;}
   unsigned long long int GetTS(){return ftimestamp;}
 
-  // void DopplerCorrect(double beta, double z = 0){
-  //   fDCen = fen * HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),beta,z);
-  // }
   void DopplerCorrect(Settings* set){
     fDCen = fen*DopplerCorrectionFactor(GetPosition(),set);
   }
   //! Returns the Doppler-correction factor to correct the energy.
   double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
-
-  // void DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
-  //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg);
-  // }
-  // //! Returns the Doppler-correction factor to correct the energy.
-  // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg);
   
-  // void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
-  //   fDCen = fen*HiCARIHitCalc::DopplerCorrectionFactor(GetPosition(),set,zerodeg,minos);
-  // }
-  // //! Returns the Doppler-correction factor to correct the energy.
-  // static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos);
-  // //static double DopplerCorrectionFactor(TVector3 PosToTarget, double beta, double z);
   bool IsMiniball(){return (fcluster>-1 && fcluster<6);}
   bool IsSuperClo(){return (fcluster> 5 && fcluster<10 && fcrystal<4);}
   bool IsTracking(){return (fcluster> 9 && fcluster<12);}
@@ -196,6 +187,7 @@ public:
 
   void Print(){
     cout << "HiCARI: cluster " << fcluster << "\tcrystal " << fcrystal << "\tmaxseg " << fmaxseg << "\tsegsum " << fsegsum << "\ten " << fen << "\tmax hit " << fmaxhit << endl;
+    cout << " x " << fposition.X() << " y " << fposition.Y() << " z " << fposition.Z() << endl;
     for(UShort_t s=0;s<fsegnr.size();s++){
       cout << "segment " << fsegnr.at(s) << ", en " << fsegen.at(s) << endl;
     }
@@ -213,6 +205,7 @@ protected:
   vector<Float_t> fsegen;
   vector<Short_t> fsegnr;
 
+  Float_t ftime;
   Float_t fen;
   Float_t fDCen;
   TVector3 fposition;
@@ -237,6 +230,7 @@ public:
   void Clear(){
     ftimestamp = -1;
     fmult = 0;
+    fHImult = 0;
     for(vector<HiCARIHitCalc*>::iterator cry=fhits.begin(); cry!=fhits.end(); cry++){
       delete *cry;
     }
@@ -259,10 +253,14 @@ public:
       cout << "invalid time stamp? " << ftimestamp << " with energy " << cry->GetEnergy() << endl;
       cout << "clu " << cry->GetCluster() << ", cry " << cry->GetCrystal() << endl;
     }
-    if(isBigRIPS)
+
+    if(isBigRIPS){
       fhadBigRIPS = true;
+      fnBigRIPS = fmult;
+    }
     else
-      fmult++;
+      fHImult++;
+    fmult++;
   }
   void AddHitAB(HiCARIHitCalc* cry){
     fhits_ab.push_back(cry);
@@ -271,8 +269,8 @@ public:
   bool HadBigRIPS(){return fhadBigRIPS;}
   
   void DopplerCorrect(Settings* set);
-//  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg);
-//  void DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos);
+  void CorrectTime(long long int br_TS);
+
   void Print(){
     cout << " singles mult " <<fmult << endl;
     for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
@@ -289,6 +287,11 @@ public:
   
   int GetMult(){return fmult;}
   vector<HiCARIHitCalc*> GetHits(){return fhits;}
+  HiCARIHitCalc* GetBigRIPSHit(){
+    if(fhadBigRIPS)
+      return fhits[fnBigRIPS];
+    return NULL;
+  }
   HiCARIHitCalc* GetHit(int n){
     if(n<fmult)
       return fhits[n];
@@ -306,10 +309,12 @@ public:
 protected:
   long long int ftimestamp;
   Short_t fmult;
+  Short_t fHImult;
   vector<HiCARIHitCalc*> fhits;
   Short_t fmult_ab;
   vector<HiCARIHitCalc*> fhits_ab;
   bool fhadBigRIPS;
+  Short_t fnBigRIPS;
   ClassDef(HiCARICalc, 1);
 };
 

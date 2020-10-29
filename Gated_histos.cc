@@ -132,6 +132,14 @@ int main(int argc, char* argv[]){
   TH1F* g_egamdc = new TH1F("g_egamdc","g_egamdc",4000,0,4000);hlist->Add(g_egamdc);
   TH1F* h_egamABdc = new TH1F("h_egamABdc","h_egamABdc",4000,0,4000);hlist->Add(h_egamABdc);
   TH1F* g_egamABdc = new TH1F("g_egamABdc","g_egamABdc",4000,0,4000);hlist->Add(g_egamABdc);
+  TH2F* h_egamtgam = new TH2F("h_egamtgam","h_egamtgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgam);
+  TH2F* g_egamtgam = new TH2F("g_egamtgam","g_egamtgam",1000,-500,500,4000,0,4000);hlist->Add(g_egamtgam);
+  TH2F* h_egamtgamAB = new TH2F("h_egamtgamAB","h_egamtgamAB",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamAB);
+  TH2F* g_egamtgamAB = new TH2F("g_egamtgamAB","g_egamtgamAB",1000,-500,500,4000,0,4000);hlist->Add(g_egamtgamAB);
+  TH2F* h_egamtgamdc = new TH2F("h_egamtgamdc","h_egamtgamdc",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamdc);
+  TH2F* g_egamtgamdc = new TH2F("g_egamtgamdc","g_egamtgamdc",1000,-500,500,4000,0,4000);hlist->Add(g_egamtgamdc);
+  TH2F* h_egamtgamABdc = new TH2F("h_egamtgamABdc","h_egamtgamABdc",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamABdc);
+  TH2F* g_egamtgamABdc = new TH2F("g_egamtgamABdc","g_egamtgamABdc",1000,-500,500,4000,0,4000);hlist->Add(g_egamtgamABdc);
 
   
   vector<TH2F*> zerodeg_c;
@@ -139,6 +147,12 @@ int main(int argc, char* argv[]){
   vector<TH1F*> g_egamdc_c;
   vector<TH1F*> h_egamABdc_c;
   vector<TH1F*> g_egamABdc_c;
+  vector<TH2F*> h_egam_summary_c;
+  vector<TH2F*> h_egamdc_summary_c;
+  vector<TH2F*> h_egamtgamdc_c;
+  vector<TH2F*> g_egamtgamdc_c;
+  vector<TH2F*> h_egamtgamABdc_c;
+  vector<TH2F*> g_egamtgamABdc_c;
   for(int i=0;i<incuts;i++){
     TH2F* h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
 		       Form("zerodeg_%s",InCut[i]->GetName()),
@@ -148,9 +162,11 @@ int main(int argc, char* argv[]){
   }
   
   for(int o=0;o<outcuts;o++){
-    TH1F* h = new TH1F(Form("h_egamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		       Form("h_egamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		       4000,0,4000);
+    TH1F* h;
+    
+    h = new TH1F(Form("h_egamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		 Form("h_egamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		 4000,0,4000);
     h_egamdc_c.push_back(h);
     hlist->Add(h_egamdc_c.back());
     h = new TH1F(Form("g_egamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
@@ -159,8 +175,8 @@ int main(int argc, char* argv[]){
     g_egamdc_c.push_back(h);
     hlist->Add(g_egamdc_c.back());
     h = new TH1F(Form("h_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		       Form("h_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		       4000,0,4000);
+		 Form("h_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		 4000,0,4000);
     h_egamABdc_c.push_back(h);
     hlist->Add(h_egamABdc_c.back());
     h = new TH1F(Form("g_egamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
@@ -168,6 +184,49 @@ int main(int argc, char* argv[]){
 		 4000,0,4000);
     g_egamABdc_c.push_back(h);
     hlist->Add(g_egamABdc_c.back());
+
+
+    TH2F* h2;
+    //summary plots
+    h2 = new TH2F(Form("h_egam_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egam_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  48,0,48,4000,0,4000);
+    h_egam_summary_c.push_back(h2);
+    hlist->Add(h_egam_summary_c.back());
+    
+    h2 = new TH2F(Form("h_egamdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  48,0,48,4000,0,4000);
+    h_egamdc_summary_c.push_back(h2);
+    hlist->Add(h_egamdc_summary_c.back());
+
+    //e gamma versus time diff to BR
+    h2 = new TH2F(Form("h_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  1000,-500,500,4000,0,4000);
+    h_egamtgamdc_c.push_back(h2);
+    hlist->Add(h_egamtgamdc_c.back());
+
+    h2 = new TH2F(Form("g_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  1000,-500,500,4000,0,4000);
+    g_egamtgamdc_c.push_back(h2);
+    hlist->Add(g_egamtgamdc_c.back());
+
+    h2 = new TH2F(Form("h_egamtgamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamtgamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  1000,-500,500,4000,0,4000);
+    h_egamtgamABdc_c.push_back(h2);
+    hlist->Add(h_egamtgamABdc_c.back());
+
+    h2 = new TH2F(Form("g_egamtgamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamtgamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  1000,-500,500,4000,0,4000);
+    g_egamtgamABdc_c.push_back(h2);
+    hlist->Add(g_egamtgamABdc_c.back());
+
+
+    
   }
   
   Int_t nbytes = 0;
@@ -197,9 +256,9 @@ int main(int argc, char* argv[]){
     trigger->Fill(trigbit);
     bigrips->Fill(bz->GetAQ(2),bz->GetZ(2));
     zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
-    for(int i=0;i<incuts;i++){
-      if(InCut[i]->IsInside(bz->GetAQ(2),bz->GetZ(2))){
-	zerodeg_c[i]->Fill(bz->GetAQ(5),bz->GetZ(5));
+    for(int in=0;in<incuts;in++){
+      if(InCut[in]->IsInside(bz->GetAQ(2),bz->GetZ(2))){
+	zerodeg_c[in]->Fill(bz->GetAQ(5),bz->GetZ(5));
       }
     }
     for(int h=0; h<hi->GetMult(); h++){
@@ -209,9 +268,15 @@ int main(int argc, char* argv[]){
       }
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	h_egamdc->Fill(hit->GetDCEnergy());
+	h_egamtgam->Fill(hit->GetTime(),hit->GetEnergy());
+	h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
 	    h_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	    h_egam_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetEnergy());
+	    h_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetDCEnergy(beta[o]));
+	    h_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
+	    
 	  }
 	}
       }
@@ -220,34 +285,40 @@ int main(int argc, char* argv[]){
       HitCalc* hit = gr->GetHit(g);
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	g_egamdc->Fill(hit->GetDCEnergy());
+	g_egamtgam->Fill(hit->GetTime(),hit->GetEnergy());
+	g_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
 	    g_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	    g_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
 	  }
 	}
       }
     }
     for(int h=0; h<hi->GetMultAB(); h++){
-      HiCARIHitCalc* hit = hi->GetHit(h);
-      if(hit->IsBigRIPS()){
-	continue;
-      }
+      HiCARIHitCalc* hit = hi->GetHitAB(h);
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	h_egamABdc->Fill(hit->GetDCEnergy());
+	h_egamtgamAB->Fill(hit->GetTime(),hit->GetEnergy());
+	h_egamtgamABdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
 	    h_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	    h_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
 	  }
 	}
       }
     }
     for(int g=0; g<gr->GetMultAB(); g++){
-      HitCalc* hit = gr->GetHit(g);
+      HitCalc* hit = gr->GetHitAB(g);
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	g_egamABdc->Fill(hit->GetDCEnergy());
+	g_egamtgamAB->Fill(hit->GetTime(),hit->GetEnergy());
+	g_egamtgamABdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
 	    g_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	    g_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
 	  }
 	}
       }

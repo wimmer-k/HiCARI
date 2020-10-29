@@ -29,18 +29,22 @@ void RawHistograms::Write(){
 
 }
 
-void RawHistograms::FillHistograms(Mode3Event* m3e, HiCARI* ge){
+void RawHistograms::FillHistograms(Mode3Event* m3e, HiCARI* hi, Gretina* gr){
   fentry++;
   //Determine which of the systems are present in the data.
   bool hasmode3 = m3e->GetMult()!=0;
-  bool hasgerma = ge->GetMult()!=0;
+  bool hashicari = hi->GetMult()!=0;
+  bool hasgretina = gr != NULL && gr->GetMult()!=0;
 
 
   if(fSett->Mode3Histos() && hasmode3){
     FillMode3Histograms(m3e);
   }
-  if(hasgerma){
-    FillHiCARIHistograms(ge);
+  if(hashicari){
+    FillHiCARIHistograms(hi);
+  }
+  if(hasgretina){
+    FillGretinaHistograms(gr);
   }
 }
 void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
@@ -92,11 +96,11 @@ void RawHistograms::FillMode3Histograms(Mode3Event* m3e){
   }
 }
 
-void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
-  Fill("hraw_mult",30,0,30,ge->GetMult());
-  for(int i=0; i<ge->GetMult(); i++){
+void RawHistograms::FillHiCARIHistograms(HiCARI* hi){
+  Fill("hraw_mult",30,0,30,hi->GetMult());
+  for(int i=0; i<hi->GetMult(); i++){
     int segs = 6;
-    HiCARIHit* hit = ge->GetHit(i);
+    HiCARIHit* hit = hi->GetHit(i);
     if(hit->IsTracking())
       segs = 40;
     if(hit->IsSuperClo())
@@ -120,4 +124,6 @@ void RawHistograms::FillHiCARIHistograms(HiCARI* ge){
     }
   }
 }
-
+void RawHistograms::FillGretinaHistograms(Gretina* gr){
+  Fill("graw_mult",30,0,30,gr->GetMult());
+}

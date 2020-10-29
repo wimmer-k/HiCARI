@@ -155,7 +155,7 @@ int main(int argc, char* argv[]){
       rawtr->Fill();
       nrawentries++;
       if(wrawhist){
-        rhist->FillHistograms(m3e,hi);
+        rhist->FillHistograms(m3e,hi,NULL);
       }
     }
     if(wcaltree){

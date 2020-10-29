@@ -21,6 +21,7 @@
 #include "Settings.hh"
 #include "Gretina.hh"
 #include "HiCARI.hh"
+#include "Trace.hh"
 
 using namespace std;
 
@@ -42,6 +43,7 @@ public:
   void ReadHiCARICalibration(const char* filename);
   //! Read the matrix file for the position transformation for mode2 data
   void ReadMatrix(const char* filename);
+  
   //! Build the GretinaCalc object, given a raw Gretina object.
   void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
   TVector3 TransformCoordinates(int hole, int cry, TVector3 local);
@@ -67,6 +69,7 @@ public:
   long long int GetBigRIPSHitCtr(){return fBigRIPSHitctr;}
   long long int GetHiCARICtr(){return fHiCARIctr;}
   long long int GetHiCARIHitCtr(){return fHiCARIHitctr;}
+  long long int GetHiCARIHitABCtr(){return fHiCARIHitABctr;}
   long long int GetGretinaCtr(){return fGretinactr;}
 
   long long int GetGretinaHitCtr(){return fGretinaHitctr;}
@@ -94,6 +97,7 @@ private:
   Long64_t fHiCARIctr;
   Long64_t fBigRIPSctr;
   Long64_t fHiCARIHitctr;
+  Long64_t fHiCARIHitABctr;
   Long64_t fBigRIPSHitctr;
   Long64_t fGretinactr;
   Long64_t fGretinaHitctr;

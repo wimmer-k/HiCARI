@@ -28,13 +28,13 @@ public:
     fen = -1;
     fen_sign = false;
     fpileup = -1;
-    fCFD_ts = -1;
-    fCFD[0] = -1;
-    fCFD[1] = -1;
+    //fCFD_ts = -1;
+    //fCFD[0] = -1;
+    //fCFD[1] = -1;
     fts = -1;
     ftrace.clear();
-    fcore = false;
-    ftdiff = -1;
+    //fcore = false;
+    //ftdiff = -1;
   }
   void SetTS(long long int ts){fts = ts;}
   void SetLength(int length){
@@ -50,11 +50,11 @@ public:
   void SetEnergy(int en){fen = en;}
   void SetEnSign(bool sign){fen_sign = sign;}
   void SetPileUp(int pileup){fpileup = pileup;}
-  void SetCFD(long long int cfd){fCFD_ts = cfd;}
-  void SetCFD(int n, int cfd){fCFD[n] = cfd;}
+  //void SetCFD(long long int cfd){fCFD_ts = cfd;}
+  //void SetCFD(int n, int cfd){fCFD[n] = cfd;}
   void SetTrace(int n, short v){ftrace[n] = v;}
-  void SetCore(bool core){fcore = core;}
-  void SetTDiff(long long int tdiff){ftdiff = tdiff;}
+  //void SetCore(bool core){fcore = core;}
+  //void SetTDiff(long long int tdiff){ftdiff = tdiff;}
 
   long long int GetTS(){return fts;}
   int GetLength(){return flength;}
@@ -68,11 +68,11 @@ public:
   int GetEnergy(){return fen;}
   bool GetEnSign(){return fen_sign;}
   int GetPileUp(){return fpileup;}
-  long long int GetCFD(){return fCFD_ts;}
-  int GetCFD(int n){return fCFD[n];}
+  //long long int GetCFD(){return fCFD_ts;}
+  //int GetCFD(int n){return fCFD[n];}
   vector <short> GetTrace(){return ftrace;}
-  bool GetCore(){return fcore;}
-  long long int GetTDiff(){return ftdiff;}
+  //bool GetCore(){return fcore;}
+  //long long int GetTDiff(){return ftdiff;}
 
   void Print(){
     cout << "--------------------- Trace Print ------------------------" << endl;
@@ -86,11 +86,11 @@ public:
     cout << "fen      = " << fen      << endl;
     cout << "fen_sign = " << fen_sign << endl;
     cout << "fpileup  = " << fpileup  << endl;
-    cout << "fCFD_ts  = " << fCFD_ts  << endl;
-    cout << "fCFD[0]  = " << fCFD[0]  << endl;
-    cout << "fCFD[1]  = " << fCFD[1]  << endl;
+    //cout << "fCFD_ts  = " << fCFD_ts  << endl;
+    //cout << "fCFD[0]  = " << fCFD[0]  << endl;
+    //cout << "fCFD[1]  = " << fCFD[1]  << endl;
     cout << "fts      = " << fts      << endl;
-    cout << "ftdiff   = " << ftdiff   << endl;
+    //cout << "ftdiff   = " << ftdiff   << endl;
   }
   //int GetSegNum(Settings*);
 protected:
@@ -108,13 +108,13 @@ protected:
   int fen;
   bool fen_sign;
   int fpileup;
-  long long fCFD_ts;
-  int fCFD[2];
+  //long long fCFD_ts;
+  //int fCFD[2];
   //if you want to write traces to the root file remove the "//!" in the next line
   vector <short> ftrace;
   long long int fts;
-  long long int ftdiff;
-  bool fcore;
+  //long long int ftdiff;
+  //bool fcore;
   ClassDef(Trace, 1);
 };
 
@@ -127,39 +127,39 @@ public:
   void Clear(){
     ftrace.clear();
     fmult = 0;
-    fcore = -1;
+    //fcore = -1;
     fts = -1;
   }
   void AddTrace(Trace add){
     if(fmult>39){
       cout << "adding segment mult > 39" << endl;
       cout << " fhole=" << add.GetHole() << " fcrystal=" << add.GetCrystal() << " fslot=" << add.GetSlot() << " fchn=" << add.GetChn() << endl;
-      if (add.GetCore()){
-	cout << "    the dropped trace was the core trace" << endl;
-      } else {
-	cout << "    the dropped trace was not the core trace" << endl;
-      }
+      // if (add.GetCore()){
+      // 	cout << "    the dropped trace was the core trace" << endl;
+      // } else {
+      // 	cout << "    the dropped trace was not the core trace" << endl;
+      // }
       return;
     }
     //if(add.GetHole()==11 && add.GetCrystal()==2 /*&& (add.GetSlot()==0 || add.GetSlot()==1)*/)
     //  cout << fmult<< "!!!!!!!!!!! All good fhole=" << add.GetHole() << " fcrystal=" << add.GetCrystal() << " fslot=" << add.GetSlot() << " fchn=" << add.GetChn()<< endl;
 
     ftrace.push_back(add);
-    if(add.GetCore()){
-      fcore = fmult;
-      fts = add.GetLED();
-    }
+    // if(add.GetCore()){
+    //   fcore = fmult;
+    // }
+    fts = add.GetLED();
     fmult++;
   }
 
   UShort_t GetMult(){return fmult;}
-  int GetCoreN(){return fcore;}
+  //int GetCoreN(){return fcore;}
   Trace* GetTrace(int n){return &ftrace[n];}
-  Trace* GetCoreTrace(){
-    if(fcore>-1&&fcore<fmult)
-      return &ftrace[fcore];
-    return NULL;
-  }
+  // Trace* GetCoreTrace(){
+  //   if(fcore>-1&&fcore<fmult)
+  //     return &ftrace[fcore];
+  //   return NULL;
+  // }
   vector<Trace>* GetTrace(){return &ftrace;}
   long long int GetTS(){return fts;}
 
@@ -167,7 +167,7 @@ public:
 protected:
   UShort_t fmult;
   long long int fts;
-  int fcore;
+  //int fcore;
   vector<Trace> ftrace;
 
   ClassDef(Mode3Hit, 1);

@@ -88,7 +88,7 @@ Gated_histos: Gated_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
 
 HFC:
-	@cd hfc; make
+	@cd hfc; $(MAKE)
 	@echo "GEB_HFC compiled"
 
 $(LIB_DIR)/libHiCARI.so: $(LIB_O_FILES)

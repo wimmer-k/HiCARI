@@ -43,8 +43,10 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
   fcheckADC = -1;
   ftrigbit = -1;
   fbeam = new Beam;
-  for(unsigned short f=0;f<NFPLANES;f++){
-    ffp[f] = new FocalPlane;
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      ffp[f] = new FocalPlane;
+    }
   }
   fHIts = 0;
   fhicari = new HiCARICalc;
@@ -56,8 +58,10 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
   flocalcheckADC = -1;
   flocaltrigbit = -1;
   flocalbeam = new Beam;
-  for(unsigned short f=0;f<NFPLANES;f++){
-    flocalfp[f] = new FocalPlane;
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      flocalfp[f] = new FocalPlane;
+    }
   }
   flocalHIts = 0;
   flocalhicari = new HiCARICalc;
@@ -69,8 +73,10 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
     fBRtr->SetBranchAddress("checkADC",&flocalcheckADC);
     fBRtr->SetBranchAddress("trigbit",&flocaltrigbit);
     fBRtr->SetBranchAddress("beam",&flocalbeam);
-    for(unsigned short f=0;f<NFPLANES;f++){
-      fBRtr->SetBranchAddress(Form("fp%d",fpID[f]),&flocalfp[f]);
+    if(fSett->BigRIPSDetail()>0){
+      for(unsigned short f=0;f<NFPLANES;f++){
+	fBRtr->SetBranchAddress(Form("fp%d",fpID[f]),&flocalfp[f]);
+      }
     }
     fBRentries = fBRtr->GetEntries();
     cout << fBRentries << " entries in BigRIPS tree" << endl;
@@ -88,8 +94,10 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
     
   fmtr = new TTree("tr","merged tree");
   fmtr->Branch("beam",&fbeam,320000);
-  for(unsigned short f=0;f<NFPLANES;f++){
-    fmtr->Branch(Form("fp%d",fpID[f]),&ffp[f],320000);
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      fmtr->Branch(Form("fp%d",fpID[f]),&ffp[f],320000);
+    }
   }
   fmtr->Branch("checkADC",&fcheckADC,320000);
   fmtr->Branch("trigbit",&ftrigbit,320000);
@@ -152,8 +160,10 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
   flocalcheckADC = -1;
   flocaltrigbit = -1;
   flocalbeam->Clear();
-  for(unsigned short f=0;f<NFPLANES;f++){
-    flocalfp[f]->Clear();
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      flocalfp[f]->Clear();
+    }
   }
   flocalhicari->Clear();
   flocalmode2->Clear();
@@ -176,8 +186,10 @@ bool BuildEvents::ReadBigRIPS(){
   flocalcheckADC = -1;
   flocaltrigbit = -1;
   flocalbeam->Clear();
-  for(unsigned short f=0;f<NFPLANES;f++){
-    flocalfp[f]->Clear();
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      flocalfp[f]->Clear();
+    }
   }
   flocalBRts = 0;
   if(fBRentry==fBRentries){
@@ -328,6 +340,14 @@ void BuildEvents::CloseEvent(){
     cout << "closing event with local TS = " << flocalBRts << " tof = "<< flocalbeam->GetTOF(0)<< endl;
     cout << "closing event with set TS = " << fBRts << " tof = "<< fbeam->GetTOF(0)<< endl;
   }
+  if(fhicari->HadBigRIPS()){
+    //cout << fhicari->GetBigRIPSHit()->GetTS() << endl;
+    long long int br_TS = fhicari->GetBigRIPSHit()->GetTS();
+    fhicari->CorrectTime(br_TS);
+    fmode2->CorrectTime(br_TS);
+  }
+
+  
   switch(fmode){
   default:
   case 0: //write all events
@@ -346,8 +366,10 @@ void BuildEvents::CloseEvent(){
   fcheckADC = -1;
   ftrigbit = -1;
   fbeam->Clear();
-  for(unsigned short f=0;f<NFPLANES;f++){
-    ffp[f]->Clear();
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      ffp[f]->Clear();
+    }
   }
   fHIts = 0;
   fhicari->Clear();
@@ -396,8 +418,10 @@ bool BuildEvents::Merge(){
     fcheckADC = flocalcheckADC;
     ftrigbit = flocaltrigbit;
     fbeam = (Beam*)flocalbeam->Clone();
-    for(unsigned short f=0;f<NFPLANES;f++){
-      ffp[f] = (FocalPlane*)flocalfp[f]->Clone(Form("fp_%d",f));
+    if(fSett->BigRIPSDetail()>0){
+      for(unsigned short f=0;f<NFPLANES;f++){
+	ffp[f] = (FocalPlane*)flocalfp[f]->Clone(Form("fp_%d",f));
+      }
     }
     fcurrentts = fBRts;
     fdetectors.erase(fdetectors.begin());

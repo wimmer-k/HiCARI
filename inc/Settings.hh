@@ -116,6 +116,10 @@ public:
   int BigRIPSCrystal(){return fBigRIPSCrystal;}
   //! Get the channel used for BigRIPS time checking
   int BigRIPSChannel(){return fBigRIPSChannel;}
+  //! Set the detail level for the BigRIPSTree
+  void SetBigRIPSDetail(int det){fBigRIPSDetail = det;}
+  //! Get the detail level for the BigRIPSTree
+  int BigRIPSDetail(){return fBigRIPSDetail;}
 
 protected:
   int fEventTimeDiff;
@@ -161,7 +165,8 @@ protected:
   int fBigRIPSCluster;
   int fBigRIPSCrystal;
   int fBigRIPSChannel;
-
+  int fBigRIPSDetail;
+  
   //! BigRIPS PPAC xml file
   string fPPACfile;
   //! BigRIPS PPAC default xml file

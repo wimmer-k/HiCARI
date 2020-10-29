@@ -13,13 +13,13 @@ LIBS =
 OBJFILES = GEB_HFC.o HFC.o
 
 $(BIN_DIR)/$(RUNFILE): GEB_HFC.cpp $(OBJFILES)
-	$(CC) $(FLAG) $(OBJFILES) -o $(BIN_DIR)/$(RUNFILE) $(LIBS)
+	@$(CC) $(FLAG) $(OBJFILES) -o $(BIN_DIR)/$(RUNFILE) $(LIBS)
 
 GEB_HFC.o: GEB_HFC.cpp HFC.h
-	$(CC) $(FLAG) -c $<
+	@$(CC) $(FLAG) -c $<
 
 HFC.o: HFC.cpp HFC.h
-	$(CC) $(FLAG) -c $<
+	@$(CC) $(FLAG) -c $<
 
 
 clean:

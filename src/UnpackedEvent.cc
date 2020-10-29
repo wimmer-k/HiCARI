@@ -159,6 +159,10 @@ int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
     }
     //The event is now written to the tree and is cleared if we decided to make a new event.
     //The event, whether newly made or made previously, gets passed a new trace.
+
+
+    //cout << curTrace.GetTS() << "\t" << curTrace.GetLED() << "\t" << curTrace.GetBoard() << "\t" << curTrace.GetChn() << endl;
+
     fMode3Event->AddTrace(curTrace);
 
     if(fvl>1)
@@ -182,7 +186,7 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
 
   Trace curTrace;
   curTrace.Clear();
-
+  //cout << gts << endl;
 
   curTrace.SetTS(gts);
   //cout << "length - 16 = " << length << " - " << 16 << " = " <<  length - 16 << endl;
@@ -263,25 +267,25 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   ts = (long long int) *(wBuf+0);
   ts += ((long long int) *(wBuf+3)) << 16;
   ts += ((long long int) *(wBuf+2)) << 32;
-  curTrace.SetCFD(ts);
+  // curTrace.SetCFD(ts);
 
-  if(fvl>2)
-    cout << "UnpackedEvent: " << "cfd " << curTrace.GetCFD() << endl;
+  // if(fvl>2)
+  //   cout << "UnpackedEvent: " << "cfd " << curTrace.GetCFD() << endl;
 
   wBuf+=4; //point 13th
 
-  int cfd = (int) *(wBuf+1) << 16;
-  cfd += (int) *wBuf;
-  curTrace.SetCFD(0,cfd);
+  // int cfd = (int) *(wBuf+1) << 16;
+  // cfd += (int) *wBuf;
+  // curTrace.SetCFD(0,cfd);
   wBuf+=2; //point 15th
 
-  cfd = (int) *(wBuf+1) << 16;
-  cfd += (int) *wBuf;
-  curTrace.SetCFD(1,cfd);
+  // cfd = (int) *(wBuf+1) << 16;
+  // cfd += (int) *wBuf;
+  // curTrace.SetCFD(1,cfd);
   wBuf+=2; //point 17th
 
-  if(fvl>2)
-    cout << "UnpackedEvent: " << "cfd points " << curTrace.GetCFD(0) << " and " << curTrace.GetCFD(1) << endl;
+  // if(fvl>2)
+  //   cout << "UnpackedEvent: " << "cfd points " << curTrace.GetCFD(0) << " and " << curTrace.GetCFD(1) << endl;
 
   //cout << "UnpackedEvent: " << curTrace.GetTrace().size() << " size" << endl;
   if(fSett->IgnoreTrace()){
@@ -331,7 +335,8 @@ Trace UnpackedEvent::DecodeTrace(unsigned short** wBuf_p, int length, long long 
   //end needs modification
 
   *wBuf_p = wBuf;
-
+  //cout << curTrace.GetTS() << "\t" << curTrace.GetLED() << "\t" << curTrace.GetCFD() << endl;
+  
   return curTrace;
 }
 
@@ -444,8 +449,7 @@ void UnpackedEvent::CloseEvent(){
   if(fwtree || fwhist){
 
     if(fwhist){
-      //frhist->FillHistograms(fMode3Event,fHiCARI,fGretina);
-      frhist->FillHistograms(fMode3Event,fHiCARI);
+      frhist->FillHistograms(fMode3Event,fHiCARI,fGretina);
     }
     //Write the raw tree.
     if(fwtree){
@@ -455,18 +459,11 @@ void UnpackedEvent::CloseEvent(){
   }
   if(fwcaltree||fwcalhist){
     
-
-    //Build all of the calibrated objects, using the calibration in cal.
-    //Use the data from the first three parameters, output into the last three parameters.
-    //cout << "calculation BuildAllCalc called" << endl;
-    //    if(trackMe)
-    //      fcal->GammaTrack(fgretinaCalc,fgretinaEvent);
-
     if(fHiCARI->GetMult()>0)
       fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
     if(fGretina->GetMult()>0)
       fcal->BuildGretinaCalc(fGretina,fGretinaCalc);
-
+    
     if(fwcaltree){
       if(fHiCARICalc->GetMult()>0||fHiCARICalc->HadBigRIPS()||fGretinaCalc->GetMult()>0){
 	fcaltr->Fill();
@@ -519,7 +516,7 @@ void UnpackedEvent::MakeMode2(){
       if(fSett->VLevel()>1){
 	cout << "Trace " << j << " Length " << trace->GetLength() << 
 	  "\tEnergy " << trace->GetEnergy() <<
-	  "\tCFD " << trace->GetCFD() <<
+	  // "\tCFD " << trace->GetCFD() <<
 	  "\tBoard " << trace->GetBoard() <<
 	  "\tSlot " << trace->GetSlot() <<
 	  "\tChannel " << trace->GetChn() <<

@@ -48,7 +48,7 @@ public:
   TList* GetHList(){return fhlist;}
   void Write();
 
-  void FillHistograms(Mode3Event* m3e, HiCARI* ge);
+  void FillHistograms(Mode3Event* m3e, HiCARI* hi, Gretina* gr);
 
   void Fill(string name,int bins, double low, double high, double value){
     try{
@@ -79,7 +79,8 @@ public:
 
 protected:
   void FillMode3Histograms(Mode3Event* m3e);
-  void FillHiCARIHistograms(HiCARI* ge);
+  void FillHiCARIHistograms(HiCARI* hi);
+  void FillGretinaHistograms(Gretina* gr);
 
   TList* fhlist;
   map<string,TH1*> fhmap;

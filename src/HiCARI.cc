@@ -144,6 +144,7 @@ HiCARIHitCalc::HiCARIHitCalc(Short_t clu, Short_t cry, Short_t maxseg, Float_t s
   fHitsAdded = 1;
   fmaxhit = en;
   ftimestamp = ts;
+  ftime = 0;
 }
 
 void HiCARIHitCalc::Clear(){
@@ -159,6 +160,7 @@ void HiCARIHitCalc::Clear(){
   ftimestamp = -1;
   fsegnr.clear();
   fsegen.clear();
+  ftime = sqrt(-1);
 }
 
 HiCARIHitCalc::HiCARIHitCalc(HiCARIHitCalc* hit){
@@ -175,6 +177,7 @@ HiCARIHitCalc::HiCARIHitCalc(HiCARIHitCalc* hit){
   fmaxhit = fen;
   fsegnr = hit->GetSegmentNr();
   fsegen = hit->GetSegmentEn();
+  ftime = hit->GetTime();
 }
 
 void HiCARIHitCalc::SetSegments(vector<Short_t>nr, vector<Float_t> en){
@@ -192,6 +195,7 @@ void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
     ftimestamp = hit->GetTS();
     fsegnr = hit->GetSegmentNr();
     fsegen = hit->GetSegmentEn();
+    ftime = hit->GetTime();
   }
   fen += hit->GetEnergy();
   fsegsum += hit->GetSegSum();
@@ -223,57 +227,13 @@ void HiCARICalc::DopplerCorrect(Settings* set){
   }
 }
   
-/*
-double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg){
-
-  PosToTarget.SetX(PosToTarget.X() - zerodeg->GetXTA() - set->TargetX());
-  PosToTarget.SetY(PosToTarget.Y() - zerodeg->GetYTA() - set->TargetY());
-  PosToTarget.SetZ(PosToTarget.Z() - set->TargetZ());
-  
-  TVector3 BeamDir;
-  BeamDir.SetMagThetaPhi(1,zerodeg->GetTheta(),zerodeg->GetPhi());
-
-  double CosDop = cos(PosToTarget.Angle(BeamDir));
-
-  double beta;
-  beta = set->TargetBeta() * ( 1 + (zerodeg->GetBetaTA() - set->AverageAfterBeta())/set->AverageAfterBeta());
-  double gamma = 1/sqrt(1.0 - beta*beta);
-  return gamma*(1-beta*CosDop);
-
-}
-
-void HiCARICalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg){
+void HiCARICalc::CorrectTime(long long int br_TS){
   for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg);
+    if((*hit)->IsHiCARI() )
+      (*hit)->CorrectTime(br_TS);
   }
   for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg);
+    if((*hit)->IsHiCARI() )
+      (*hit)->CorrectTime(br_TS);
   }
 }
-  
-  
-double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set, ZeroDeg* zerodeg, MINOS* minos){
-
-  PosToTarget = PosToTarget - minos->GetVertex();
-
-  TVector3 BeamDir;
-  BeamDir.SetMagThetaPhi(1,zerodeg->GetTheta(),zerodeg->GetPhi());
-
-  double CosDop = cos(PosToTarget.Angle(BeamDir));
-
-  double beta = minos->GetBeta();
-  //cout << beta << "\t" << minos->GetBetaRE() << endl;;
-  double gamma = 1/sqrt(1.0 - beta*beta);
-  return gamma*(1-beta*CosDop);
-
-}
-
-void HiCARICalc::DopplerCorrect(Settings* set, ZeroDeg* zerodeg, MINOS* minos){
-  for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg,minos);
-  }
-  for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
-    (*hit)->DopplerCorrect(set,zerodeg,minos);
-  }
-}
-*/

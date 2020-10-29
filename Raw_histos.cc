@@ -139,7 +139,7 @@ int main(int argc, char* argv[]){
     }
     nbytes += status;
 
-    hists->FillHistograms(m3r,hi);
+    hists->FillHistograms(m3r,hi,gr);
 
     if(i%1000 == 0){
       double time_end = get_time();

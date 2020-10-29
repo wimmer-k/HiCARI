@@ -371,6 +371,10 @@ public:
   int GetHitsAdded(){return fHitsAdded;}
   Float_t GetTime(){return ftime;}
 
+  
+  void CorrectTime(long long int BRTS){
+    ftime += ftimestamp - BRTS;
+  }
   //! Apply the Doppler correction using the given settings (for background events without any ZeroDeg information)
   /*!
     Apply the Doppler correction using the given settings.
@@ -490,6 +494,7 @@ public:
     fhits_cl[c].push_back(cry);
   }
   void DopplerCorrect(Settings* set);
+  void CorrectTime(long long int br_TS);
   void Print(){
     cout << " singles mult " <<fmult << endl;
     for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){

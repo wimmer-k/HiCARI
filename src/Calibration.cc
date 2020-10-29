@@ -101,12 +101,13 @@ void Calibration::ReadMatrix(const char* filename){
   }//verbose
 }
 
+
 void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
 
-  //For no add-back, we don't need to do anything beyond copying relevant parameters.
+  //For no add-back, we don't need to do anything beyond copying relevant parameters, and calibrate the interaction points
   out->Clear();
   fevent++;
-  if (in->GetMult()==0){
+  if(in->GetMult()==0){
     return;
   }
   for(int i=0; i<in->GetMult(); i++){
@@ -388,17 +389,20 @@ void Calibration::AddBackHiCARICluster(HiCARICalc* gr){
       continue;
 	      
     bool addbacked = false;
-    for (int j=0; j<gr->GetMultAB(); j++){
-      if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster() && (fabs(gr->GetHitAB(j)->GetTS()-hit->GetTS()) < fCoincTDiff || fCoincTDiff<0)){
+    for(int j=0; j<gr->GetMultAB(); j++){
+      //if (gr->GetHitAB(j)->GetCluster() == hit->GetCluster() && (fabs(gr->GetHitAB(j)->GetTS()-hit->GetTS()) < fCoincTDiff || fCoincTDiff<0)){
+      if(gr->GetHitAB(j)->GetCluster() == hit->GetCluster()){
 	gr->GetHitAB(j)->AddBackHiCARIHitCalc(hit);
 	addbacked = true;
 	break;
       }
     }
-    if (!addbacked){
+    if(!addbacked){
       gr->AddHitAB(new HiCARIHitCalc(*hit));
+      fHiCARIHitABctr++;
     }
   }
+  //gr->Print();
 }
 
 void Calibration::AddBackHiCARIEverything(HiCARICalc* gr){
@@ -423,6 +427,7 @@ void Calibration::ResetCtrs(){
   fHiCARIctr = 0;
   fBigRIPSctr = 0;
   fHiCARIHitctr = 0;
+  fHiCARIHitABctr = 0;
   fBigRIPSHitctr = 0;
   fGretinactr = 0;
   fGretinaHitctr = 0;
@@ -436,6 +441,7 @@ void Calibration::PrintCtrs(){
   if(fHiCARIctr>0){
     cout << "HiCARI events \t" << fHiCARIctr  << endl;
     cout << "HiCARI hits   \t" << fHiCARIHitctr  << endl;
+    cout << "HiCARI AB hits\t" << fHiCARIHitABctr  << endl;
   }
   if(fBigRIPSctr>0){
     cout << "BigRIPS events\t" << fBigRIPSctr  << endl;

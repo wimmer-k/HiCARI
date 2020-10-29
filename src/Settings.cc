@@ -81,6 +81,7 @@ void Settings::ReadSettings(TEnv* set){
   fBigRIPSCluster = set->GetValue("BigRIPS.Cluster",9);
   fBigRIPSCrystal = set->GetValue("BigRIPS.Crystal",9);
   fBigRIPSChannel = set->GetValue("BigRIPS.Channel",9);
+  fBigRIPSDetail = set->GetValue("BigRIPS.Detail",-1);
 
 }
 
@@ -158,6 +159,7 @@ void Settings::PrintSettings(){
   cout << "BigRIPS.Cluster\t" << fBigRIPSCluster << endl;  
   cout << "BigRIPS.Crystal\t" << fBigRIPSCrystal << endl;  
   cout << "BigRIPS.Channel\t" << fBigRIPSChannel << endl;  
+  cout << "BigRIPS.Tree.Detail\t" << fBigRIPSDetail << endl;  
 
 
 }

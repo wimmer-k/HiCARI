@@ -291,3 +291,11 @@ void GretinaCalc::DopplerCorrect(Settings* set){
     (*hit)->DopplerCorrect(set);
   }
 }
+void GretinaCalc::CorrectTime(long long int br_TS){
+  for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
+    (*hit)->CorrectTime(br_TS);
+  }
+  for(vector<HitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
+    (*hit)->CorrectTime(br_TS);
+  }
+}
