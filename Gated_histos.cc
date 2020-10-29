@@ -144,12 +144,19 @@ int main(int argc, char* argv[]){
   vector<TH1F*> g_egamdc_c;
   vector<TH1F*> h_egamABdc_c;
   vector<TH1F*> g_egamABdc_c;
+  
   vector<TH2F*> h_egam_summary_c;
   vector<TH2F*> h_tgam_summary_c;
   vector<TH2F*> h_egamdc_summary_c;
   vector<TH2F*> h_egamAB_summary_c;
   vector<TH2F*> h_tgamAB_summary_c;
   vector<TH2F*> h_egamABdc_summary_c;
+  
+  vector<TH2F*> h_egam_theta_c;
+  vector<TH2F*> h_egamdc_theta_c;
+  vector<TH2F*> h_egamAB_theta_c;
+  vector<TH2F*> h_egamABdc_theta_c;
+  
   vector<TH2F*> h_egamtgamdc_c;
   vector<TH2F*> g_egamtgamdc_c;
   vector<TH2F*> h_egamtgamABdc_c;
@@ -225,6 +232,35 @@ int main(int argc, char* argv[]){
     h_egamABdc_summary_c.push_back(h2);
     hlist->Add(h_egamABdc_summary_c.back());
 
+
+    //verus theta 
+    h2 = new TH2F(Form("h_egam_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egam_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  180,0,180,4000,0,4000);
+    h_egam_theta_c.push_back(h2);
+    hlist->Add(h_egam_theta_c.back());
+    
+    h2 = new TH2F(Form("h_egamdc_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamdc_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  180,0,180,4000,0,4000);
+    h_egamdc_theta_c.push_back(h2);
+    hlist->Add(h_egamdc_theta_c.back());
+
+    h2 = new TH2F(Form("h_egamAB_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamAB_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  180,0,180,4000,0,4000);
+    h_egamAB_theta_c.push_back(h2);
+    hlist->Add(h_egamAB_theta_c.back());
+    
+    h2 = new TH2F(Form("h_egamABdc_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamABdc_theta_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  180,0,180,4000,0,4000);
+    h_egamABdc_theta_c.push_back(h2);
+    hlist->Add(h_egamABdc_theta_c.back());
+
+
+
+    
     //e gamma versus time diff to BR
     h2 = new TH2F(Form("h_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  Form("h_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
@@ -302,6 +338,8 @@ int main(int argc, char* argv[]){
 	    h_tgam_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetTime());
 	    h_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetDCEnergy(beta[o],0,0,targetz));
 	    h_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o],0,0,targetz));
+	    h_egam_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetEnergy());
+	    h_egamdc_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy(beta[o],0,0,targetz));
 	    
 	  }
 	}
@@ -334,6 +372,8 @@ int main(int argc, char* argv[]){
 	    h_tgamAB_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetTime());
 	    h_egamABdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetDCEnergy(beta[o],0,0,targetz));
 	    h_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o],0,0,targetz));
+	    h_egamAB_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetEnergy());
+	    h_egamABdc_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy(beta[o],0,0,targetz));
 	  }
 	}
       }

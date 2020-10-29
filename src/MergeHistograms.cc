@@ -25,7 +25,7 @@ double MergeHistograms::GetCorrRate(){
     return sqrt(-1);
   }
   double r = fhmap.at("hEcorr")->Integral()/fhmap.at("hEcorr")->GetEntries() *100;
-  Fill("hcorrate_entry",10000,0,1e6,fentry,100,0,100,r);
+  Fill("hcorrate_entry",10000,0,1e7,fentry,100,0,100,r);
   
   return r;
 }

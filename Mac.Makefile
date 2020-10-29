@@ -20,14 +20,13 @@ INCLUDES    = -I./inc -I$(TARTSYS)/include
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib  -lXMLParser
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lBigRIPS
 
-
-LFLAGS	    = -g -fPIC -shared
-CFLAGS 	    += -Wl,--no-as-needed
-LFLAGS 	    += -Wl,--no-as-needed 
-CFLAGS 	    += -Wno-unused-variable -Wno-unused-but-set-variable -Wno-write-strings
+LFLAGS        = -g -fPIC -shared
+CFLAGS         += -Wno-overloaded-virtual -Wno-unused-variable -Wno-write-strings
+LFLAGS      += -dynamiclib -single_module -undefined dynamic_lookup
 
 CLICFLAGS   = -g2 -O2 -fPIC
-CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed 
+CLILFLAGS   = -g -fPIC -dynamiclib -single_module -undefined dynamic_lookup
+
 
 LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
 BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
