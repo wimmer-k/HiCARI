@@ -34,9 +34,10 @@ int main(int argc, char* argv[]){
   signal(SIGINT,signalhandler);
   vector<char*> InputFiles;char* BigRIPSFile = NULL;
   char* OutputFile = NULL;
-  char* SettingFile;
+  char* SettingFile = NULL;
   int nmax =0;
   int vl =0;
+  double targetz = 0;
   CommandLineInterface* interface = new CommandLineInterface();
 
   interface->Add("-i", "inputfiles", &InputFiles);
@@ -44,6 +45,7 @@ int main(int argc, char* argv[]){
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-n", "nmax", &nmax);
   interface->Add("-v", "verbose", &vl);
+  interface->Add("-t", "target z position", &targetz);
   interface->CheckFlags(argc, argv);
 
   if(InputFiles.size() == 0 || OutputFile == NULL){
@@ -55,11 +57,6 @@ int main(int argc, char* argv[]){
     cout<<InputFiles[i]<<endl;
   }
   cout<<"output file: "<<OutputFile<< endl;
-  if(SettingFile == NULL){
-    cout << "Please give a settings file to use" << endl;
-    return 5;
-  }
-
 
   int incuts = 0;
   int outcuts = 0;
@@ -148,7 +145,11 @@ int main(int argc, char* argv[]){
   vector<TH1F*> h_egamABdc_c;
   vector<TH1F*> g_egamABdc_c;
   vector<TH2F*> h_egam_summary_c;
+  vector<TH2F*> h_tgam_summary_c;
   vector<TH2F*> h_egamdc_summary_c;
+  vector<TH2F*> h_egamAB_summary_c;
+  vector<TH2F*> h_tgamAB_summary_c;
+  vector<TH2F*> h_egamABdc_summary_c;
   vector<TH2F*> h_egamtgamdc_c;
   vector<TH2F*> g_egamtgamdc_c;
   vector<TH2F*> h_egamtgamABdc_c;
@@ -194,11 +195,35 @@ int main(int argc, char* argv[]){
     h_egam_summary_c.push_back(h2);
     hlist->Add(h_egam_summary_c.back());
     
+    h2 = new TH2F(Form("h_tgam_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_tgam_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  48,0,48,1000,-500,500);
+    h_tgam_summary_c.push_back(h2);
+    hlist->Add(h_tgam_summary_c.back());
+    
     h2 = new TH2F(Form("h_egamdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  Form("h_egamdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  48,0,48,4000,0,4000);
     h_egamdc_summary_c.push_back(h2);
     hlist->Add(h_egamdc_summary_c.back());
+
+    h2 = new TH2F(Form("h_egamAB_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamAB_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  48,0,48,4000,0,4000);
+    h_egamAB_summary_c.push_back(h2);
+    hlist->Add(h_egamAB_summary_c.back());
+    
+    h2 = new TH2F(Form("h_tgamAB_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_tgamAB_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  48,0,48,1000,-500,500);
+    h_tgamAB_summary_c.push_back(h2);
+    hlist->Add(h_tgamAB_summary_c.back());
+    
+    h2 = new TH2F(Form("h_egamABdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamABdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  48,0,48,4000,0,4000);
+    h_egamABdc_summary_c.push_back(h2);
+    hlist->Add(h_egamABdc_summary_c.back());
 
     //e gamma versus time diff to BR
     h2 = new TH2F(Form("h_egamtgamdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
@@ -272,10 +297,11 @@ int main(int argc, char* argv[]){
 	h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
-	    h_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
+	    h_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o],0,0,targetz));
 	    h_egam_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetEnergy());
-	    h_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetDCEnergy(beta[o]));
-	    h_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
+	    h_tgam_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetTime());
+	    h_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetDCEnergy(beta[o],0,0,targetz));
+	    h_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o],0,0,targetz));
 	    
 	  }
 	}
@@ -289,8 +315,8 @@ int main(int argc, char* argv[]){
 	g_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
-	    g_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
-	    g_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
+	    g_egamdc_c[o]->Fill(hit->GetDCEnergy(beta[o],0,0,targetz));
+	    g_egamtgamdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o],0,0,targetz));
 	  }
 	}
       }
@@ -303,8 +329,11 @@ int main(int argc, char* argv[]){
 	h_egamtgamABdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
-	    h_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
-	    h_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
+	    h_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o],0,0,targetz));
+	    h_egamAB_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetEnergy());
+	    h_tgamAB_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetTime());
+	    h_egamABdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetDCEnergy(beta[o],0,0,targetz));
+	    h_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o],0,0,targetz));
 	  }
 	}
       }
@@ -317,8 +346,8 @@ int main(int argc, char* argv[]){
 	g_egamtgamABdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
 	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
-	    g_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o]));
-	    g_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o]));
+	    g_egamABdc_c[o]->Fill(hit->GetDCEnergy(beta[o],0,0,targetz));
+	    g_egamtgamABdc_c[o]->Fill(hit->GetTime(),hit->GetDCEnergy(beta[o],0,0,targetz));
 	  }
 	}
       }
