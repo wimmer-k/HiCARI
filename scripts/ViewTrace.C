@@ -12,11 +12,11 @@
 #include "TF1.h"
 
 #include "/home/gamma20/packages/HiCARI/inc/Trace.hh"
-char* filename = (char*)"~/fall2020/rootfiles/run0610.root";
+char* filename = (char*)"~/fall2020/commissioning/CheckTrace.root";
 int verbose = 0;
 int frontBL = 70;
 Double_t flinear(Double_t *x, Double_t *par);
-void SetRun(int run){
+void SetRun(int run){ 
   filename = Form("~/fall2020/rootfiles/run%04d.root",run);
 }
 void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
@@ -89,7 +89,8 @@ void CoreTraces(int firstevt=0, int lastevt=-1, int crystal = -1){
     if(status==0)
       continue;
     for(int e=0;e<mode3->GetMult();e++){
-      Trace *trace = mode3->GetHit(e)->GetCoreTrace();
+      //  Trace *trace = mode3->GetHit(e)->GetCoreTrace(); // BM: obsolete?
+      Trace *trace = mode3->GetHit(e)->GetTrace(39);
       if(crystal>-1 && trace->GetCrystal() != crystal)
 	continue;
       if (trace==NULL){
@@ -119,7 +120,8 @@ void ViewCoreTrace(int n){
   g.resize(mode3->GetMult());
   for(int e=0;e<mode3->GetMult();e++){
     cout << "Hit length " << mode3->GetHit(e)->GetMult() << endl;
-    Trace *trace = mode3->GetHit(e)->GetCoreTrace();
+    //   Trace *trace = mode3->GetHit(e)->GetCoreTrace(); // BM: obsolete?
+    Trace *trace = mode3->GetHit(e)->GetTrace(39);
     if (trace==NULL){
       cout << "Null core trace, aborting" << endl;
       return;

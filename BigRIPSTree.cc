@@ -71,9 +71,18 @@ int main(int argc, char* argv[]){
   }
   cout<<"input file:"<<InputFile<<endl;
   //get the run number from the filename
+
+  string infilestr = string(InputFile);
+  char extension[20];
+  strcpy(extension, infilestr.substr(infilestr.find_last_of(".")+1).c_str());
   int run;
   TString ifname(InputFile);
-  ifname.Remove(0,ifname.Length()-9); // Last 9 characters: nameXXXX.ridf
+  if(strcmp(extension,"gz")==0 || strcmp(extension,"gzip")==0){
+    cerr << "Inputfile is a zipped file, unzip first!" << endl;
+    return 77;
+  }
+  else
+    ifname.Remove(0,ifname.Length()-9); // Last 9 characters: nameXXXX.ridf
   //cout << "ifname.Data() " << ifname.Data() << endl;
   sscanf(ifname.Data(),"%04d.ridf",&run);
   //cout << run << endl;
@@ -98,13 +107,14 @@ int main(int argc, char* argv[]){
   
   RunInfo* info = new RunInfo();
   info->SetBRRunNumber(run);
+  cout << "run number: "<< run << endl;
   set->Write("settings",TObject::kOverwrite);
   TArtStoreManager* sman = TArtStoreManager::Instance();
 
   TArtEventStore* estore = new TArtEventStore();
-  estore->SetInterrupt(&signal_received); 
+  estore->SetInterrupt(&signal_received);
   estore->Open(InputFile);
-  std::cout<<"estore ->"<< InputFile <<std::endl;
+  //std::cout<<"estore ->"<< InputFile <<std::endl;
 
   TArtBigRIPSParameters* para = TArtBigRIPSParameters::Instance();
   para->LoadParameter(set->PPACFile());
