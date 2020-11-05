@@ -156,7 +156,7 @@ int main(int argc, char* argv[]){
   info->SetMergedEvents(ctr);
   evts->CloseEvent();
   evts->GetTree()->Write("",TObject::kOverwrite);
-  evts->GetHistos()->Write();
+  evts->GetHistos()->Write(info->GetBRRunNumber(), info->GetHIRunNumber());
   double r = evts->GetHistos()->GetCorrRate();
   info->SetCorrelationRate(r);
   cout << endl << "Total correlation rate from checkADC ";

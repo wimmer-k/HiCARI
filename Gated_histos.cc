@@ -76,26 +76,41 @@ int main(int argc, char* argv[]){
     TFile* cFile = new TFile(cfilename);
     for(int i=0;i<incuts;i++){
       char* iname = (char*)set->GetValue(Form("InCut.%d",i),"file");
-      TCutG* icg = (TCutG*)cFile->Get(iname);
-      cout << "incoming cut found "<< iname << endl;
-      InCut.push_back(icg);
+      if(cFile->GetListOfKeys()->Contains(iname)){
+	cout << "incoming cut found "<< iname << endl;
+	TCutG* icg = (TCutG*)cFile->Get(iname);
+	InCut.push_back(icg);
+      }
+      else{
+	cout << "Incoming cut " << iname << " does not exist! Error in settings file" << endl;
+	return 77;
+      }
     }
     for(int i=0;i<outcuts;i++){
       char* oname = (char*)set->GetValue(Form("OutCut.%d",i),"file");
-      TCutG* ocg = (TCutG*)cFile->Get(oname);
-      cout << "outgoing cut found "<< oname << endl;
-      OutCut.push_back(ocg);
-      double b = set->GetValue(Form("Beta.%d",i),0.57);
-      beta.push_back(b);
-      int s = set->GetValue(Form("InCutSel.%d",i),0);
-      InCut_sel.push_back(s);
-      
+      if(cFile->GetListOfKeys()->Contains(oname)){
+	cout << "outgoing cut found "<< oname << endl;
+	TCutG* ocg = (TCutG*)cFile->Get(oname);
+	OutCut.push_back(ocg);
+	double b = set->GetValue(Form("Beta.%d",i),0.57);
+	beta.push_back(b);
+	int s = set->GetValue(Form("InCutSel.%d",i),0);
+	if(s<(int)InCut.size()){
+	  InCut_sel.push_back(s);
+	}
+	else{
+	  cout << "Selected incoming cut Nr. " << s << " does not exist! Error in settings file" << endl;
+	  return 77;
+	}
+      }
+      else{
+	cout << "Outgoing cut " << oname << " does not exist! Error in settings file" << endl;
+	return 77;
+      }
     }
     
     cFile->Close();
   }//settings present
-
-
   
   TChain* tr;
   tr = new TChain("tr");

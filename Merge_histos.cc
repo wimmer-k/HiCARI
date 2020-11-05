@@ -189,7 +189,7 @@ int main(int argc, char* argv[]){
 
   cout << "writing histograms to file" << endl;
   outfile->cd();
-  hists->Write();
+  hists->Write(-1,-1);
   outfile->Close();
   delete tr;
 

@@ -13,6 +13,7 @@
 #include "TEnv.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TLatex.h"
 #include "math.h"
 #include <iostream>
 #include <iomanip>
@@ -50,7 +51,7 @@ public:
   }
   double GetCorrRate();
   TList* GetHList(){return fhlist;}
-  void Write();
+  void Write(int runbr=-1, int runhi=-1);
 
   void FillHistograms(int checkADC, HiCARICalc* hi, GretinaCalc* gr, unsigned long long int brTS, unsigned long long int hiTS, unsigned long long int m2TS);
 
@@ -83,7 +84,7 @@ public:
 
 protected:
   void FillCorrelationHistograms(int checkADC, HiCARICalc* hi, unsigned long long int brTS, unsigned long long int hiTS, unsigned long long int m2TS);
-  void PrintHistos();
+  void PrintHistos(int runbr=-1, int runhi=-1);
   
   TList* fhlist;
   map<string,TH1*> fhmap;

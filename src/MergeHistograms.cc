@@ -12,10 +12,10 @@
 using namespace TMath;
 using namespace std;
 
-void MergeHistograms::Write(){
+void MergeHistograms::Write(int runbr, int runhi){
   fhlist->Sort();
   fhlist->Write();
-  PrintHistos();
+  PrintHistos(runbr,runhi);
 }
 
 double MergeHistograms::GetCorrRate(){
@@ -56,7 +56,7 @@ void MergeHistograms::FillCorrelationHistograms(int checkADC, HiCARICalc* hi, un
       
 }
 
-void MergeHistograms::PrintHistos(){
+void MergeHistograms::PrintHistos(int runbr, int runhi){
   cout << "printing" << endl;
   TCanvas *c = new TCanvas("c","c",1200,1200);
   c->Divide(2,2);
@@ -93,6 +93,12 @@ void MergeHistograms::PrintHistos(){
     }
   }
   l->Draw();
+  c->cd(4);
+  if(runbr>0 || runhi>0){
+    cout << runbr << "\t "<< runhi << endl;
+    TLatex *la = new TLatex(0.1,0.5,Form("run BR%04d HI%04d",runbr,runhi));
+    la->Draw();
+  }
   c->SaveAs("/home/gamma20/fall2020/plots/current_merge.png");
     
 }
