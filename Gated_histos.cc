@@ -186,6 +186,9 @@ int main(int argc, char* argv[]){
   vector<TH2F*> h_egamAB_summary_c;
   vector<TH2F*> h_tgamAB_summary_c;
   vector<TH2F*> h_egamABdc_summary_c;
+
+  vector<TH2F*> g_egamdc_summary_c;
+  vector<TH2F*> g_egamABdc_summary_c;
   
   vector<TH2F*> h_egam_theta_c;
   vector<TH2F*> h_egamdc_theta_c;
@@ -270,6 +273,22 @@ int main(int argc, char* argv[]){
 		  48,0,48,4000,0,4000);
     h_egamABdc_summary_c.push_back(h2);
     hlist->Add(h_egamABdc_summary_c.back());
+
+
+    h2 = new TH2F(Form("g_egamdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  64,0,64,4000,0,4000);
+    g_egamdc_summary_c.push_back(h2);
+    hlist->Add(g_egamdc_summary_c.back());
+
+    h2 = new TH2F(Form("g_egamABdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamABdc_summary_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  64,0,64,4000,0,4000);
+    g_egamABdc_summary_c.push_back(h2);
+    hlist->Add(g_egamABdc_summary_c.back());
+
+
+
 
 
     //verus theta 
@@ -477,6 +496,7 @@ int main(int argc, char* argv[]){
 	    // gate on timing
 	    if(TimeCut[1] && TimeCut[1]->IsInside(hit->GetTime(),edc)){
 	      g_egamdc_c[o]->Fill(edc);
+	      g_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      for(int l=g+1; l<gr->GetMult(); l++){
 		HitCalc* hit2 = gr->GetHit(l);
 		double edc2 = hit2->GetDCEnergy(beta[o],0,0,targetz);
@@ -490,6 +510,7 @@ int main(int argc, char* argv[]){
 	    // if not time cut defined take all
 	    else if(TimeCut[1]==NULL){
 	      g_egamdc_c[o]->Fill(edc);
+	      g_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      for(int l=g+1; l<gr->GetMult(); l++){
 		HitCalc* hit2 = gr->GetHit(l);
 		double edc2 = hit2->GetDCEnergy(beta[o],0,0,targetz);
@@ -572,6 +593,7 @@ int main(int argc, char* argv[]){
 	    // gate on timing
 	    if(TimeCut[1] && TimeCut[1]->IsInside(hit->GetTime(),edc)){
 	      g_egamABdc_c[o]->Fill(edc);
+	      g_egamABdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      for(int l=g+1; l<gr->GetMultAB(); l++){
 		HitCalc* hit2 = gr->GetHitAB(l);
 		double edc2 = hit2->GetDCEnergy(beta[o],0,0,targetz);
@@ -584,6 +606,7 @@ int main(int argc, char* argv[]){
 	    // if not time cut defined take all
 	    else if(TimeCut[1]==NULL){
 	      g_egamABdc_c[o]->Fill(edc);
+	      g_egamABdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      for(int l=g+1; l<gr->GetMultAB(); l++){
 		HitCalc* hit2 = gr->GetHitAB(l);
 		double edc2 = hit2->GetDCEnergy(beta[o],0,0,targetz);
