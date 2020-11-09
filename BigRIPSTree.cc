@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
   TStopwatch timer;
   timer.Start();
   signal(SIGINT,signalhandler);
-  char* InputFile;
+  char* InputFile = NULL;
   char* OutputFile = NULL;
   char* SetFile = NULL;
   int nmax = 0;
@@ -404,6 +404,21 @@ int main(int argc, char* argv[]){
     for(unsigned short b=0;b<6;b++)
       beam->SetAQZ(b,recobeam[b]->GetAoQ(),recobeam[b]->GetZet());
 
+    for(unsigned short b=0;b<3;b++){
+      beam->CorrectAQ(b,
+		      set->GetBRAoQCorrection_F5X()*fp[fpNr(5)]->GetTrack()->GetX() +
+		      set->GetBRAoQCorrection_F5A()*fp[fpNr(5)]->GetTrack()->GetA() +
+		      set->GetBRAoQCorrection_F7X()*fp[fpNr(7)]->GetTrack()->GetX() +
+		      set->GetBRAoQCorrection_F7A()*fp[fpNr(7)]->GetTrack()->GetA()); 
+      beam->CorrectAQ(b+3,
+		      set->GetZDAoQCorrection_F9X()*fp[fpNr(9)]->GetTrack()->GetX() + 
+		      set->GetZDAoQCorrection_F9A()*fp[fpNr(9)]->GetTrack()->GetA() +
+		      set->GetZDAoQCorrection_F11X()*fp[fpNr(11)]->GetTrack()->GetX() +
+		      set->GetZDAoQCorrection_F11A()*fp[fpNr(11)]->GetTrack()->GetA()); 
+
+    }
+    
+    
     // beam->CorrectAQ(1, +0.00034002 *fp[fpNr(5)]->GetTrack()->GetA()
     // 		    -6.089e-05  *fp[fpNr(5)]->GetTrack()->GetX()
     // 		    +0.000413889*fp[fpNr(7)]->GetTrack()->GetA() 

@@ -68,11 +68,19 @@ int main(int argc, char* argv[]){
   vector<int> InCut_sel;
   vector<double> beta;
 
+  int useCorrected = 0;
+  
   if(SettingFile != NULL){
     TEnv* set = new TEnv(SettingFile);
     char* cfilename = (char*)set->GetValue("CutFile","file");
     incuts = set->GetValue("NInCuts",0);
     outcuts = set->GetValue("NOutCuts",0);
+
+    useCorrected = set->GetValue("UseAoQCorr",0);
+    if(useCorrected)
+      cout << "using corrected A/q values for PID gates" << endl;
+    else
+      cout << "using raw A/q values for PID gates" << endl;
     
     TFile* cFile = new TFile(cfilename);
 
@@ -340,7 +348,7 @@ int main(int argc, char* argv[]){
     h2 = new TH2F(Form("g_egamegamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  Form("g_egamegamABdc_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  1000,0,4000,1000,0,4000);
-   g_egamegamABdc_c.push_back(h2);
+    g_egamegamABdc_c.push_back(h2);
     hlist->Add(g_egamegamABdc_c.back());
 
 
@@ -372,11 +380,20 @@ int main(int argc, char* argv[]){
     nbytes += status;
 
     trigger->Fill(trigbit);
-    bigrips->Fill(bz->GetAQ(2),bz->GetZ(2));
-    zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
+    if(!useCorrected){
+      bigrips->Fill(bz->GetAQ(2),bz->GetZ(2));
+      zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
+    }
+    else{
+      bigrips->Fill(bz->GetCorrAQ(2),bz->GetZ(2));
+      zerodeg->Fill(bz->GetCorrAQ(5),bz->GetZ(5));
+    }
     for(int in=0;in<incuts;in++){
-      if(InCut[in]->IsInside(bz->GetAQ(2),bz->GetZ(2))){
+      if(!useCorrected && InCut[in]->IsInside(bz->GetAQ(2),bz->GetZ(2))){
 	zerodeg_c[in]->Fill(bz->GetAQ(5),bz->GetZ(5));
+      }
+      else if(useCorrected && InCut[in]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2))){
+	zerodeg_c[in]->Fill(bz->GetCorrAQ(5),bz->GetZ(5));
       }
     }
     for(int h=0; h<hi->GetMult(); h++){
@@ -392,7 +409,8 @@ int main(int argc, char* argv[]){
 	else if(TimeCut[0]==NULL)
 	  h_egamdc->Fill(hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
-	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
+	  if( (!useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))) ||
+	      (useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetCorrAQ(5),bz->GetZ(5)))){
 	    double edc = hit->GetDCEnergy(beta[o],0,0,targetz);
 	    h_tgam_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetTime());
 	    h_egamtgamdc_c[o]->Fill(hit->GetTime(),edc);
@@ -451,7 +469,8 @@ int main(int argc, char* argv[]){
 	else if(TimeCut[1]==NULL)
 	  g_egamdc->Fill(hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
-	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
+	  if( (!useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))) ||
+	      (useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetCorrAQ(5),bz->GetZ(5)))){
 	    double edc = hit->GetDCEnergy(beta[o],0,0,targetz);
 	    g_egamtgamdc_c[o]->Fill(hit->GetTime(),edc);
 	    
@@ -494,7 +513,8 @@ int main(int argc, char* argv[]){
 	else if(TimeCut[0]==NULL)
 	  h_egamABdc->Fill(hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
-	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
+	  if( (!useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))) ||
+	      (useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetCorrAQ(5),bz->GetZ(5)))){
 	    double edc = hit->GetDCEnergy(beta[o],0,0,targetz);
 	    h_tgamAB_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), hit->GetTime());
 	    h_egamtgamABdc_c[o]->Fill(hit->GetTime(),edc);
@@ -545,7 +565,8 @@ int main(int argc, char* argv[]){
 	else if(TimeCut[1]==NULL)
 	  g_egamABdc->Fill(hit->GetDCEnergy());
 	for(int o=0;o<outcuts;o++){	
-	  if(InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))){
+	  if( (!useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))) ||
+	      (useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetCorrAQ(5),bz->GetZ(5)))){
 	    double edc = hit->GetDCEnergy(beta[o],0,0,targetz);
 	    g_egamtgamABdc_c[o]->Fill(hit->GetTime(),edc);
 	    // gate on timing

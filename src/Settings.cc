@@ -83,6 +83,16 @@ void Settings::ReadSettings(TEnv* set){
   fBigRIPSChannel = set->GetValue("BigRIPS.Channel",9);
   fBigRIPSDetail = set->GetValue("BigRIPS.Detail",-1);
 
+
+  faoq_corr[0][0][0] = set->GetValue("BigRIPS.AoQCorr_F5X",0.0);
+  faoq_corr[0][0][1] = set->GetValue("BigRIPS.AoQCorr_F5A",0.0);
+  faoq_corr[0][1][0] = set->GetValue("BigRIPS.AoQCorr_F7X",0.0);
+  faoq_corr[0][1][1] = set->GetValue("BigRIPS.AoQCorr_F7A",0.0);
+  faoq_corr[1][0][0] = set->GetValue("ZeroDeg.AoQCorr_F9X",0.0);
+  faoq_corr[1][0][1] = set->GetValue("ZeroDeg.AoQCorr_F9A",0.0);
+  faoq_corr[1][1][0] = set->GetValue("ZeroDeg.AoQCorr_F11X",0.0);
+  faoq_corr[1][1][1] = set->GetValue("ZeroDeg.AoQCorr_F11A",0.0);
+
 }
 
 /*
@@ -160,6 +170,17 @@ void Settings::PrintSettings(){
   cout << "BigRIPS.Crystal\t" << fBigRIPSCrystal << endl;  
   cout << "BigRIPS.Channel\t" << fBigRIPSChannel << endl;  
   cout << "BigRIPS.Tree.Detail\t" << fBigRIPSDetail << endl;  
+
+
+
+  cout << "BigRIPS.AoQCorr_F5X\t" << faoq_corr[0][0][0] << endl;  
+  cout << "BigRIPS.AoQCorr_F5A\t" << faoq_corr[0][0][1] << endl;  
+  cout << "BigRIPS.AoQCorr_F7X\t" << faoq_corr[0][1][0] << endl;  
+  cout << "BigRIPS.AoQCorr_F7A\t" << faoq_corr[0][1][1] << endl;  
+  cout << "ZeroDeg.AoQCorr_F9X\t" << faoq_corr[1][0][0] << endl;  
+  cout << "ZeroDeg.AoQCorr_F9A\t" << faoq_corr[1][0][1] << endl;  
+  cout << "ZeroDeg.AoQCorr_F11X\t" << faoq_corr[1][1][0] << endl;  
+  cout << "ZeroDeg.AoQCorr_F11A\t" << faoq_corr[1][1][1] << endl;  
 
 
 }

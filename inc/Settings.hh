@@ -121,6 +121,17 @@ public:
   //! Get the detail level for the BigRIPSTree
   int BigRIPSDetail(){return fBigRIPSDetail;}
 
+  double GetAoQCorrection(int sp, int fp, int tr){return faoq_corr[sp][fp][tr];}
+  double GetBRAoQCorrection_F5X(){return faoq_corr[0][0][0];}
+  double GetBRAoQCorrection_F5A(){return faoq_corr[0][0][1];}
+  double GetBRAoQCorrection_F7X(){return faoq_corr[0][1][0];}
+  double GetBRAoQCorrection_F7A(){return faoq_corr[0][1][1];}
+  double GetZDAoQCorrection_F9X(){return faoq_corr[1][0][0];}
+  double GetZDAoQCorrection_F9A(){return faoq_corr[1][0][1];}
+  double GetZDAoQCorrection_F11X(){return faoq_corr[1][1][0];}
+  double GetZDAoQCorrection_F11A(){return faoq_corr[1][1][1];}
+
+  
 protected:
   int fEventTimeDiff;
   vector<string> fInputFiles;
@@ -191,6 +202,9 @@ protected:
   double ff5xgate[2];
   //! gate on the delta change
   double fdeltagate[4];
+
+
+  double faoq_corr[2][2][2];  // BR/ZD, focal plane, x,angle
 
   ClassDef(Settings, 1)
 };
