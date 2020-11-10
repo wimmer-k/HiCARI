@@ -135,9 +135,9 @@ int main(int argc, char* argv[]){
       double r = evts->GetHistos()->GetCorrRate();
       cout << setw(5) << setiosflags(ios::fixed) << setprecision(1) << (100.*ctr)/total<<" % done\t" << 
 	"correlation rate "; 
-      if(r>90)
+      if(r>80)
 	cout << GREEN;                                                              
-      else if(r>70)
+      else if(r>50)
 	cout << ORANGE;                                                             
       else
 	cout << RED;                                                                
