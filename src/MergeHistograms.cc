@@ -99,6 +99,6 @@ void MergeHistograms::PrintHistos(int runbr, int runhi){
     TLatex *la = new TLatex(0.1,0.5,Form("run BR%04d HI%04d",runbr,runhi));
     la->Draw();
   }
-  c->SaveAs("/home/gamma20/fall2020/plots/current_merge.png");
+  c->SaveAs("./plots/current_merge.png");
     
 }
