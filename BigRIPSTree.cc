@@ -429,9 +429,10 @@ int main(int argc, char* argv[]){
     // 		    -2.54913e-06*fp[fpNr(11)]->GetTrack()->GetA() 
     // 		    -0.00010038 *fp[fpNr(11)]->GetTrack()->GetX());
 
-    for(unsigned short b=0;b<4;b++)
+    for(unsigned short b=0;b<4;b++){
       beam->SetDelta(b ,recorips[b]->GetDelta());
-
+      beam->SetBrho(b ,recorips[b]->GetBrho());
+    }
 
     //fill the tree
     tr->Fill();

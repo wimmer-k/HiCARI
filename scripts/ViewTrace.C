@@ -12,12 +12,13 @@
 #include "TF1.h"
 
 #include "/home/gamma20/packages/HiCARI/inc/Trace.hh"
-char* filename = (char*)"~/fall2020/commissioning/CheckTrace.root";
+//char* filename = (char*)"~/fall2020/commissioning/CheckTrace.root";
+char* filename = (char*)"~/fall2020/rootfiles/cal0744.root";
 int verbose = 0;
 int frontBL = 70;
 Double_t flinear(Double_t *x, Double_t *par);
 void SetRun(int run){ 
-  filename = Form("~/fall2020/rootfiles/run%04d.root",run);
+  filename = Form("~/fall2020/rootfiles/cal%04d.root",run);
 }
 void Baseline(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
   TFile *f = new TFile(filename);
@@ -281,7 +282,7 @@ void ViewTraces(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
 	    "\tCrystal " << trace->GetCrystal();
 	  if(trace->GetChn()==9)
 	    cout << " <- CC " << endl;
-	  else if(trace->GetEnergy()>1000)
+	  else if(trace->GetEnergy()>100)
 	    cout << " <- with net energy " << endl;
 	  else
 	    cout << endl;
@@ -306,4 +307,129 @@ void ViewTraces(int hole, int cry, int slot, int firstevt=0, int lastevt=-1){
     }//hits
   }//events
   mg->Draw("a");
+}
+void ViewTraces(int hole, int cry, int slot, double encut, int firstevt=0, int lastevt=-1){
+  TFile *f = new TFile(filename);
+  TTree* tr = (TTree*)f->Get("build");
+  Mode3Event *mode3 = new Mode3Event;
+  tr->SetBranchAddress("mode3Event",&mode3);
+  // TCanvas *c = new TCanvas("c","c",900,400);
+  // c->Divide(2,1);
+  // TH2F *traces = new TH2F("traces","traces", 200,0,200,1200,-10000,2000);
+  // TH2F *smokep = new TH2F("smokep","smokep", 2000,0,5e5,1000,0,1000);
+  if(lastevt<0)
+    lastevt = tr->GetEntries();
+  //int ctr = 0;
+  vector<TGraph*> g;
+  TMultiGraph *mg = new TMultiGraph();
+  for(int i=firstevt; i<lastevt; i++){
+    Int_t status = tr->GetEvent(i);
+    if(status==0)
+      continue;
+    for(int e=0;e<mode3->GetMult();e++){
+      for(int t=0;t<mode3->GetHit(e)->GetMult();t++){
+        Trace *trace = mode3->GetHit(e)->GetTrace(t);
+        if (trace==NULL || trace->GetLength()<1){
+          cout << "bad trace, aborting" << endl;
+          continue;
+        }
+        if(trace->GetHole()!=hole || trace->GetCrystal()!=cry || trace->GetSlot()!=slot)
+          continue;
+	if(verbose){
+	  cout << "Trace " << g.size() << " Length " << trace->GetLength() <<
+	    "\tEnergy " << trace->GetEnergy() <<
+	    "\tBoard " << trace->GetBoard() <<
+	    "\tChannel " << trace->GetChn() <<
+	    "\tHole " << trace->GetHole() <<
+	    "\tCrystal " << trace->GetCrystal();
+	  if(trace->GetChn()==9)
+	    cout << " <- CC " << endl;
+	  else if(trace->GetEnergy()>100)
+	    cout << " <- with net energy " << endl;
+	  else
+	    cout << endl;
+	}
+	if(trace->GetEnergy() < encut)
+	  continue;
+	// if(trace->GetEnergy() == pow(2,16))
+	//   trace->Print();
+	// if(trace->GetEnergy() >70000 && trace->GetEnergy() < 80000)
+	//   trace->Print();
+	int data[200];
+	int x[200];
+	for(int j=0;j<trace->GetLength();j++){
+	  x[j] = j;
+	  data[j] = (int)trace->GetTrace()[j];
+	}// tracelength
+	g.push_back(new TGraph(trace->GetLength(),x,data));
+	mg->Add(g.back(),"LP");
+	if(trace->GetChn()==9){
+	  g.back()->SetLineColor(2);
+	  g.back()->SetMarkerColor(2);
+	}//core
+      }// traces
+    }//hits
+  }//events
+  mg->Draw("a");
+}
+void ViewOneFullTrace(int hole, int cry, int slot, double encut){
+  TFile *f = new TFile(filename);
+  TTree* tr = (TTree*)f->Get("build");
+  Mode3Event *mode3 = new Mode3Event;
+  tr->SetBranchAddress("mode3Event",&mode3);
+  vector<Trace*> fulltrace;
+  vector<TGraph*> g;
+  g.resize(10);
+  bool found =false;
+  
+  for(int i=0; i<tr->GetEntries(); i++){
+    Int_t status = tr->GetEvent(i);
+    if(status==0)
+      continue;
+    
+    for(int e=0;e<mode3->GetMult();e++){
+      fulltrace.clear();
+      for(int t=0;t<mode3->GetHit(e)->GetMult();t++){
+        Trace *trace = mode3->GetHit(e)->GetTrace(t);
+        if (trace==NULL || trace->GetLength()<1){
+          cout << "bad trace, aborting" << endl;
+          continue;
+        }
+        if(trace->GetHole()!=hole || trace->GetCrystal()!=cry || trace->GetSlot()!=slot)
+          continue;
+	if(trace->GetEnergy() > encut)
+	  found = true;
+	fulltrace.push_back(trace);
+      }
+
+      if(found)
+	break;
+    }
+    if(found)
+      break;
+  }
+  cout << fulltrace.size() << endl;
+  for(int i=0;i<fulltrace.size();i++){
+    int data[200];
+    int x[200];
+    for(int j=0;j<fulltrace[i]->GetLength();j++){
+      x[j] = j;
+      data[j] = (int)fulltrace[i]->GetTrace()[j];
+    }// tracelength
+    
+    g[fulltrace[i]->GetChn()] = new TGraph(fulltrace[i]->GetLength(),x,data);
+
+  }
+  
+  TCanvas *c0 = new TCanvas("c0","c0",900,400);
+  c0->cd();
+  g[9]->Draw("al");
+  TCanvas *c1 = new TCanvas("c1","c1",900,0,900,400);
+  c1->Divide(3,2);
+  for(int j=0;j<6;j++){
+    c1->cd(1+j);
+    g[j]->Draw("al");
+  }
+
+  
 }

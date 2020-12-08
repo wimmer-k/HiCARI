@@ -84,15 +84,28 @@ int main(int argc, char* argv[]){
   TString ifname(InputFile);
   cout << "Analyzing ";
   bool mode3 = false;
-  if(ifname.Contains("Raw")){
-    mode3 = true;
-    ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/GlobalRaw.dat
-    cout <<BLUE  << "mode3" << DEFCOLOR << " data " << endl;
-  } 
-  else{
-    ifname.Remove(0,ifname.Length()-18); // Last 21 characters: RunXXXX/GlobalRaw.dat
-    cout <<GREEN << "mode2" << DEFCOLOR << " data " << endl;
+  if(ifname.Contains(".gz")){
+    if(ifname.Contains("Raw")){
+      mode3 = true;
+      ifname.Remove(0,ifname.Length()-24); // Last 21 characters: RunXXXX/GlobalRaw.dat
+      cout <<BLUE  << "mode3" << DEFCOLOR << " data " << endl;
+    } 
+    else{
+      ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/Global.dat
+      cout <<GREEN << "mode2" << DEFCOLOR << " data " << endl;
+    }
   }
+  else{
+    if(ifname.Contains("Raw")){
+      mode3 = true;
+      ifname.Remove(0,ifname.Length()-21); // Last 21 characters: RunXXXX/GlobalRaw.dat
+      cout <<BLUE  << "mode3" << DEFCOLOR << " data " << endl;
+    } 
+    else{
+      ifname.Remove(0,ifname.Length()-18); // Last 21 characters: RunXXXX/Global.dat
+      cout <<GREEN << "mode2" << DEFCOLOR << " data " << endl;
+    }
+  }   
   
   //cout << "ifname.Data() " << ifname.Data() << endl;
   sscanf(ifname.Data(),"run%04d/%*s",&run);

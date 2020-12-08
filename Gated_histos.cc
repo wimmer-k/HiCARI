@@ -73,9 +73,10 @@ int main(int argc, char* argv[]){
   int usePlastic = 0;
   int BR_AoQ = 2;
   int ZD_AoQ = 5;
-  int nbins = 6000;
-  double erange = 6000;
-  double zrange[2] = {45,55};
+  int nbins = 4000;
+  double erange = 4000;
+  double zrange[2] = {10,30};
+  double aoqrange[2] = {2.2,2.8};
   
 
 
@@ -89,10 +90,12 @@ int main(int argc, char* argv[]){
     BR_AoQ = set->GetValue("UseBRAoQ",2);
     ZD_AoQ = set->GetValue("UseZDAoQ",5);
 
-    nbins = set->GetValue("Energy.Bins",6000);
-    erange = set->GetValue("Energy.Range",6000);
-    zrange[0] = set->GetValue("Z.Range.Min",45);
-    zrange[1] = set->GetValue("Z.Range.Max",55);
+    nbins = set->GetValue("Energy.Bins",4000);
+    erange = set->GetValue("Energy.Range",4000);
+    zrange[0] = set->GetValue("Z.Range.Min",10);
+    zrange[1] = set->GetValue("Z.Range.Max",30);
+    aoqrange[0] = set->GetValue("AoQ.Range.Min",2.2);
+    aoqrange[1] = set->GetValue("AoQ.Range.Max",2.8);
 
     cout<<"Using A/q ["<<BR_AoQ<<"] (BigRIPS) and ["<<ZD_AoQ<<"] (ZD) " << endl;
     
@@ -189,9 +192,9 @@ int main(int argc, char* argv[]){
 
   TList *hlist = new TList();
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
-  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,2.2,2.8,1000,zrange[0],zrange[1]);hlist->Add(bigrips);
-  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,2.2,2.8,1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
-  TH2F* bigrips_Pl = new TH2F("bigrips_Pl","bigrips_Pl",1000,2.2,2.8,2000,0,2000);hlist->Add(bigrips_Pl);
+  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips);
+  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
+  TH2F* bigrips_Pl = new TH2F("bigrips_Pl","bigrips_Pl",1000,aoqrange[0],aoqrange[1],2000,0,2000);hlist->Add(bigrips_Pl);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",nbins,0,erange);hlist->Add(h_egamdc);
   TH1F* g_egamdc = new TH1F("g_egamdc","g_egamdc",nbins,0,erange);hlist->Add(g_egamdc);
   TH1F* h_egamABdc = new TH1F("h_egamABdc","h_egamABdc",nbins,0,erange);hlist->Add(h_egamABdc);
@@ -236,11 +239,15 @@ int main(int argc, char* argv[]){
   vector<TH2F*> g_egamAB_theta_c;
   vector<TH2F*> g_egamABdc_theta_c;
 
-  vector<TH2F*> h_egamdc_mult_c;
-  vector<TH2F*> h_egamABdc_multAB_c;
+  vector<TH2F*> h_egamdc_hmult_c;
+  vector<TH2F*> h_egamABdc_hmultAB_c;
+  vector<TH2F*> h_egamdc_tmult_c;
+  vector<TH2F*> h_egamABdc_tmultAB_c;
 
-  vector<TH2F*> g_egamdc_mult_c;
-  vector<TH2F*> g_egamABdc_multAB_c;
+  vector<TH2F*> g_egamdc_gmult_c;
+  vector<TH2F*> g_egamABdc_gmultAB_c;
+  vector<TH2F*> g_egamdc_tmult_c;
+  vector<TH2F*> g_egamABdc_tmultAB_c;
   
   vector<TH2F*> g_egamdc_depth_c;
   vector<TH2F*> g_egamABdc_depth_c;
@@ -258,7 +265,7 @@ int main(int argc, char* argv[]){
   for(int i=0;i<incuts;i++){
     TH2F* h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
 		       Form("zerodeg_%s",InCut[i]->GetName()),
-		       1000,2.2,2.8,1000,zrange[0],zrange[1]);
+		       1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);
     zerodeg_c.push_back(h);
     hlist->Add(zerodeg_c.back());
   }
@@ -341,29 +348,53 @@ int main(int argc, char* argv[]){
 
 
     //multiplicity
-    h2 = new TH2F(Form("h_egamdc_mult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		  Form("h_egamdc_mult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+    h2 = new TH2F(Form("h_egamdc_hmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamdc_hmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  40,0,40,nbins,0,erange);
-    h_egamdc_mult_c.push_back(h2);
-    hlist->Add(h_egamdc_mult_c.back());
+    h_egamdc_hmult_c.push_back(h2);
+    hlist->Add(h_egamdc_hmult_c.back());
     
-    h2 = new TH2F(Form("h_egamABdc_multAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		  Form("h_egamABdc_multAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+    h2 = new TH2F(Form("h_egamABdc_hmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamABdc_hmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  40,0,40,nbins,0,erange);
-    h_egamABdc_multAB_c.push_back(h2);
-    hlist->Add(h_egamABdc_multAB_c.back());
+    h_egamABdc_hmultAB_c.push_back(h2);
+    hlist->Add(h_egamABdc_hmultAB_c.back());
     
-    h2 = new TH2F(Form("g_egamdc_mult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		  Form("g_egamdc_mult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+    h2 = new TH2F(Form("h_egamdc_tmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamdc_tmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  40,0,40,nbins,0,erange);
-    g_egamdc_mult_c.push_back(h2);
-    hlist->Add(g_egamdc_mult_c.back());
+    h_egamdc_tmult_c.push_back(h2);
+    hlist->Add(h_egamdc_tmult_c.back());
     
-    h2 = new TH2F(Form("g_egamABdc_multAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
-		  Form("g_egamABdc_multAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+    h2 = new TH2F(Form("h_egamABdc_tmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("h_egamABdc_tmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		  40,0,40,nbins,0,erange);
-    g_egamABdc_multAB_c.push_back(h2);
-    hlist->Add(g_egamABdc_multAB_c.back());
+    h_egamABdc_tmultAB_c.push_back(h2);
+    hlist->Add(h_egamABdc_tmultAB_c.back());
+    
+    h2 = new TH2F(Form("g_egamdc_gmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamdc_gmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  40,0,40,nbins,0,erange);
+    g_egamdc_gmult_c.push_back(h2);
+    hlist->Add(g_egamdc_gmult_c.back());
+    
+    h2 = new TH2F(Form("g_egamABdc_gmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamABdc_gmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  40,0,40,nbins,0,erange);
+    g_egamABdc_gmultAB_c.push_back(h2);
+    hlist->Add(g_egamABdc_gmultAB_c.back());
+    
+    h2 = new TH2F(Form("g_egamdc_tmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamdc_tmult_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  40,0,40,nbins,0,erange);
+    g_egamdc_tmult_c.push_back(h2);
+    hlist->Add(g_egamdc_tmult_c.back());
+    
+    h2 = new TH2F(Form("g_egamABdc_tmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  Form("g_egamABdc_tmultAB_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+		  40,0,40,nbins,0,erange);
+    g_egamABdc_tmultAB_c.push_back(h2);
+    hlist->Add(g_egamABdc_tmultAB_c.back());
     
     //depth in tracking detectors
     h2 = new TH2F(Form("g_egamdc_depth_%s_%s",InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
@@ -573,6 +604,13 @@ int main(int argc, char* argv[]){
     }
 
     
+    int hmult = hi->GetMult() + gr->GetMult();
+    int tmult = hi->GetMult() + gr->GetMult();
+    if(hi->HadBigRIPS()){
+      hmult-=1;
+      tmult-=1;
+    }
+      
     for(int h=0; h<hi->GetMult(); h++){
       HiCARIHitCalc* hit = hi->GetHit(h);
       if(hit->IsBigRIPS()){
@@ -601,7 +639,8 @@ int main(int argc, char* argv[]){
 	      h_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      h_egam_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetEnergy());
 	      h_egamdc_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, edc);
-	      h_egamdc_mult_c[o]->Fill(hi->GetMult(), edc);
+	      h_egamdc_hmult_c[o]->Fill(hmult, edc);
+	      h_egamdc_tmult_c[o]->Fill(tmult, edc);
 
 	      for(int l=h+1; l<hi->GetMult(); l++){
 		HiCARIHitCalc* hit2 = hi->GetHit(l);
@@ -655,7 +694,8 @@ int main(int argc, char* argv[]){
 	      g_egamdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      g_egam_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetEnergy());
 	      g_egamdc_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, edc);
-	      g_egamdc_mult_c[o]->Fill(gr->GetMult(), edc);
+	      g_egamdc_gmult_c[o]->Fill(gr->GetMult(), edc);
+	      g_egamdc_tmult_c[o]->Fill(tmult, edc);
 	      g_egamdc_depth_c[o]->Fill(hit->GetPosition().Mag(), edc);
 	      for(int l=g+1; l<gr->GetMult(); l++){
 		HitCalc* hit2 = gr->GetHit(l);
@@ -673,6 +713,7 @@ int main(int argc, char* argv[]){
 	}// loop over cuts
       }// energy and position good
     }// hits
+    int tmultAB = hi->GetMultAB() + gr->GetMultAB();
     for(int h=0; h<hi->GetMultAB(); h++){
       HiCARIHitCalc* hit = hi->GetHitAB(h);
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
@@ -697,7 +738,8 @@ int main(int argc, char* argv[]){
 	      h_egamABdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      h_egamAB_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetEnergy());
 	      h_egamABdc_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, edc);
-	      h_egamABdc_multAB_c[o]->Fill(hi->GetMultAB(), edc);
+	      h_egamABdc_hmultAB_c[o]->Fill(hi->GetMultAB(), edc);
+	      h_egamABdc_tmultAB_c[o]->Fill(tmultAB, edc);
 
 	      for(int l=h+1; l<hi->GetMultAB(); l++){
 		HiCARIHitCalc* hit2 = hi->GetHitAB(l);
@@ -744,7 +786,8 @@ int main(int argc, char* argv[]){
 	      g_egamABdc_summary_c[o]->Fill(hit->GetCluster()*4+hit->GetCrystal(), edc);
 	      g_egamAB_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetEnergy());
 	      g_egamABdc_theta_c[o]->Fill(hit->GetPosition().Theta()*180./3.1415, edc);
-	      g_egamABdc_multAB_c[o]->Fill(gr->GetMultAB(), edc);
+	      g_egamABdc_gmultAB_c[o]->Fill(gr->GetMultAB(), edc);
+	      g_egamABdc_tmultAB_c[o]->Fill(tmultAB, edc);
 	      g_egamABdc_depth_c[o]->Fill(hit->GetPosition().Mag(), edc);
 	      for(int l=g+1; l<gr->GetMultAB(); l++){
 		HitCalc* hit2 = gr->GetHitAB(l);

@@ -273,17 +273,28 @@ void QuadPositions(){
   int clu=15, cry=1, seg=0;
   float x, y, z;
 
-  TEnv* fout = new TEnv("/home/gamma20/packages/HiCARI/settings/HiCARIpos_1025.dat");
+  //TEnv* fout = new TEnv("/home/gamma20/packages/HiCARI/settings/HiCARIpos_1025.dat");
+  TH2F* c_thetaphi[4];
+  TH2F* c_xy[4];
+  TH2F* c_xz[4];
+  TH2F* c_yz[4];
   TH2F* s_thetaphi[4];
   TH2F* s_xy[4];
   TH2F* s_xz[4];
+  TH2F* s_yz[4];
   TCanvas* c = new TCanvas("c","c",1200,400);
-  c->Divide(3,1);
+  c->Divide(2,2);
   for(cry=0;cry<4;cry++){
     seg = 0;
     s_thetaphi[cry] = new TH2F(Form("s_thetaphi_%d",cry), Form("s_thetaphi_%d",cry),180,0,180,180,-180,180);
     s_xy[cry] = new TH2F(Form("s_xy_%d",cry), Form("s_xy_%d",cry),200,-400,0,200,-200,200);
     s_xz[cry] = new TH2F(Form("s_xz_%d",cry), Form("s_xz_%d",cry),200,-400,0,200,-200,200);
+    s_yz[cry] = new TH2F(Form("s_yz_%d",cry), Form("s_yz_%d",cry),200,-100,300,200,-200,200);
+    c_thetaphi[cry] = new TH2F(Form("s_thetaphi_%d",cry), Form("s_thetaphi_%d",cry),180,0,180,180,-180,180);
+    c_xy[cry] = new TH2F(Form("s_xy_%d",cry), Form("s_xy_%d",cry),200,-400,0,200,-200,200);
+    c_xz[cry] = new TH2F(Form("s_xz_%d",cry), Form("s_xz_%d",cry),200,-400,0,200,-200,200);
+    c_xz[cry] = new TH2F(Form("s_xz_%d",cry), Form("s_xz_%d",cry),200,-400,0,200,-200,200);
+    c_yz[cry] = new TH2F(Form("s_yz_%d",cry), Form("s_yz_%d",cry),200,-100,300,200,-200,200);
 
     infile.open(Form("/home/gamma20/packages/HiCARI/settings/cogP%d.dat",cry+1));
     if(!infile.is_open()){
@@ -299,13 +310,20 @@ void QuadPositions(){
       cout << clu << "\t" << cry << "\t" << seg << "\t" << x << "\t" << y << "\t" << z << endl;
       TVector3 v(x,y,z);
       v = TransformCoordinates(15,cry,v);
-      s_thetaphi[cry]->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
-      s_xy[cry]->Fill(v.X(),v.Y());
-      s_xz[cry]->Fill(v.X(),v.Z());
-      
-      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",10,cry,seg),v.X());
-      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",10,cry,seg),v.Y());
-      fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",10,cry,seg),v.Z());
+      c_thetaphi[cry]->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
+      c_xy[cry]->Fill(v.X(),v.Y());
+      c_xz[cry]->Fill(v.X(),v.Z());
+      c_yz[cry]->Fill(v.Y(),v.Z());
+      if(seg==0){
+	s_thetaphi[cry]->Fill(v.Theta()*rad2deg,v.Phi()*rad2deg);
+	s_xy[cry]->Fill(v.X(),v.Y());
+	s_xz[cry]->Fill(v.X(),v.Z());
+ 	s_yz[cry]->Fill(v.Y(),v.Z());
+      }
+	
+      // fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",10,cry,seg),v.X());
+      // fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",10,cry,seg),v.Y());
+      // fout->SetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",10,cry,seg),v.Z());
 
       seg++;
       if(seg%10==9)
@@ -314,36 +332,61 @@ void QuadPositions(){
 	break;
     }
     c->cd(1);
+    c_thetaphi[cry]->SetMarkerColor(2+cry);
+    c_thetaphi[cry]->SetMarkerStyle(20);
+    c_thetaphi[cry]->SetMarkerSize(0.5);
+    if(cry==0)
+      c_thetaphi[cry]->Draw();
+    else
+      c_thetaphi[cry]->Draw("same");
     s_thetaphi[cry]->SetMarkerColor(2+cry);
     s_thetaphi[cry]->SetMarkerStyle(20);
-    s_thetaphi[cry]->SetMarkerSize(0.5);
-    if(cry==0)
-      s_thetaphi[cry]->Draw();
-    else
-      s_thetaphi[cry]->Draw("same");
+    s_thetaphi[cry]->SetMarkerSize(2);
+    s_thetaphi[cry]->Draw("same");
 
     c->cd(2);
+    c_xy[cry]->SetMarkerColor(2+cry);
+    c_xy[cry]->SetMarkerStyle(20);
+    c_xy[cry]->SetMarkerSize(0.5);
+    if(cry==0)
+      c_xy[cry]->Draw();
+    else
+      c_xy[cry]->Draw("same");
     s_xy[cry]->SetMarkerColor(2+cry);
     s_xy[cry]->SetMarkerStyle(20);
-    s_xy[cry]->SetMarkerSize(0.5);
-    if(cry==0)
-      s_xy[cry]->Draw();
-    else
-      s_xy[cry]->Draw("same");
+    s_xy[cry]->SetMarkerSize(2);
+    s_xy[cry]->Draw("same");
 
     c->cd(3);
+    c_xz[cry]->SetMarkerColor(2+cry);
+    c_xz[cry]->SetMarkerStyle(20);
+    c_xz[cry]->SetMarkerSize(0.5);
+    if(cry==0)
+      c_xz[cry]->Draw();
+    else
+      c_xz[cry]->Draw("same");
     s_xz[cry]->SetMarkerColor(2+cry);
     s_xz[cry]->SetMarkerStyle(20);
-    s_xz[cry]->SetMarkerSize(0.5);
+    s_xz[cry]->SetMarkerSize(2);
+    s_xz[cry]->Draw("same");
+ 
+    c->cd(4);
+    c_yz[cry]->SetMarkerColor(2+cry);
+    c_yz[cry]->SetMarkerStyle(20);
+    c_yz[cry]->SetMarkerSize(0.5);
     if(cry==0)
-      s_xz[cry]->Draw();
+      c_yz[cry]->Draw();
     else
-      s_xz[cry]->Draw("same");
-
+      c_yz[cry]->Draw("same");
+    s_yz[cry]->SetMarkerColor(2+cry);
+    s_yz[cry]->SetMarkerStyle(20);
+    s_yz[cry]->SetMarkerSize(2);
+    s_yz[cry]->Draw("same");
+ 
     infile.close();
   }
   
-  fout->SaveLevel(kEnvLocal);
+  //fout->SaveLevel(kEnvLocal);
  
 }
 void ReadMatrix(const char* filename){
