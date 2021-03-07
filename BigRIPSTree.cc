@@ -475,3 +475,4 @@ double get_time(){
     double d = t.tv_sec + (double) t.tv_usec/1000000;  
     return d;  
 }  
+:q

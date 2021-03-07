@@ -193,6 +193,7 @@ int main(int argc, char* argv[]){
   TList *hlist = new TList();
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
   TH2F* bigrips = new TH2F("bigrips","bigrips",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips);
+  TH2F* bigrips_TB1 = new TH2F("bigrips_TB1","bigrips_TB1",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips_TB1);
   TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
   TH2F* bigrips_Pl = new TH2F("bigrips_Pl","bigrips_Pl",1000,aoqrange[0],aoqrange[1],2000,0,2000);hlist->Add(bigrips_Pl);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",nbins,0,erange);hlist->Add(h_egamdc);
@@ -563,11 +564,16 @@ int main(int argc, char* argv[]){
       bigrips->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
       zerodeg->Fill(bz->GetAQ(ZD_AoQ),bz->GetZ(ZD_AoQ));
       bigrips_Pl->Fill(bz->GetAQ(BR_AoQ),fp[fpNr(7)]->GetPlastic()->GetCharge());
+      if((trigbit&1)==1)
+	bigrips_TB1->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
+      
     }
     else{
       bigrips->Fill(bz->GetCorrAQ(BR_AoQ),bz->GetZ(BR_AoQ));
       zerodeg->Fill(bz->GetCorrAQ(ZD_AoQ),bz->GetZ(ZD_AoQ));
       bigrips_Pl->Fill(bz->GetCorrAQ(BR_AoQ),fp[fpNr(7)]->GetPlastic()->GetCharge());
+      if((trigbit&1)==1)
+	bigrips_TB1->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
     }
     bool ingood = false;
     bool outgood = false;
