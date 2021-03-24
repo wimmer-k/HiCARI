@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
   int denom = 100000;
   int wrawtree = 1;
   int wrawhist = 0;
-  int wcaltree = 0;
+  int wcaltree = 1;
   int wcalhist = 0;
   int makemode2 = 1;
   bool noHFC = false;
