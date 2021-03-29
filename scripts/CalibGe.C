@@ -15,6 +15,7 @@
 #include "TF1.h"
 #include "TEnv.h"
 #include "TKey.h"
+#include "TLine.h"
 #include "TSpectrum.h"
 #include "TVirtualFitter.h"
 
@@ -48,7 +49,7 @@ TGraph* corerun(int m, int c, int run, bool draw=false);
 double fitonepeak(TH1F* h, double low, double hig, bool draw = false);
 ofstream fout;
 
-TFile *f_fitEu=new TFile("/home/wimmer/source/hist/FitSpecEu.root", "recreate");
+TFile *f_fitEu = new TFile("/home/wimmer/source/hist/FitSpecEu.root", "recreate");
 
 void SetRange(double low, double hig){
   range[0] = low;
@@ -136,7 +137,7 @@ vector <vector<double> > fitEu(TH1F* h, double rough, bool bg, bool draw){
   sp->SetResolution(resolution);
   const int n = 10;
   ifstream intensity;
-  intensity.open("/home/wimmer/progs/HiCARI/scripts/Eudecay.dat");
+  intensity.open("./scripts/Eudecay.dat");
   intensity.ignore(1000,'\n');
   double en[n], inten[n];//, eff[n];
   if(draw){
@@ -529,7 +530,7 @@ vector<double> fitCoBa(TH1F* h, double rough, vector< vector<double> > CoPar, bo
   sp->SetResolution(resolution);
   const int n = 3;
   ifstream intensity;
-  intensity.open("/home/wimmer/progs/HiCARI/scripts/Badecay.dat");
+  intensity.open("./Badecay.dat");
   intensity.ignore(1000,'\n');
   double en[n], inten[n];//, eff[n];
   if(draw){
@@ -829,7 +830,7 @@ void CalibGeCo(){
   res0.clear();
   res1.clear();
   resolution = 2;
-  /*  for(int clu=0;clu<12;clu++){
+  for(int clu=0;clu<12;clu++){
     for(int cry=0;cry<4;cry++){
       //cout << clu << "\t" << cry << endl;
       // cout << "clu=" << clu << " cry=" << cry << endl;
@@ -846,7 +847,7 @@ void CalibGeCo(){
 	SetRange(1800,3100);
 	if(clu==2 && cry==1 && s==1)
 	  SetRange(2000,2500);
-	/*if(clu==3 && cry==2 && s==4)
+	if(clu==3 && cry==2 && s==4)
 	  SetRange(2800,3800);
 	if(clu==4 && cry==1 && s==2)
 	  SetRange(2800,3800);
@@ -925,7 +926,7 @@ void CalibGeCo(){
       }//segments
     }//crystals
   }//clusters
-//*/
+//
   cout << "finished segments" << endl;
   ca->cd(3);
   cout << gain.size() << endl;
@@ -992,9 +993,12 @@ void CalibGeCoBa(){
 	if(clu>=6 && clu<=9) SetRange(2000,3000);
 	if(clu==11)
 	  {
-	    SetRange(3000,4200);
+	    SetRange(3000,5000);
 	    frange=25;
 	    if(cry==0&&s==33) SetRange(3400,4200);
+	    if(s%10==9)
+	    continue;
+
 	  }
 	if(clu==11&&cry==2&&s ==33)
 	  SetRange(4500,5500);
@@ -1026,7 +1030,7 @@ void CalibGeCoBa(){
 	    if(s==12) 
 	      SetRange(3000,4000);
 	    if(s==25)
-	      SetRange(4000,5000);
+	      SetRange(3000,4000);
 	    if(s==28)
 	      SetRange(3000,4000);
 	    if(s==35){
@@ -1040,9 +1044,9 @@ void CalibGeCoBa(){
 	    continue;
 	}
 	vector<vector<double> > CoPar;
-	cout << "Let's start some fits!" << endl;
+	cout << "Let's start some fits for " <<  h21->GetName() << " segment " << s << " in the range " << range[0] << " to " << range[1] << endl;
 	vector<double> vco = fitCo2(h11,CoPar,0,0);
-	cout << "out" << endl;
+	cout << "Fitted Co, rough gain = " << vco[0] << endl;
 	frange=40;
 	vector<double> r=fitCoBa(h12,vco[0],CoPar,1,0);
 	cout << " fitted " << r[0]<< endl;
@@ -1130,33 +1134,67 @@ void CalibCore(){
   string abc[4] = {"A","B","C","D"};
   ca = new TCanvas("ca","ca",1200,800);
   ca->Divide(12,4);
+  TCanvas *cr = new TCanvas("cr","cr",1200,800);
+  cr->Divide(12,4);
   // fileCo = (char*)"./hist/hraw0475.root";
   // fileEu = (char*)"./hist/hraw0448.root";
   // fileBa = (char*)"./hist/hraw0468.root";
   // fileYy = (char*)"./hist/hraw0469.root";
   // TEnv *cf = new TEnv("settings/all_cal0410.dat");
-  fileCo = (char*)"./rootfiles/mode3_0668_0670.root";
-  fileEu = (char*)"./rootfiles/mode3_0667.root";
+  //fileCo = (char*)"./rootfiles/mode3_0668_0670.root";
+  //fileEu = (char*)"./rootfiles/mode3_0667.root";
+  //fileBa = (char*)"./rootfiles/mode3_0673_0674.root";
+  fileCo = (char*)"./rootfiles/mode3_0702_703_706.root";
+  fileEu = (char*)"./rootfiles/mode3_0701_704_705.root";
   fileBa = (char*)"./rootfiles/mode3_0673_0674.root";
   fileYy = (char*)"./hist/hrawXXXX.root";
-  TEnv *cf = new TEnv("settings/cores_20210310.dat");
+  TEnv *cf = new TEnv("settings/cores_70X_20210326.dat");
   for(int clu=0;clu<12;clu++){
     for(int cry=0;cry<4;cry++){
       ca->cd(cry*12+1+clu);
+      if(clu==11 && cry==1)
+	SetRange(9000,12000);
+      else
+	SetRange(500,5000);
       TGraph *g = core(clu,cry);
       if(!g)
 	continue;
       g->SetTitle(Form("DET %d%s Core calibration",clu,(char*)abc[cry].c_str()));
 
       g->Draw("AP*");
-      TF1 *fl = new TF1("fl",flinear,0,500000,2);
+      TF1 *fl = new TF1("fl",flinear,0,5000,2);
+      if(clu==11 && cry==1)
+	fl->SetRange(0,12000);
       fl->SetParameters(0.004,1);
       g->Fit(fl,"q");
       double gain = fl->GetParameter(0);
       double offs = fl->GetParameter(1);
       cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Gain",clu,cry),gain);
       cf->SetValue(Form("Core.Clu.%02d.Cry.%02d.Offset",clu,cry),offs);
+      cr->cd(cry*12+1+clu);
       
+      vector<double> x;
+      vector<double> y;
+      x.resize(g->GetN());
+      y.resize(g->GetN());
+      for(int i=0;i<g->GetN();i++){
+	double fx;
+	double fy;
+	g->GetPoint(i,fx,fy);
+	x.at(i) = fy;
+	y.at(i) = fl->Eval(fx) - fy;
+      }
+      TGraph *gr = new TGraph(g->GetN(),&x[0],&y[0]);
+      gr->SetTitle(Form("DET %d%s Core residuals",clu,(char*)abc[cry].c_str()));
+      gr->Draw("AP*");
+      double lx[2] = {0,5000};
+      double ly[5][2] = {{2,2}, {1,1}, {0,0}, {-1,-1}, {-2,-2}};
+      TLine* l1[5];
+      for(int i=0;i<5;i++){
+	l1[i] = new TLine(lx[0],ly[i][0],lx[1],ly[i][1]);
+	l1[i]->SetLineColor(2);
+	l1[i]->Draw();
+      }
     }
   }
   cf->SaveLevel(kEnvLocal);
@@ -1166,19 +1204,26 @@ TGraph* core(int m, int c, bool draw){
   vector<double> chn;
   TFile *f = new TFile(fileCo);
   TH1F* h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
-  if(h==NULL || h->Integral(h->FindBin(100000),h->FindBin(1000000))<100)
+  if(h==NULL || h->Integral(h->FindBin(100),h->FindBin(10000))<100)
     return NULL;
   
   //h->Draw();
   vector<double> v = fitCo(h,1,0);
-  const int nEu = 12;
-  double enEu[nEu] = {121.77, 244.66, 344.28, 411.11, 443.96, 778.90, 867.3, 963.38, 1085.84, 1112.08, 1299.14, 1408.01};
-  const int nCo = 3;
-  double enCo[nCo] = {1173.23, 1332.49, 2505.69};
-  const int nBa = 5;
-  double enBa[nBa] = {81.00, 276.40, 302.85, 356.01, 383.85};
-  const int nYy = 2;
-  double enYy[nYy] = {898.04, 1836.06};
+  //const int nEu = 12;
+  //double enEu[nEu] = {121.77, 244.66, 344.28, 411.11, 443.96, 778.90, 867.3, 963.38, 1085.84, 1112.08, 1299.14, 1408.01};
+  const int nEu = 10;
+  double enEu[nEu] = {121.77, 244.66, 344.28, 411.11, 443.96, 778.90, 867.3, 1085.84, 1112.08, 1408.01};
+  //const int nCo = 3;
+  //double enCo[nCo] = {1173.23, 1332.49, 2505.69};
+  const int nCo = 2;
+  double enCo[nCo] = {1173.23, 1332.49};
+  const int nBa = 3;
+  double enBa[nBa] = {302.85, 356.01, 383.85};
+  const int nYy = 0;
+  //const int nBa = 5;
+  //double enBa[nBa] = {81.00, 276.40, 302.85, 356.01, 383.85};
+  //const int nYy = 2;
+  //double enYy[nYy] = {898.04, 1836.06};
 
   frange = 30;
 
@@ -1200,26 +1245,26 @@ TGraph* core(int m, int c, bool draw){
       chn.push_back(fr);
     }
   }
-  f = new TFile(fileBa);
-  h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
-  for(int i=0;i<nBa;i++){
-    double fr = fitonepeak(h,(enBa[i]-20)/v[0] ,(enBa[i]+20)/v[0],0);
-    if(fr>0){
-      ene.push_back(enBa[i]);
-      chn.push_back(fr);
-    }
-  }
-  f = new TFile(fileYy);
-  if(f->IsOpen()){
-    h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
-    for(int i=0;i<nYy;i++){
-      double fr = fitonepeak(h,(enYy[i]-20)/v[0] ,(enYy[i]+20)/v[0],0);
-      if(fr>0){
-	ene.push_back(enYy[i]);
-	chn.push_back(fr);
-      }
-    }
-  }
+  // f = new TFile(fileBa);
+  // h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  // for(int i=0;i<nBa;i++){
+  //   double fr = fitonepeak(h,(enBa[i]-20)/v[0] ,(enBa[i]+20)/v[0],0);
+  //   if(fr>0){
+  //     ene.push_back(enBa[i]);
+  //     chn.push_back(fr);
+  //   }
+  // }
+  // f = new TFile(fileYy);
+  // if(f->IsOpen()){
+  //   h = (TH1F*)f->Get(Form("hraw_en_clus%02d_crys%02d",m,c));
+  //   for(int i=0;i<nYy;i++){
+  //     double fr = fitonepeak(h,(enYy[i]-20)/v[0] ,(enYy[i]+20)/v[0],0);
+  //     if(fr>0){
+  // 	ene.push_back(enYy[i]);
+  // 	chn.push_back(fr);
+  //     }
+  //   }
+  // }
   TGraph* g = new TGraph(ene.size(),&chn[0],&ene[0]);
   TF1 *fl = new TF1("fl",flinear,0,500000,2);
   fl->SetParameters(0.004,1);
@@ -1423,9 +1468,9 @@ double fitonepeak(TH1F* h, double low, double hig, bool draw){
   fu->SetParameter(1,0);//bg slope
   fu->SetParameter(2,h->Integral(xpeak-frange,xpeak+frange));//norm
   fu->SetParameter(3,xpeak);//mean
-  fu->SetParLimits(3,xpeak-500,xpeak+500);//mean
-  fu->SetParameter(4,200);//sigma
-  fu->SetParLimits(4,100,frange);//sigma
+  fu->SetParLimits(3,xpeak-10,xpeak+10);//mean
+  fu->SetParameter(4,2);//sigma
+  fu->SetParLimits(4,0,frange);//sigma
   fu->SetParameter(5,h->GetBinContent(h->FindBin(xpeak-frange)));//step
   if(draw)
     h->Fit(fu,"Rn");
