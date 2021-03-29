@@ -1,6 +1,8 @@
 #include "RunInfo.hh"
 using namespace std;
 void RunInfo::Clear(){
+  ffirstTS = -1;
+  flastTS = -1;
   fHIrunnr = -1;
   fBRrunnr = -1;
   fM2runnr = -1;
@@ -16,6 +18,14 @@ void RunInfo::Clear(){
 void RunInfo::AppendInfo(RunInfo* sec){
   // cout << fHIrunnr << "\t" << fM2runnr << "\t" << fBRrunnr  << endl;
   // cout << " adding " <<  sec->GetHIRunNumber() << "\t" <<  sec->GetM2RunNumber() << "\t" << sec->GetBRRunNumber()<< endl;
+  if(sec->GetFirstTS()>0){
+    ffirstTS = sec->GetFirstTS();
+  }
+  if(sec->GetLastTS()>0){
+    flastTS = sec->GetLastTS();
+  }
+
+
   if(fHIrunnr<0 && sec->GetHIRunNumber()>0){
     fHIrunnr = sec->GetHIRunNumber();
     fHIbytes = sec->GetHIBytes();
@@ -82,4 +92,8 @@ void RunInfo::PrintRunInfo(){
     cout << "Number of BigRIPS Events read from RIDF file:\t" << fBRevents << endl;
   }
 
+  cout << "First time stamp read from file:\t" << ffirstTS << endl;
+  cout << "Last time stamp read from file:\t" << flastTS << endl;
+  if(ffirstTS>0 && flastTS > ffirstTS)
+    cout << "Run time from timestamps:\t" << flastTS - ffirstTS << " = " << (flastTS - ffirstTS)*1e-8 << " sec " << endl;
 }

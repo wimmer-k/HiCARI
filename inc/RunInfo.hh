@@ -29,6 +29,9 @@ public:
   void SetBRRunNumber(int runnr){fBRrunnr = runnr;}
   void SetM2RunNumber(int runnr){fM2runnr = runnr;}
   
+  void SetFirstTS(long long int firstTS){ffirstTS = firstTS;}
+  void SetLastTS(long long int lastTS){flastTS = lastTS;}
+  
   void SetHIBytes(long long int bytes){fHIbytes = bytes;}
   void SetHIRawEvents(long long int events){fHIrawevents = events;}
   void SetHICalEvents(long long int events){fHIcalevents = events;}
@@ -50,6 +53,9 @@ public:
   void SetGretinaHitABCtr(long long int ctr){fGretinaHitABctr = ctr;}
   
 
+  long long int GetFirstTS(){return ffirstTS;}
+  long long int GetLastTS(){return flastTS;}
+  
   int GetHIRunNumber(){return fHIrunnr;}
   int GetBRRunNumber(){return fBRrunnr;}
   int GetM2RunNumber(){return fM2runnr;}
@@ -81,6 +87,9 @@ protected:
   int fBRrunnr;
   int fM2runnr;
 
+  long long int ffirstTS;
+  long long int flastTS;
+  
   long long int fHIbytes;
   long long int fHIrawevents;
   long long int fHIcalevents;

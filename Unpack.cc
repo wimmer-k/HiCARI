@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
   int denom = 100000;
   int wrawtree = 1;
   int wrawhist = 0;
-  int wcaltree = 0;
+  int wcaltree = 1;
   int wcalhist = 0;
   int makemode2 = 1;
   bool noHFC = false;
@@ -156,6 +156,7 @@ int main(int argc, char* argv[]){
   struct crys_ips_abcd6789 inbuf_abcd6789[1];
   int buffers = 0;
   long long int bytes_read = 0;
+  bool first_ts = false;
   UnpackedEvent *evt = new UnpackedEvent(set);
   evt->SetWrite(wrawtree, wrawhist, wcaltree, wcalhist);
 
@@ -164,7 +165,7 @@ int main(int argc, char* argv[]){
   evt->SetVL(vl);
   evt->Init();
   evt->SetMakeMode2(makemode2);
-  
+  long long int ts = -1;
   //Loop over the entirety of the input file.
   while(!feof(infile) && !signal_received){
 
@@ -178,7 +179,11 @@ int main(int argc, char* argv[]){
     //Read the header of the new buffer.
     unsigned int header[4];
     bsize = fread(header, sizeof(unsigned int), 4, infile);
-    long long int ts = (long long int)header[3] << 32;
+    ts = (long long int)header[3] << 32;
+    if(!first_ts){
+      info->SetFirstTS(ts);
+      first_ts = true;
+    }
     ts += header[2];
     if(vl>1){
       cout << "header" << endl;
@@ -247,6 +252,7 @@ int main(int argc, char* argv[]){
       cout << "\r" << buffers << " buffers read... "<<bytes_read/(1024*1024)<<" MB... "<<buffers/(time_end - time_start) << " buffers/s" << flush;
     }
   }
+  info->SetLastTS(ts);
   //Finish reading the last event and close it out.
   evt->WriteLastEvent();
   cout << endl;
