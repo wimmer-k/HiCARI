@@ -67,6 +67,11 @@ int main(int argc, char* argv[]){
   vector<double> beta;
 
   int useCorrected = 0;
+  int BR_AoQ = 2;
+  int ZD_AoQ = 5;
+  double zrange[2] = {10,30};
+  double aoqrange[2] = {2.2,2.8};
+  
   
   if(SettingFile != NULL){
     TEnv* set = new TEnv(SettingFile);
@@ -80,6 +85,14 @@ int main(int argc, char* argv[]){
     else
       cout << "using raw A/q values for PID gates" << endl;
     
+    BR_AoQ = set->GetValue("UseBRAoQ",2);
+    ZD_AoQ = set->GetValue("UseZDAoQ",5);
+
+    zrange[0] = set->GetValue("Z.Range.Min",10);
+    zrange[1] = set->GetValue("Z.Range.Max",30);
+    aoqrange[0] = set->GetValue("AoQ.Range.Min",2.2);
+    aoqrange[1] = set->GetValue("AoQ.Range.Max",2.8);
+
     TFile* cFile = new TFile(cfilename);
     for(int i=0;i<incuts;i++){
       char* iname = (char*)set->GetValue(Form("InCut.%d",i),"file");
@@ -150,8 +163,8 @@ int main(int argc, char* argv[]){
 
   TList *hlist = new TList();
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
-  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,2.2,2.8,1000,30,50);hlist->Add(bigrips);
-  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,2.2,2.8,1000,30,50);hlist->Add(zerodeg);
+  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips);
+  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
   
   //ppacs
   TH2F* tsumx_id = new TH2F("tsumx_id","tsumx_id",NPPACS,0,NPPACS,2500,0,250);hlist->Add(tsumx_id);
