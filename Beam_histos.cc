@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
       cout << "using corrected A/q values for PID gates" << endl;
     else
       cout << "using raw A/q values for PID gates" << endl;
-    
+
     BR_AoQ = set->GetValue("UseBRAoQ",2);
     ZD_AoQ = set->GetValue("UseZDAoQ",5);
 
