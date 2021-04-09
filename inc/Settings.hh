@@ -110,6 +110,9 @@ public:
   //! Get the crystal used for correlation checking
   int CorrelationCrystal(){return fcorrelationCrystal;}
 
+  //! Get the ADC channel for checkADC
+  int CorrelationChannel(){return fcorrelationChannel;}
+  
   //! Get the cluster used for BigRIPS time checking
   int BigRIPSCluster(){return fBigRIPSCluster;}
   //! Get the crystal used for BigRIPS time checking
@@ -172,6 +175,7 @@ protected:
   int fcorrelationMode;
   int fcorrelationCluster;
   int fcorrelationCrystal;
+  int fcorrelationChannel;
 
   int fBigRIPSCluster;
   int fBigRIPSCrystal;

@@ -77,6 +77,7 @@ void Settings::ReadSettings(TEnv* set){
   fcorrelationMode = set->GetValue("Correlation.Mode",0);
   fcorrelationCluster = set->GetValue("Correlation.Cluster",3);
   fcorrelationCrystal = set->GetValue("Correlation.Crystal",0);
+  fcorrelationChannel = set->GetValue("Correlation.Channel",0);
   
   fBigRIPSCluster = set->GetValue("BigRIPS.Cluster",9);
   fBigRIPSCrystal = set->GetValue("BigRIPS.Crystal",9);
@@ -165,6 +166,7 @@ void Settings::PrintSettings(){
   cout << "Correlation.Mode\t" << fcorrelationMode << endl;  
   cout << "Correlation.Cluster\t" << fcorrelationCluster << endl;  
   cout << "Correlation.Crystal\t" << fcorrelationCrystal << endl;  
+  cout << "Correlation.Channel\t" << fcorrelationChannel << endl;  
  
   cout << "BigRIPS.Cluster\t" << fBigRIPSCluster << endl;  
   cout << "BigRIPS.Crystal\t" << fBigRIPSCrystal << endl;  

@@ -47,7 +47,7 @@ void Calibration::ReadHiCARIPositions(const char* filename){
   }
 }
 void Calibration::ReadHiCARICalibration(const char* filename){
-  //cout << "filename " << filename << endl;
+  cout << "filename " << filename << endl;
   TEnv *calF = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){

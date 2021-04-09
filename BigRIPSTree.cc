@@ -222,7 +222,7 @@ int main(int argc, char* argv[]){
       if(fpl==8 && detector ==21){
 	if(seg->GetNumData()<1)
 	  break;
-	TArtRawDataObject* d = seg->GetData(0);
+	TArtRawDataObject* d = seg->GetData(set->CorrelationChannel());
 	checkADC = d->GetVal();
 	if(set->VLevel()>1){
 	  for(int j=0; j < seg->GetNumData(); j++){
