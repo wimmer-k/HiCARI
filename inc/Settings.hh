@@ -125,14 +125,18 @@ public:
   int BigRIPSDetail(){return fBigRIPSDetail;}
 
   double GetAoQCorrection(int sp, int fp, int tr){return faoq_corr[sp][fp][tr];}
-  double GetBRAoQCorrection_F5X(){return faoq_corr[0][0][0];}
-  double GetBRAoQCorrection_F5A(){return faoq_corr[0][0][1];}
-  double GetBRAoQCorrection_F7X(){return faoq_corr[0][1][0];}
-  double GetBRAoQCorrection_F7A(){return faoq_corr[0][1][1];}
-  double GetZDAoQCorrection_F9X(){return faoq_corr[1][0][0];}
-  double GetZDAoQCorrection_F9A(){return faoq_corr[1][0][1];}
-  double GetZDAoQCorrection_F11X(){return faoq_corr[1][1][0];}
-  double GetZDAoQCorrection_F11A(){return faoq_corr[1][1][1];}
+  double GetBRAoQCorrection_F3X(){return faoq_corr[0][0][0];}
+  double GetBRAoQCorrection_F3A(){return faoq_corr[0][0][1];}
+  double GetBRAoQCorrection_F5X(){return faoq_corr[0][1][0];}
+  double GetBRAoQCorrection_F5A(){return faoq_corr[0][1][1];}
+  double GetBRAoQCorrection_F7X(){return faoq_corr[0][2][0];}
+  double GetBRAoQCorrection_F7A(){return faoq_corr[0][2][1];}
+  double GetZDAoQCorrection_F8X(){return faoq_corr[1][0][0];}
+  double GetZDAoQCorrection_F8A(){return faoq_corr[1][0][1];}
+  double GetZDAoQCorrection_F9X(){return faoq_corr[1][1][0];}
+  double GetZDAoQCorrection_F9A(){return faoq_corr[1][1][1];}
+  double GetZDAoQCorrection_F11X(){return faoq_corr[1][2][0];}
+  double GetZDAoQCorrection_F11A(){return faoq_corr[1][2][1];}
 
   
 protected:
@@ -208,7 +212,7 @@ protected:
   double fdeltagate[4];
 
 
-  double faoq_corr[2][2][2];  // BR/ZD, focal plane, x,angle
+  double faoq_corr[2][3][2];  // BR/ZD, focal plane, x,angle
 
   ClassDef(Settings, 1)
 };

@@ -402,11 +402,15 @@ int main(int argc, char* argv[]){
 
     for(unsigned short b=0;b<3;b++){
       beam->CorrectAQ(b,
+		      set->GetBRAoQCorrection_F3X()*fp[fpNr(3)]->GetTrack()->GetX() +
+		      set->GetBRAoQCorrection_F3A()*fp[fpNr(3)]->GetTrack()->GetA() +
 		      set->GetBRAoQCorrection_F5X()*fp[fpNr(5)]->GetTrack()->GetX() +
 		      set->GetBRAoQCorrection_F5A()*fp[fpNr(5)]->GetTrack()->GetA() +
 		      set->GetBRAoQCorrection_F7X()*fp[fpNr(7)]->GetTrack()->GetX() +
 		      set->GetBRAoQCorrection_F7A()*fp[fpNr(7)]->GetTrack()->GetA()); 
       beam->CorrectAQ(b+3,
+		      set->GetZDAoQCorrection_F8X()*fp[fpNr(8)]->GetTrack()->GetX() + 
+		      set->GetZDAoQCorrection_F8A()*fp[fpNr(8)]->GetTrack()->GetA() +
 		      set->GetZDAoQCorrection_F9X()*fp[fpNr(9)]->GetTrack()->GetX() + 
 		      set->GetZDAoQCorrection_F9A()*fp[fpNr(9)]->GetTrack()->GetA() +
 		      set->GetZDAoQCorrection_F11X()*fp[fpNr(11)]->GetTrack()->GetX() +
@@ -414,21 +418,6 @@ int main(int argc, char* argv[]){
 
     }
     
-    
-    // beam->CorrectAQ(1, +0.00034002 *fp[fpNr(5)]->GetTrack()->GetA()
-    // 		    -6.089e-05  *fp[fpNr(5)]->GetTrack()->GetX()
-    // 		    +0.000413889*fp[fpNr(7)]->GetTrack()->GetA() 
-    // 		    +0.000460512*fp[fpNr(7)]->GetTrack()->GetX());
-    
-    // beam->CorrectAQ(5, +8.53643e-05*fp[fpNr(5)]->GetTrack()->GetA()
-    // 		    -6.57149e-05*fp[fpNr(5)]->GetTrack()->GetX()
-    // 		    +0.000158604*fp[fpNr(7)]->GetTrack()->GetA() 
-    // 		    +0.000212333*fp[fpNr(7)]->GetTrack()->GetX()
-    // 		    -9.46977e-05*fp[fpNr(9)]->GetTrack()->GetA()
-    // 		    +1.46503e-06*fp[fpNr(9)]->GetTrack()->GetX()
-    // 		    -2.54913e-06*fp[fpNr(11)]->GetTrack()->GetA() 
-    // 		    -0.00010038 *fp[fpNr(11)]->GetTrack()->GetX());
-
     for(unsigned short b=0;b<4;b++){
       beam->SetDelta(b ,recorips[b]->GetDelta());
       beam->SetBrho(b ,recorips[b]->GetBrho());

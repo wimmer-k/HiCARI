@@ -165,6 +165,8 @@ int main(int argc, char* argv[]){
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
   TH2F* bigrips = new TH2F("bigrips","bigrips",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips);
   TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
+  TH2F* bigripsC = new TH2F("bigripsC","bigripsC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigripsC);
+  TH2F* zerodegC = new TH2F("zerodegC","zerodegC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodegC);
   
   //ppacs
   TH2F* tsumx_id = new TH2F("tsumx_id","tsumx_id",NPPACS,0,NPPACS,2500,0,250);hlist->Add(tsumx_id);
@@ -241,14 +243,10 @@ int main(int argc, char* argv[]){
     nbytes += status;
 
     trigger->Fill(trigbit);
-    if(!useCorrected){
-      bigrips->Fill(bz->GetAQ(2),bz->GetZ(2));
-      zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
-    }
-    else{
-      bigrips->Fill(bz->GetCorrAQ(2),bz->GetZ(2));
-      zerodeg->Fill(bz->GetCorrAQ(5),bz->GetZ(5));
-    }
+    bigrips->Fill(bz->GetAQ(2),bz->GetZ(2));
+    zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
+    bigripsC->Fill(bz->GetCorrAQ(2),bz->GetZ(2));
+    zerodegC->Fill(bz->GetCorrAQ(5),bz->GetZ(5));
     //ppacs
     for(unsigned short p=0;p<ppac->GetN();p++){
       SinglePPAC *sp = ppac->GetPPAC(p);
