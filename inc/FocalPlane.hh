@@ -25,6 +25,9 @@ public:
     fnumhits = -1.;
     fenergy = sqrt(-1.);
     fsquaresum = sqrt(-1.);
+    fADC.clear();
+    fGMADC.clear();
+    fch.clear();
   }
   //! Set the number of hits
   void SetNHits(int nhits){fnumhits = nhits;}
@@ -33,18 +36,56 @@ public:
     fenergy = energy;
     fsquaresum = squaresum;
   }
+  //! Set the raw ADC values and channels
+  void SetRawADC(double adc, int ch){
+    fADC.push_back(adc);
+    fch.push_back(ch);
+  }
+  //! Set the gain matched ADC values
+  void SetGainMatchADC(double adc){
+    fGMADC.push_back(adc);
+  }
+  
   //! Get the number of hits
   double GetNHits(){return fnumhits;}
   //! Get the charge
   double GetEnergy(){return fenergy;}
-  
+  //! Get the channel numbers
+  vector<int> GetChan(){return fch;}
+  //! Get the raw ADC values
+  vector<int> GetADC(){return fADC;}
+  //! Get the raw ADC value of a specific channel
+  int GetADC(int ch){
+    for(unsigned short c=0; c<fch.size(); c++){
+      if(fch.at(c)==ch)
+	return fADC.at(c);
+    }
+    return sqrt(-1);
+  }
+  //! Get the gain matched ADC values
+  vector<double> GetGainMatchADC(){return fGMADC;}
+  //! Get the raw ADC value of a specific channel
+  double GetGainMatchADC(int ch){
+    for(unsigned short c=0; c<fch.size(); c++){
+      if(fch.at(c)==ch)
+	return fGMADC.at(c);
+    }
+    return sqrt(-1);
+  }
 protected:
   //! the number of hits
   int fnumhits;
   //! the energy deposit in the ion chamber (average)
   double fenergy;
-  //! alternative wave for energy calculation
+  //! alternative way for energy calculation
   double fsquaresum;
+  //! raw ADC values
+  vector<int> fADC;
+  //! gain matched ADC values
+  vector<double> fGMADC;
+  //! ADC channels
+  vector<int> fch;
+  
 
   /// \cond CLASSIMP
   ClassDef(MUSIC,1);

@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
     char* cfilename = (char*)set->GetValue("CutFile","file");
     incuts = set->GetValue("NInCuts",0);
     outcuts = set->GetValue("NOutCuts",0);
-
+    
     useCorrected = set->GetValue("UseAoQCorr",0);
     if(useCorrected)
       cout << "using corrected A/q values for PID gates" << endl;
@@ -88,8 +88,8 @@ int main(int argc, char* argv[]){
     BR_AoQ = set->GetValue("UseBRAoQ",2);
     ZD_AoQ = set->GetValue("UseZDAoQ",5);
 
-    zrange[0] = set->GetValue("Z.Range.Min",10);
-    zrange[1] = set->GetValue("Z.Range.Max",30);
+    zrange[0] = set->GetValue("Z.Range.Min",10.);
+    zrange[1] = set->GetValue("Z.Range.Max",30.);
     aoqrange[0] = set->GetValue("AoQ.Range.Min",2.2);
     aoqrange[1] = set->GetValue("AoQ.Range.Max",2.8);
 
@@ -167,6 +167,18 @@ int main(int argc, char* argv[]){
   TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
   TH2F* bigripsC = new TH2F("bigripsC","bigripsC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigripsC);
   TH2F* zerodegC = new TH2F("zerodegC","zerodegC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodegC);
+
+  TH2F* RawF7IC = new TH2F("RawF7IC","RawF7IC",6,0,6,4096,0,4096);hlist->Add(RawF7IC);
+  TH2F* RawF11IC = new TH2F("RawF11IC","RawF11IC",6,0,6,4096,0,4096);hlist->Add(RawF11IC);
+  TH2F* MatchF7IC = new TH2F("MatchF7IC","MatchF7IC",6,0,6,4096,0,4096);hlist->Add(MatchF7IC);
+  TH2F* MatchF11IC = new TH2F("MatchF11IC","MatchF11IC",6,0,6,4096,0,4096);hlist->Add(MatchF11IC);
+
+
+  TH2F* bigrips_Z_time = new TH2F("bigrips_Z_time","bigrips_Z_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(bigrips_Z_time);
+  TH2F* bigrips_AoQ_time = new TH2F("bigrips_AoQ_time","bigrips_AoQ_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(bigrips_AoQ_time);
+  TH2F* zerodeg_Z_time = new TH2F("zerodeg_Z_time","zerodeg_Z_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(zerodeg_Z_time);
+  TH2F* zerodeg_AoQ_time = new TH2F("zerodeg_AoQ_time","zerodeg_AoQ_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(zerodeg_AoQ_time);
+  
   
   //ppacs
   TH2F* tsumx_id = new TH2F("tsumx_id","tsumx_id",NPPACS,0,NPPACS,2500,0,250);hlist->Add(tsumx_id);
@@ -178,41 +190,58 @@ int main(int argc, char* argv[]){
     tsumy[p] = new TH1F(Form("tsumy_%d",p),Form("tsumy_%d",p),1000,-200,800);hlist->Add(tsumy[p]);
   }
 
-  vector<TH2F*> zerodeg_c;
-  vector<vector<TH2F*> > position_b_c;
-  vector<vector<TH2F*> > position_c;
-  position_c.resize(NFPLANES);
-  position_b_c.resize(NFPLANES);
-  
+  vector<TH2F*> zerodeg_b;
+  vector<vector<TH2F*> > position_b_z;
+  vector<vector<TH2F*> > position_b;
+  position_b.resize(NFPLANES);
+  position_b_z.resize(NFPLANES);
+
+
+  vector<TH2F*> MatchF7IC_b;
+  vector<TH2F*> MatchF11IC_z;
+  TH2F* h;
   for(int i=0;i<incuts;i++){
-    TH2F* h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
-		       Form("zerodeg_%s",InCut[i]->GetName()),
-		       1000,2.2,2.8,1000,30,50);
-    zerodeg_c.push_back(h);
-    hlist->Add(zerodeg_c.back());
+    h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
+		 Form("zerodeg_%s",InCut[i]->GetName()),
+		 1000,2.2,2.8,1000,30,50);
+    zerodeg_b.push_back(h);
+    hlist->Add(zerodeg_b.back());
+    
+    h = new TH2F(Form("MatchF7IC_%s",InCut[i]->GetName()),
+		 Form("MatchF7IC_%s",InCut[i]->GetName()),
+		 6,0,6,4096,0,4096);
+    MatchF7IC_b.push_back(h);
+    hlist->Add(MatchF7IC_b.back());
+    
     
     for(unsigned short f=0;f<NFPLANES;f++){
       h = new TH2F(Form("F%dXY_%s",fpID[f],InCut[i]->GetName()),
 		   Form("F%dXY_%s",fpID[f],InCut[i]->GetName()),
 		   500,-120,120,500,-120,120);
       
-      position_c[f].push_back(h);
-      hlist->Add(position_c[f].back());
+      position_b[f].push_back(h);
+      hlist->Add(position_b[f].back());
     }
   }
-  
+
   for(int o=0;o<outcuts;o++){
-    TH2F* h;
+    h = new TH2F(Form("MatchF11IC_%s",OutCut[o]->GetName()),
+		 Form("MatchF11IC_%s",OutCut[o]->GetName()),
+		 6,0,6,4096,0,4096);
+    MatchF11IC_z.push_back(h);
+    hlist->Add(MatchF11IC_z.back());
+    
+    
     for(unsigned short f=0;f<NFPLANES;f++){
       h = new TH2F(Form("F%dXY_%s_%s",fpID[f],InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		   Form("F%dXY_%s_%s",fpID[f],InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
 		   500,-120,120,500,-120,120);
       
-      position_b_c[f].push_back(h);
-      hlist->Add(position_b_c[f].back());
+      position_b_z[f].push_back(h);
+      hlist->Add(position_b_z[f].back());
       
     }
-        
+    
   }
   
   Int_t nbytes = 0;
@@ -247,6 +276,13 @@ int main(int argc, char* argv[]){
     zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
     bigripsC->Fill(bz->GetCorrAQ(2),bz->GetZ(2));
     zerodegC->Fill(bz->GetCorrAQ(5),bz->GetZ(5));
+
+    bigrips_Z_time->Fill(i,bz->GetZ(2));
+    bigrips_AoQ_time->Fill(i,bz->GetAQ(2));
+    zerodeg_Z_time->Fill(i,bz->GetZ(5));
+    zerodeg_AoQ_time->Fill(i,bz->GetAQ(2));
+  
+    
     //ppacs
     for(unsigned short p=0;p<ppac->GetN();p++){
       SinglePPAC *sp = ppac->GetPPAC(p);
@@ -257,20 +293,43 @@ int main(int argc, char* argv[]){
 	tsumy[sp->GetID()]->Fill(sp->GetTsumY());
       }
     }
+    MUSIC* f7ic = fp[fpNr(7)]->GetMUSIC();
+    for(ushort i=0; i<f7ic->GetChan().size();i++){
+      RawF7IC->Fill(f7ic->GetChan().at(i), f7ic->GetADC().at(i));
+      MatchF7IC->Fill(f7ic->GetChan().at(i), f7ic->GetGainMatchADC().at(i));
+    }
+    MUSIC* f11ic = fp[fpNr(11)]->GetMUSIC();
+    for(ushort i=0; i<f11ic->GetChan().size();i++){
+      RawF11IC->Fill(f11ic->GetChan().at(i), f11ic->GetADC().at(i));
+      MatchF11IC->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
+    }
+
+    //gated
     for(int in=0;in<incuts;in++){
       if( (!useCorrected && InCut[in]->IsInside(bz->GetAQ(2),bz->GetZ(2))) ||
 	  (useCorrected && InCut[in]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2))) ){
-	zerodeg_c[in]->Fill(bz->GetAQ(5),bz->GetZ(5));
+
+	zerodeg_b[in]->Fill(bz->GetAQ(5),bz->GetZ(5));
+
+	for(ushort i=0; i<f7ic->GetChan().size();i++){
+	  MatchF7IC_b[in]->Fill(f7ic->GetChan().at(i), f7ic->GetGainMatchADC().at(i));
+	}
+	
 	for(unsigned short f=0;f<NFPLANES;f++){
-	  position_c[f][in]->Fill(fp[f]->GetTrack()->GetX(), fp[f]->GetTrack()->GetY());
+	  position_b[f][in]->Fill(fp[f]->GetTrack()->GetX(), fp[f]->GetTrack()->GetY());
 	}
       }//isinside
     }//incuts
     for(int o=0;o<outcuts;o++){
       if( (!useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetAQ(5),bz->GetZ(5))) ||
     	  (useCorrected && InCut[InCut_sel[o]]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2)) && OutCut[o]->IsInside(bz->GetCorrAQ(5),bz->GetZ(5)))){
+
+	for(ushort i=0; i<f11ic->GetChan().size();i++){
+	  MatchF11IC_z[o]->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
+	}
+	
     	for(unsigned short f=0;f<NFPLANES;f++){
-	  position_b_c[f][o]->Fill(fp[f]->GetTrack()->GetX(), fp[f]->GetTrack()->GetY());
+	  position_b_z[f][o]->Fill(fp[f]->GetTrack()->GetX(), fp[f]->GetTrack()->GetY());
 	}
       }//isinside
     }//outcuts

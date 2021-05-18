@@ -77,10 +77,8 @@ int main(int argc, char* argv[]){
   strcpy(extension, infilestr.substr(infilestr.find_last_of(".")+1).c_str());
   int run;
   TString ifname(InputFile);
-  if(strcmp(extension,"gz")==0 || strcmp(extension,"gzip")==0){
-    cerr << "Inputfile is a zipped file, unzip first!" << endl;
-    return 77;
-  }
+  if(strcmp(extension,"gz")==0)
+    ifname.Remove(0,ifname.Length()-12); // Last 9 characters: nameXXXX.ridf.gz
   else
     ifname.Remove(0,ifname.Length()-9); // Last 9 characters: nameXXXX.ridf
   //cout << "ifname.Data() " << ifname.Data() << endl;
@@ -187,7 +185,7 @@ int main(int argc, char* argv[]){
   tr->Branch("beam",&beam,320000);
   //branch for the PPACs
   PPAC* ppacs = new PPAC;
-  if(set->BigRIPSDetail()>0)
+  if(set->BigRIPSDetail()>1)
     tr->Branch("ppacs",&ppacs,320000);
 
   unsigned long long int last_timestamp = 0;
@@ -360,28 +358,38 @@ int main(int argc, char* argv[]){
 	if(vl>2)
 	  cout << endl;
       }//ppac exists
-      
-      plastic.Clear();
 
-      
+
+      // PLASTICS
+      plastic.Clear();
       tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
       if(fpID[f]==11)
 	tpla = plasticcalib->FindPlastic(Form("F%dpl-1",fpID[f]));
-
-      
       if(tpla){
 	//cout << f << "\t" << fpID[f] << "\t";
 	//cout << tpla->GetTimeL() <<", "<< tpla->GetTimeR() <<", "<< tpla->GetQLRaw() <<", "<< tpla->GetQRRaw() << endl;
 	plastic.SetTime(tpla->GetTimeL(), tpla->GetTimeR());
 	plastic.SetCharge(tpla->GetQLRaw(), tpla->GetQRRaw());
       }
-      
+
+
+      // MUSICS
       music.Clear();
       tic = iccalib->FindIC(Form("F%dIC",fpID[f]));
       if(tic){
 	music.SetNHits(tic->GetNumHit());
 	music.SetEnergy(tic->GetEnergyAvSum(),tic->GetEnergySqSum());
-      }
+	if(set->BigRIPSDetail()>1){
+	  //raw ADC values
+	  for(int c=0;c<NUM_IC_CHANNEL;c++){
+	    double adc = tic->GetRawADC(c);
+	    if(adc>0){
+	      music.SetRawADC(adc, c);
+	      music.SetGainMatchADC(tic->GetGainMatchADC(c));
+	    }
+	  }// ic channels
+	}// BR detail
+      }// IC present
 
       fp[f]->SetTrack(track);
       fp[f]->SetPlastic(plastic);

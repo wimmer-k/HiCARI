@@ -92,8 +92,8 @@ int main(int argc, char* argv[]){
 
     nbins = set->GetValue("Energy.Bins",4000);
     erange = set->GetValue("Energy.Range",4000);
-    zrange[0] = set->GetValue("Z.Range.Min",10);
-    zrange[1] = set->GetValue("Z.Range.Max",30);
+    zrange[0] = set->GetValue("Z.Range.Min",10.);
+    zrange[1] = set->GetValue("Z.Range.Max",30.);
     aoqrange[0] = set->GetValue("AoQ.Range.Min",2.2);
     aoqrange[1] = set->GetValue("AoQ.Range.Max",2.8);
 
