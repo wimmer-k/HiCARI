@@ -71,6 +71,7 @@ int main(int argc, char* argv[]){
   int ZD_AoQ = 5;
   double zrange[2] = {10,30};
   double aoqrange[2] = {2.2,2.8};
+  double timerange = 50e6;
   
   
   if(SettingFile != NULL){
@@ -174,10 +175,14 @@ int main(int argc, char* argv[]){
   TH2F* MatchF11IC = new TH2F("MatchF11IC","MatchF11IC",6,0,6,4096,0,4096);hlist->Add(MatchF11IC);
 
 
-  TH2F* bigrips_Z_time = new TH2F("bigrips_Z_time","bigrips_Z_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(bigrips_Z_time);
-  TH2F* bigrips_AoQ_time = new TH2F("bigrips_AoQ_time","bigrips_AoQ_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(bigrips_AoQ_time);
-  TH2F* zerodeg_Z_time = new TH2F("zerodeg_Z_time","zerodeg_Z_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(zerodeg_Z_time);
-  TH2F* zerodeg_AoQ_time = new TH2F("zerodeg_AoQ_time","zerodeg_AoQ_time",1000,0,nentries,500,zrange[0],zrange[1]);hlist->Add(zerodeg_AoQ_time);
+  TH2F* bigrips_Z_time = new TH2F("bigrips_Z_time","bigrips_Z_time",
+				  timerange/10000,0,timerange,1000,zrange[0],zrange[1]);hlist->Add(bigrips_Z_time);
+  TH2F* bigrips_AoQ_time = new TH2F("bigrips_AoQ_time","bigrips_AoQ_time",
+				    timerange/10000,0,timerange,1000,aoqrange[0],aoqrange[1]);hlist->Add(bigrips_AoQ_time);
+  TH2F* zerodeg_Z_time = new TH2F("zerodeg_Z_time","zerodeg_Z_time",
+				  timerange/10000,0,timerange,1000,zrange[0],zrange[1]);hlist->Add(zerodeg_Z_time);
+  TH2F* zerodeg_AoQ_time = new TH2F("zerodeg_AoQ_time","zerodeg_AoQ_time",
+				    timerange/10000,0,timerange,1000,aoqrange[0],aoqrange[1]);hlist->Add(zerodeg_AoQ_time);
   
   
   //ppacs

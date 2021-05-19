@@ -27,6 +27,7 @@
 #include "TArtBeam.hh"
 
 #include "TFile.h"
+#include "TH1F.h"
 #include "TTree.h"
 #include "TStopwatch.h"
 
@@ -107,6 +108,55 @@ int main(int argc, char* argv[]){
   info->SetBRRunNumber(run);
   cout << "run number: "<< run << endl;
   set->Write("settings",TObject::kOverwrite);
+
+
+  TEnv *evtnumbers = new TEnv(set->EvtNrFile());
+  int startevent = evtnumbers->GetValue(Form("Start.Event.Number.%d",run),0);
+  cout << "run number " << run << " starts with event nr " << startevent << endl;
+
+  /// load time dependent corrections
+  TFile *cor = new TFile(set->TimeCorFile());
+  TH1F* f7_cor[2];
+  TH1F* f11_cor[2];
+  TH1F* br_cor[2];
+  TH1F* zd_cor[2];
+  if(cor->IsZombie()){
+    cerr << "ignore previous warning!!" << endl;
+    cerr << "File " << set->TimeCorFile() << " not existing, cannot perform time dependent corrections!" << endl;
+    f7_cor[0] = NULL;
+    f7_cor[1] = NULL;
+    f11_cor[0] = NULL;
+    f11_cor[1] = NULL;
+    br_cor[0] = NULL;
+    br_cor[1] = NULL;
+    zd_cor[0] = NULL;
+    zd_cor[1] = NULL;
+  }
+  else{
+    f7_cor[0] = (TH1F*)cor->Get("hoffsF7");
+    f7_cor[1] = (TH1F*)cor->Get("hgainF7");
+    f11_cor[0] = (TH1F*)cor->Get("hoffsF11");
+    f11_cor[1] = (TH1F*)cor->Get("hgainF11");
+    br_cor[0] = (TH1F*)cor->Get("hoffsBR");
+    br_cor[1] = (TH1F*)cor->Get("hgainBR");
+    zd_cor[0] = (TH1F*)cor->Get("hoffsZD");
+    zd_cor[1] = (TH1F*)cor->Get("hgainZD");
+
+    outfile->cd();
+    for(int i=0;i<2;i++){
+      if(f7_cor[i]!=NULL)
+	f7_cor[i]->Write(); 
+      if(f11_cor[i]!=NULL)
+	f11_cor[i]->Write(); 
+      if(br_cor[i]!=NULL)
+	br_cor[i]->Write(); 
+      if(zd_cor[i]!=NULL)
+	zd_cor[i]->Write(); 
+    }
+  }
+  outfile->cd();
+
+  
   TArtStoreManager* sman = TArtStoreManager::Instance();
 
   TArtEventStore* estore = new TArtEventStore();
@@ -170,6 +220,8 @@ int main(int argc, char* argv[]){
   //branch for original event number
   int eventnumber = 0;
   tr->Branch("eventnumber",&eventnumber,"eventnumber/I");
+  int toteventnumber = 0;
+  tr->Branch("toteventnumber",&toteventnumber,"toteventnumber/I");
   //branch for timestamp
   unsigned long long int timestamp = 0;
   tr->Branch("timestamp",&timestamp,"timestamp/l");
@@ -188,6 +240,8 @@ int main(int argc, char* argv[]){
   if(set->BigRIPSDetail()>1)
     tr->Branch("ppacs",&ppacs,320000);
 
+
+  int event = startevent;
   unsigned long long int last_timestamp = 0;
   unsigned long long int rawevent_timestamp = 0;
   int ctr =0;
@@ -197,6 +251,7 @@ int main(int argc, char* argv[]){
     checkADC = -1;
     timestamp = 0;
     eventnumber++;
+    toteventnumber = event;
     for(int f=0;f<NFPLANES;f++){
       fp[f]->Clear();
     }
@@ -405,9 +460,37 @@ int main(int argc, char* argv[]){
     beam->SetTOFBeta(1,recotof[5]->GetTOF(),recotof[5]->GetBeta());
     beam->SetTOFBeta(2,tof7to8->GetTOF(),tof7to8->GetBeta());
     
-    for(unsigned short b=0;b<6;b++)
-      beam->SetAQZ(b,recobeam[b]->GetAoQ(),recobeam[b]->GetZet());
+    for(unsigned short b=0;b<6;b++){
+      double z = recobeam[b]->GetZet();
+      double gz = 1;
+      double oz = 0;
+      if(b<3 && f7_cor[0]!=NULL && f7_cor[1]!=NULL){
+	gz = f7_cor[1]->GetBinContent(event/10000+1);
+	oz = f7_cor[0]->GetBinContent(event/10000+1);
+      }
+      if(b>2 && f11_cor[0]!=NULL && f11_cor[1]!=NULL){
+	gz = f11_cor[1]->GetBinContent(event/10000+1);
+	oz = f11_cor[0]->GetBinContent(event/10000+1);
+      }
+      double a = recobeam[b]->GetAoQ();
+      double ga = 1;
+      double oa = 0;
+      if(b<3 && br_cor[0]!=NULL && br_cor[1]!=NULL){
+	ga = br_cor[1]->GetBinContent(event/10000+1);
+	oa = br_cor[0]->GetBinContent(event/10000+1);
+      }
+      if(b>2 && zd_cor[0]!=NULL && zd_cor[1]!=NULL){
+	ga = zd_cor[1]->GetBinContent(event/10000+1);
+	oa = zd_cor[0]->GetBinContent(event/10000+1);
+      }
+      z = z*gz+oz;
+      a = a*ga+oa;
 
+      //cout << z << "\t" << event << "\t" << o << "\t" << g << "\t" << z*g+o << endl;
+      
+      beam->SetAQZ(b,a,z);
+    }
+ 
     for(unsigned short b=0;b<3;b++){
       beam->CorrectAQ(b,
 		      set->GetBRAoQCorrection_F3X()*fp[fpNr(3)]->GetTrack()->GetX() +
@@ -442,7 +525,8 @@ int main(int argc, char* argv[]){
 	tr->AutoSave();
     }
     ctr++;
-
+    event++;
+    
     if(nmax>0 && ctr>nmax-1)
       break;
   }

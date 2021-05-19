@@ -84,6 +84,8 @@ void Settings::ReadSettings(TEnv* set){
   fBigRIPSChannel = set->GetValue("BigRIPS.Channel",9);
   fBigRIPSDetail = set->GetValue("BigRIPS.Detail",-1);
 
+  fTimeCorFile = set->GetValue("Time.Corrections.File","settings.dat");
+  fEvtNrFile = set->GetValue("Event.Number.File","settings.dat");
 
   faoq_corr[0][0][0] = set->GetValue("BigRIPS.AoQCorr_F3X",0.0);
   faoq_corr[0][0][1] = set->GetValue("BigRIPS.AoQCorr_F3A",0.0);
@@ -178,7 +180,8 @@ void Settings::PrintSettings(){
   cout << "BigRIPS.Channel\t" << fBigRIPSChannel << endl;  
   cout << "BigRIPS.Tree.Detail\t" << fBigRIPSDetail << endl;  
 
-
+  cout << "Time.Corrections.File\t" << fTimeCorFile << endl; 
+  cout << "Event.Number.File\t" << fEvtNrFile << endl;
 
   cout << "BigRIPS.AoQCorr_F3X\t" << faoq_corr[0][0][0] << endl;  
   cout << "BigRIPS.AoQCorr_F3A\t" << faoq_corr[0][0][1] << endl;  

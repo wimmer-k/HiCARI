@@ -123,6 +123,11 @@ public:
   void SetBigRIPSDetail(int det){fBigRIPSDetail = det;}
   //! Get the detail level for the BigRIPSTree
   int BigRIPSDetail(){return fBigRIPSDetail;}
+  
+  //! The file containing the time dependent corrections
+  const char* TimeCorFile(){return fTimeCorFile.c_str();}
+  //! The file containing the events numbers at which each run starts
+  const char* EvtNrFile(){return fEvtNrFile.c_str();}
 
   double GetAoQCorrection(int sp, int fp, int tr){return faoq_corr[sp][fp][tr];}
   double GetBRAoQCorrection_F3X(){return faoq_corr[0][0][0];}
@@ -211,6 +216,11 @@ protected:
   //! gate on the delta change
   double fdeltagate[4];
 
+
+  //! Time dependent corrections for IC
+  string fTimeCorFile;
+  //! Event numbers
+  string fEvtNrFile;
 
   double faoq_corr[2][3][2];  // BR/ZD, focal plane, x,angle
 
