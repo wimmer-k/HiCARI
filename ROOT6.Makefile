@@ -4,7 +4,7 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
+#TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
 #TARTSYS=/home/gamma20/exp/anaroot
 #TARTSYS=/home/wimmer/mercurius/anaroot
 
@@ -90,6 +90,10 @@ Gated_histos: Gated_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $
 Beam_histos: Beam_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
+
+TreeSplitter: TreeSplitter.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
 HFC:
 	@cd hfc; $(MAKE)
