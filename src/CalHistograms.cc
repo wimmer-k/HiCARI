@@ -63,6 +63,8 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     
     for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
       Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));
+      if(hit->GetCluster()<10)
+	Fill("h_segen_vs_nr_tot",12*4*6,0,12*4*6,(hit->GetCluster()*4+hit->GetCrystal())*6+hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));
     }
     int clu = hit->GetCluster();
     int cry = hit->GetCrystal();

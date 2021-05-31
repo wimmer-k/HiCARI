@@ -89,18 +89,30 @@ void Settings::ReadSettings(TEnv* set){
 
   faoq_corr[0][0][0] = set->GetValue("BigRIPS.AoQCorr_F3X",0.0);
   faoq_corr[0][0][1] = set->GetValue("BigRIPS.AoQCorr_F3A",0.0);
+  faoq_corr[0][0][2] = set->GetValue("BigRIPS.AoQCorr_F3Q",0.0);
   faoq_corr[0][1][0] = set->GetValue("BigRIPS.AoQCorr_F5X",0.0);
   faoq_corr[0][1][1] = set->GetValue("BigRIPS.AoQCorr_F5A",0.0);
+  faoq_corr[0][1][2] = set->GetValue("BigRIPS.AoQCorr_F5Q",0.0);
   faoq_corr[0][2][0] = set->GetValue("BigRIPS.AoQCorr_F7X",0.0);
   faoq_corr[0][2][1] = set->GetValue("BigRIPS.AoQCorr_F7A",0.0);
+  faoq_corr[0][2][2] = set->GetValue("BigRIPS.AoQCorr_F7Q",0.0);
   
   faoq_corr[1][0][0] = set->GetValue("ZeroDeg.AoQCorr_F8X",0.0);
   faoq_corr[1][0][1] = set->GetValue("ZeroDeg.AoQCorr_F8A",0.0);
+  faoq_corr[1][0][2] = set->GetValue("ZeroDeg.AoQCorr_F8Q",0.0);
   faoq_corr[1][1][0] = set->GetValue("ZeroDeg.AoQCorr_F9X",0.0);
   faoq_corr[1][1][1] = set->GetValue("ZeroDeg.AoQCorr_F9A",0.0);
+  faoq_corr[1][1][2] = set->GetValue("ZeroDeg.AoQCorr_F9Q",0.0);
   faoq_corr[1][2][0] = set->GetValue("ZeroDeg.AoQCorr_F11X",0.0);
   faoq_corr[1][2][1] = set->GetValue("ZeroDeg.AoQCorr_F11A",0.0);
+  faoq_corr[1][2][2] = set->GetValue("ZeroDeg.AoQCorr_F11Q",0.0);
 
+  faoq_lin[0][0] = set->GetValue("BigRIPS.AoQCorr_Gain",1.0);
+  faoq_lin[0][1] = set->GetValue("BigRIPS.AoQCorr_Offs",0.0);
+  
+  faoq_lin[1][0] = set->GetValue("ZeroDeg.AoQCorr_Gain",1.0);
+  faoq_lin[1][1] = set->GetValue("ZeroDeg.AoQCorr_Offs",0.0);
+  
 }
 
 /*

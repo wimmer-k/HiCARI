@@ -4,7 +4,8 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
+#TARTSYS=/usr/share/anaroot_hicari
+#/home/gamma20/packages/anaroot_v4.5.38
 #TARTSYS=/home/gamma20/exp/anaroot
 #TARTSYS=/home/wimmer/mercurius/anaroot
 
@@ -41,7 +42,7 @@ ifeq ($(USING_ROOT_6),1)
 	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -90,6 +91,10 @@ Gated_histos: Gated_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $
 Beam_histos: Beam_histos.cc $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
+
+TreeSplitter: TreeSplitter.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
 HFC:
 	@cd hfc; $(MAKE)
@@ -141,6 +146,7 @@ build/%Dictionary.cc: inc/%.hh inc/%LinkDef.h
 	@echo "Building $@"
 	@mkdir -p $(dir $@)
 	@rootcint -f $@ -c $(INCLUDES) $(ROOTCFLAGS) $(SWITCH) $(notdir $^)
+#	@rootcint -f $@ -c $(INCLUDES) -pthread -I/usr/local/include/root $(SWITCH) $(notdir $^)
 
 build/%Dictionary_rdict.pcm: build/%Dictionary.cc
 	@echo "Confirming $@"
