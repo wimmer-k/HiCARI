@@ -228,6 +228,16 @@ int main(int argc, char* argv[]){
   TH2F* PL8PL8     = new TH2F("PL8PL8","PL8PL8",        200,-10,10, 200,-2,2);hlist->Add(PL8PL8);
   TH2F* PL11PL11   = new TH2F("PL11PL11","PL11PL11",    200,  0,15, 200,-5,2);hlist->Add(PL11PL11);
 
+    
+  TH1F* deltadiff[2];
+  for(unsigned short b=0;b<2;b++){
+    deltadiff[b] = new TH1F(Form("deltadiff_%d",b),Form("deltadiff_%d",b),1000,-10,10);hlist->Add(deltadiff[b]);
+  }
+  TH1F* delta[4];
+  for(unsigned short b=0;b<4;b++){
+    delta[b] = new TH1F(Form("delta_%d",b),Form("delta_%d",b),1000,-10,10);hlist->Add(delta[b]);
+  }
+
   // PID stuff
   vector<TH2F*> zerodeg_b;
   vector<vector<TH2F*> > position_b_z;
@@ -389,7 +399,6 @@ int main(int argc, char* argv[]){
       }
     
     }
-
     
     // musics
     MUSIC* f7ic = fp[fpNr(7)]->GetMUSIC();
@@ -403,6 +412,12 @@ int main(int argc, char* argv[]){
       MatchF11IC->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
     }
 
+    // charge state change
+    deltadiff[0]->Fill(bz->GetDelta(1) - bz->GetDelta(0));
+    deltadiff[1]->Fill(bz->GetDelta(3) - bz->GetDelta(2));
+    for(unsigned short b=0;b<4;b++){
+      delta[b]->Fill(bz->GetDelta(b));
+    }
 
     
     // gated

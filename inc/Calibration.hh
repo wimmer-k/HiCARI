@@ -16,7 +16,6 @@
 #include "TRandom.h"
 #include "TMath.h"
 #include "TFile.h"
-#include "TF1.h"
 
 #include "Settings.hh"
 #include "Gretina.hh"
@@ -75,7 +74,7 @@ public:
   long long int GetGretinaHitCtr(){return fGretinaHitctr;}
   long long int GetGretinaHitABCtr(){return fGretinaHitABctr;}
   
-private:
+protected:
   void ResetCtrs();
 
   Settings* fSett;

@@ -9,6 +9,8 @@
 #include "TVector3.h"
 #include "TRotation.h"
 
+#include "PPAC.hh"
+
 using namespace std;
 
 
@@ -41,10 +43,12 @@ public:
     fincdir.SetXYZ(0,0,-99999);
     foutdir.SetXYZ(0,0,-99999);
     fscadir.SetXYZ(0,0,-99999);
-    TVector3 X(1,0,0);
-    TVector3 Y(0,1,0);
-    TVector3 Z(0,0,1);
-    //fincrot.RotateAxes(X,Y,Z);
+    for(int i=0;i<3;i++){
+      for(int j=0;j<2;j++){
+	ff8ppac[i][j].Clear();
+      }
+    }
+    
   }
   //! Set the A/Q ratio
   void SetAQ(unsigned short j, double aoq){
@@ -89,6 +93,41 @@ public:
     fbrho[j] = brho;
   }
 
+  //! Set the PPACS
+  void SetF8PPACS(SinglePPAC ppac[6]){
+    for(int i=0;i<3;i++){
+      for(int j=0;j<2;j++){
+	ff8ppac[i][j] = ppac[i*2+j];
+      }
+    }
+  }
+  void SetF8PPAC1A(SinglePPAC ppac){
+    ff8ppac[0][0] = ppac;
+  }
+  void SetF8PPAC1B(SinglePPAC ppac){
+    ff8ppac[0][1] = ppac;
+  }
+  void SetF8PPAC2A(SinglePPAC ppac){
+    ff8ppac[1][0] = ppac;
+  }
+  void SetF8PPAC2B(SinglePPAC ppac){
+    ff8ppac[1][1] = ppac;
+  }
+  void SetF8PPAC3A(SinglePPAC ppac){
+    ff8ppac[2][0] = ppac;
+  }
+  void SetF8PPAC3B(SinglePPAC ppac){
+    ff8ppac[2][1] = ppac;
+  }
+  void SetF8PPAC(int id, int ab, SinglePPAC ppac){
+    if(id<0 || id>2 || ab<0 || ab>1){
+      cout << "trying to set invalid PPAC" << endl;
+      return;
+    }
+    ff8ppac[id][ab] = ppac;
+  }
+
+  
   //! Set the target position 
   void SetTargetPosition(TVector3 pos){
     ftargetpos = pos;
@@ -114,7 +153,7 @@ public:
       fscadir = dir;
       fscadir.Transform(fincrot);
     }
-  }
+  }  
 
   //! Correct the A/Q ratio based on position and plastic charge
   void CorrectAQ(unsigned short j, double corr){
@@ -162,6 +201,30 @@ public:
     if(j<0 || j>3) return sqrt(-1.);
     return fbrho[j];
   }
+
+  //! Get the PPACS
+  SinglePPAC* GetF8PPAC1A(){
+    return &ff8ppac[0][0];
+  }
+  SinglePPAC* GetF8PPAC1B(){
+    return &ff8ppac[0][1];
+  }
+  SinglePPAC* GetF8PPAC2A(){
+    return &ff8ppac[1][0];
+  }
+  SinglePPAC* GetF8PPAC2B(){
+    return &ff8ppac[1][1];
+  }
+  SinglePPAC* GetF8PPAC3A(){
+    return &ff8ppac[2][0];
+  }
+  SinglePPAC* GetF8PPAC3B(){
+    return &ff8ppac[2][1];
+  }
+  SinglePPAC* GetF8PPAC(int id, int ab){
+    return &ff8ppac[id][ab];
+  }
+   
   //! Get the direction of the incoming beam in lab system
   TVector3 GetIncomingDirection(){
     return fincdir;
@@ -219,6 +282,9 @@ protected:
   double fdelta[4];
   //! brho 3-5, 5-7, 8-9, 9-11
   double fbrho[4];
+
+  //! ppacs for incoming and outgoing direction
+  SinglePPAC ff8ppac[3][2];
 
   //! target position 
   TVector3 ftargetpos;

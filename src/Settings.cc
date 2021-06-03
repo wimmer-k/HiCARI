@@ -66,7 +66,7 @@ void Settings::ReadSettings(TEnv* set){
   fppac3align[1] = set->GetValue("PPAC3.Align.Y0",0.0);
   fppac3align[2] = set->GetValue("PPAC3.Align.X1",0.0);
   fppac3align[3] = set->GetValue("PPAC3.Align.Y1",0.0);
-  ftargetposition = set->GetValue("Target.Position",129.5);
+  ftargetposition = set->GetValue("Target.Position",186.5);
   ff5xgate[0] = set->GetValue("F5X.Gate.Low", -200.);
   ff5xgate[1] = set->GetValue("F5X.Gate.High", 200.);
   fdeltagate[2] = set->GetValue("Delta.Gate.Low", -999.);

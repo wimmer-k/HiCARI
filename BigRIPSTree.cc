@@ -521,6 +521,14 @@ int main(int argc, char* argv[]){
       beam->SetBrho(b ,recorips[b]->GetBrho());
     }
 
+    //F8 ppacs
+    beam->SetF8PPAC1A((*ppacs->GetPPACID(19)));
+    beam->SetF8PPAC1B((*ppacs->GetPPACID(20)));
+    beam->SetF8PPAC2A((*ppacs->GetPPACID(21)));
+    beam->SetF8PPAC2B((*ppacs->GetPPACID(22)));
+    beam->SetF8PPAC3A((*ppacs->GetPPACID(35)));
+    beam->SetF8PPAC3B((*ppacs->GetPPACID(36)));
+    
     //fill the tree
     tr->Fill();
 

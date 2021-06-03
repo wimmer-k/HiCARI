@@ -14,7 +14,6 @@
 #include "RunInfo.hh"
 #include "Beam.hh"
 #include "FocalPlane.hh"
-#include "PPAC.hh"
 #include "HiCARI.hh"
 #include "Gretina.hh"
 
@@ -95,9 +94,6 @@ int main(int argc, char* argv[]){
   for(unsigned short f=0;f<NFPLANES;f++){
     tr->SetBranchAddress(Form("fp%d",fpID[f]),&fp[f]);
   }
-  PPAC* ppac = new PPAC;
-  tr->SetBranchAddress("ppacs",&ppac);
-
 
   int incuts = 0;
   int outcuts = 0;
@@ -166,6 +162,8 @@ int main(int argc, char* argv[]){
     
     cFile->Close();
   }//settings present
+  TFile* ofile = new TFile(OutFile,"recreate");
+  ofile->cd();
   InTree.resize(InCut.size());
   for(UShort_t in=0;in<InCut.size();in++){ // loop over incoming cuts
     InTree[in] = new TTree(Form("tr_%s",InCut[in]->GetName()),Form("Data Tree with cut on %s",InCut[in]->GetName()));
@@ -184,8 +182,7 @@ int main(int argc, char* argv[]){
     InTree[in]->Branch("beam",&beam,320000);
     for(unsigned short f=0;f<NFPLANES;f++)
       InTree[in]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
-    InTree[in]->Branch("ppacs",&ppac,320000);
-  }
+ }
   
   OutTree.resize(OutCut.size());
   for(UShort_t out=0;out<OutCut.size();out++){ // loop over outgoing cuts
@@ -206,7 +203,6 @@ int main(int argc, char* argv[]){
     OutTree[out]->Branch("beam",&beam,320000);
     for(unsigned short f=0;f<NFPLANES;f++)
       OutTree[out]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
-    OutTree[out]->Branch("ppacs",&ppac,320000);
   }
   
     
@@ -235,7 +231,6 @@ int main(int argc, char* argv[]){
     for(int f=0;f<NFPLANES;f++){
       fp[f]->Clear();
     }
-    ppac->Clear();
     beam->Clear();
 
     if(Verbose>2)
@@ -273,11 +268,15 @@ int main(int argc, char* argv[]){
 	" % done\t" << (Float_t)i/(time_end - time_start) << " events/s " << 
 	(nentries-i)*(time_end - time_start)/(Float_t)i << "s to go \r" << flush;
     }
+    if(i%10000000 == 0){
+      for(UShort_t in=0;in<InCut.size();in++) // loop over incoming cuts
+	InTree[in]->AutoSave();
+      for(UShort_t out=0;out<OutCut.size();out++) // loop over outcomoutg cuts
+	OutTree[out]->AutoSave();
+    }
   }
   cout << endl;
   cout << "creating outputfile " << endl;
-  TFile* ofile = new TFile(OutFile,"recreate");
-  ofile->cd();
   Long64_t filesize =0;
   for(UShort_t in=0;in<InCut.size();in++){ // loop over incoming cuts
     InTree[in]->Write("",TObject::kOverwrite);

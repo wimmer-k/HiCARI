@@ -35,6 +35,7 @@ BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o buil
 O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
 MO_FILES = build/BuildEvents.o build/MergeHistograms.o
 HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
+RO_FILES = build/Calibration.o build/Reconstruction.o 
 
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
@@ -42,7 +43,7 @@ ifeq ($(USING_ROOT_6),1)
 	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
 
 SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
 	@echo "Compiling $@"
@@ -96,6 +97,10 @@ TreeSplitter: TreeSplitter.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
+Analyze: Analyze.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so $(RO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(RO_FILES) -o $(BIN_DIR)/$@ 
+
 HFC:
 	@cd hfc; $(MAKE)
 	@echo "GEB_HFC compiled"
@@ -128,6 +133,11 @@ build/RawHistograms.o: src/RawHistograms.cc inc/RawHistograms.hh $(LIB_O_FILES)
 	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
 
 build/CalHistograms.o: src/CalHistograms.cc inc/CalHistograms.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
+build/Reconstruction.o: src/Reconstruction.cc inc/Reconstruction.hh $(LIB_O_FILES)
 	@echo "Compiling $@"
 	@mkdir -p $(dir $@)
 	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
