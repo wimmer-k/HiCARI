@@ -58,7 +58,7 @@ TVector3 Reconstruction::PPACPosition(SinglePPAC* pina, SinglePPAC* pinb){
   Calculate the ppac position as the average of A and B PPACs
   \param inc incoming beam
   \param ppac position from which to extrapolate  
-  \return vector to the target position
+  \return vector to the target position, with respect to the nominal focus
 */
 TVector3 Reconstruction::TargetPosition(TVector3 inc, TVector3 ppac){
   double a = inc.X()/inc.Z();

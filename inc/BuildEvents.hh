@@ -7,6 +7,7 @@
 
 #include "Beam.hh"
 #include "FocalPlane.hh"
+#include "Beam.hh"
 #include "HiCARI.hh"
 #include "Gretina.hh"
 #include "Settings.hh"
@@ -120,6 +121,8 @@ private:
   Beam* fbeam;
   //! bigrips focal plane information
   FocalPlane* ffp[NFPLANES];
+  //! bigrips ppac information
+  PPAC* fppacs;
   //! HiCARI timestamp
   unsigned long long int fHIts;
   //! HiCARI data
@@ -139,6 +142,8 @@ private:
   Beam* flocalbeam;
   //! local copy of bigrips focal plane information
   FocalPlane* flocalfp[NFPLANES];
+  //! local copy of bigrips ppac information
+  PPAC* flocalppacs;
   //! local copy of HiCARI timestamp
   unsigned long long int flocalHIts;
   //! local copy of HiCARI data

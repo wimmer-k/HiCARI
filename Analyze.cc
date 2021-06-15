@@ -96,8 +96,8 @@ int main(int argc, char* argv[]){
   for(unsigned short f=0;f<NFPLANES;f++){
     tr->SetBranchAddress(Form("fp%d",fpID[f]),&fp[f]);
   }
-  PPAC* ppac = new PPAC;
-  tr->SetBranchAddress("ppacs",&ppac);
+  //PPAC* ppac = new PPAC;
+  //tr->SetBranchAddress("ppacs",&ppac);
 
   Settings* set = new Settings(SettingFile);
   Reconstruction* rec = new Reconstruction(set);
@@ -137,8 +137,15 @@ int main(int argc, char* argv[]){
     thetaphi_tr[i] = new TH2F(Form("thetaphi_tr%d",i),Form("thetaphi_tr%d",i),800,-4,4,1500,0,150);hlist->Add(thetaphi_tr[i]);
     thetaphideg_tr[i] = new TH2F(Form("thetaphideg_tr%d",i),Form("thetaphideg_tr%d",i),800,-180,180,1500,0,5);hlist->Add(thetaphideg_tr[i]);
   }
- 
-    
+  
+  TH2F* targetxy = new TH2F("targetxy","targetxy",100,-50,50,100,-50,50);hlist->Add(targetxy);
+  TH2F* targetxz = new TH2F("targetxz","targetxz",100,-50,50,100,-50,50);hlist->Add(targetxz);
+  TH2F* targetyz = new TH2F("targetyz","targetyz",100,-50,50,100,-50,50);hlist->Add(targetyz);
+  
+  TH2F* h_egamtgamdc = new TH2F("h_egamtgamdc","h_egamtgamdc",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamdc);
+  TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
+  TH2F* h_egamdc_theta = new TH2F("h_egamdc_theta","h_egamdc_theta",180,0,180,4000,0,4000);hlist->Add(h_egamdc_theta);
+  
   Double_t nentries = tr->GetEntries();
   Int_t nbytes = 0;
   Int_t status;
@@ -168,7 +175,7 @@ int main(int argc, char* argv[]){
     nbytes += status;
 
     //gate on F5X position 
-    if(!rec->F5XGate(fp[fpNr(5)]->GetTrack()->GetX()))
+    if(!isnan(fp[fpNr(5)]->GetTrack()->GetX()) && !rec->F5XGate(fp[fpNr(5)]->GetTrack()->GetX()))
       continue;
 
     //gate on charge changes in BigRIPS and Zerodeg
@@ -185,6 +192,8 @@ int main(int argc, char* argv[]){
 
     bz->SetIncomingDirection(ppacpos[1]-ppacpos[0]);
     TVector3 inc = bz->GetIncomingDirection();
+
+    // target position with respect to the nominal focal point
     TVector3 targ = rec->TargetPosition(inc,ppacpos[1]);
     
     bz->SetTargetPosition(targ);
@@ -214,13 +223,30 @@ int main(int argc, char* argv[]){
       thetaphi->Fill(bz->GetPhi(),bz->GetTheta()*1000);
       thetaphideg->Fill(bz->GetPhi()*rad2deg,bz->GetTheta()*rad2deg);
     }
+
+    //tp position with respect to HiCARI center
+    TVector3 tp = bz->GetTargetPosition();
+    tp.SetZ(set->TargetZ());
     
+    targetxy->Fill(tp.X(),tp.Y());
+    targetxz->Fill(tp.X(),tp.Z());
+    targetyz->Fill(tp.Y(),tp.Z());
 
 
+    for(int h=0; h<hi->GetMult(); h++){
+      HiCARIHitCalc* hit = hi->GetHit(h);
+      if(hit->IsBigRIPS()){
+	continue;
+      }
+      h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
+      if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
+	h_egamdc->Fill(hit->GetDCEnergy());
+	h_egamdc_theta->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy());
+      }
+    }
 
-
-    
-    rtr->Fill();
+    if(writeTree>0)
+      rtr->Fill();
     if(i%10000 == 0){
       double time_end = get_time();
       cout<<setw(5)<<setiosflags(ios::fixed)<<setprecision(1)<<(100.*i)/nentries<<" % done\t"<<(Float_t)i/(time_end - time_start)<<" events/s " << (nentries-i)*(time_end - time_start)/(Float_t)i<<"s to go \r"<<flush;
@@ -232,7 +258,7 @@ int main(int argc, char* argv[]){
   cout << endl;
 
 
-  cout << "writing tree to file" << endl;
+  cout << "writing to file" << endl;
   cout << endl;
   ofile->cd();
   ofile->cd();
