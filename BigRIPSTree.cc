@@ -489,6 +489,7 @@ int main(int argc, char* argv[]){
       //cout << z << "\t" << event << "\t" << o << "\t" << g << "\t" << z*g+o << endl;
       
       beam->SetAQZ(b,a,z);
+      beam->SetRIPSBeta(b,recobeam[b]->GetBeta());
     }
  
     for(unsigned short b=0;b<3;b++){
@@ -528,6 +529,15 @@ int main(int argc, char* argv[]){
     beam->SetF8PPAC2B((*ppacs->GetPPACID(22)));
     beam->SetF8PPAC3A((*ppacs->GetPPACID(35)));
     beam->SetF8PPAC3B((*ppacs->GetPPACID(36)));
+
+
+    // // calculate Z directly:
+    // TArtIC* F7ic = iccalib->FindIC("F7IC");
+    // double adc[6];
+    // for(int i=0;i<6;i++){
+    //   adc[i] = F7ic->GetRawADC(i);
+    // }
+    
     
     //fill the tree
     tr->Fill();

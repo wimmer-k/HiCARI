@@ -92,6 +92,11 @@ public:
     if(j<0 || j>3) return;
     fbrho[j] = brho;
   }
+  //! Set the beta
+  void SetRIPSBeta(unsigned short j, double beta){    
+    if(j<0 || j>5) return;
+    fripsbeta[j] = beta;
+  }
 
   //! Set the PPACS
   void SetF8PPACS(SinglePPAC ppac[6]){
@@ -201,6 +206,11 @@ public:
     if(j<0 || j>3) return sqrt(-1.);
     return fbrho[j];
   }
+  //! Get beta
+  double GetRIPSBeta(unsigned short j){
+    if(j<0 || j>5) return sqrt(-1.);
+    return fripsbeta[j];
+  }
 
   //! Get the PPACS
   SinglePPAC* GetF8PPAC1A(){
@@ -275,8 +285,10 @@ protected:
 
   //! time-of-flight for 3-7, 8-11, 7-8
   double ftof[3];
-  //! beta for 3-7, 8-11, 7-8
+  //! tof beta for 3-7, 8-11, 7-8
   double fbeta[3];
+  //! rips beta for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11  
+  double fripsbeta[6];
 
   //! delta momentum 3-5, 5-7, 8-9, 9-11
   double fdelta[4];
