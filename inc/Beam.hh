@@ -159,7 +159,12 @@ public:
       fscadir.Transform(fincrot);
     }
   }  
+  void SetDopplerBeta(double beta){
+    fdopplerbeta = beta;
+  }
+  
 
+  
   //! Correct the A/Q ratio based on position and plastic charge
   void CorrectAQ(unsigned short j, double corr){
     if(j<0 || j>5) return;
@@ -273,6 +278,11 @@ public:
     return sqrt(-1.);
   }
 
+  double GetDopplerBeta(){
+    return fdopplerbeta;
+  }
+
+  
 protected:
   //! A/Q for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11
   double faoq[6];
@@ -309,6 +319,9 @@ protected:
   //! ejectile vector in beam coordinate system
   TVector3 fscadir;
 
+  //! velocity beta to be used for Doppler correction
+  double fdopplerbeta;
+  
   /// \cond CLASSIMP
   ClassDef(Beam,1);
   /// \endcond

@@ -8,6 +8,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "Settings.hh"
+#include "Beam.hh"
 
 using namespace std;
 
@@ -178,6 +179,14 @@ public:
   }
   //! Returns the Doppler-correction factor to correct the energy.
   double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
+
+  void DopplerCorrect(Beam* beam){
+    fDCen = fen*DopplerCorrectionFactor(GetPosition(),beam);
+  }
+  //! Returns the Doppler-correction factor to correct the energy.
+  double DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam);
+
+
   
   bool IsMiniball(){return (fcluster>-1 && fcluster<6);}
   bool IsSuperClo(){return (fcluster> 5 && fcluster<10 && fcrystal<4);}
@@ -269,6 +278,7 @@ public:
   bool HadBigRIPS(){return fhadBigRIPS;}
   
   void DopplerCorrect(Settings* set);
+  void DopplerCorrect(Beam* beam);
   void CorrectTime(long long int br_TS);
 
   void Print(){

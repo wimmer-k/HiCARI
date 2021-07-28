@@ -202,6 +202,9 @@ void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
   fHitsAdded += hit->GetHitsAdded();
  
 }
+
+
+// fixed beta
 double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 
   PosToTarget.SetX(PosToTarget.X() - set->TargetX());
@@ -215,7 +218,6 @@ double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* se
   return gamma*(1-beta*CosDop);
 
 }
-
 void HiCARICalc::DopplerCorrect(Settings* set){
   for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
     if((*hit)->IsHiCARI() )
@@ -224,6 +226,32 @@ void HiCARICalc::DopplerCorrect(Settings* set){
   for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
     if((*hit)->IsHiCARI() )
       (*hit)->DopplerCorrect(set);
+  }
+}
+
+// event by event beta and position
+double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam){
+  TVector3 tp = beam->GetTargetPosition();
+  
+  PosToTarget.SetX(PosToTarget.X() - tp.X());
+  PosToTarget.SetY(PosToTarget.Y() - tp.Y());
+  PosToTarget.SetZ(PosToTarget.Z() - tp.Z());
+  double CosDop = cos(PosToTarget.Theta());
+
+  double beta;
+  beta = beam->GetDopplerBeta();
+  double gamma = 1/sqrt(1.0 - beta*beta);
+  return gamma*(1-beta*CosDop);
+
+}
+void HiCARICalc::DopplerCorrect(Beam* beam){
+  for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
+    if((*hit)->IsHiCARI() )
+      (*hit)->DopplerCorrect(beam);
+  }
+  for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
+    if((*hit)->IsHiCARI() )
+      (*hit)->DopplerCorrect(beam);
   }
 }
   

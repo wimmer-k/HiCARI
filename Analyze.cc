@@ -195,7 +195,7 @@ int main(int argc, char* argv[]){
 
     // target position with respect to the nominal focal point
     TVector3 targ = rec->TargetPosition(inc,ppacpos[1]);
-    
+    targ.SetZ(set->TargetZ());
     bz->SetTargetPosition(targ);
     TVector3 out, sca;
     if(trigbit>1){
@@ -204,7 +204,8 @@ int main(int argc, char* argv[]){
       sca = bz->GetScatteredDirection();
     }
 
-
+    bz->SetDopplerBeta(set->TargetBeta());
+    hi->DopplerCorrect(bz);
 
     // histos
     // BEAM
@@ -225,9 +226,7 @@ int main(int argc, char* argv[]){
     }
 
     //tp position with respect to HiCARI center
-    TVector3 tp = bz->GetTargetPosition();
-    tp.SetZ(set->TargetZ());
-    
+    TVector3 tp = bz->GetTargetPosition();    
     targetxy->Fill(tp.X(),tp.Y());
     targetxz->Fill(tp.X(),tp.Z());
     targetyz->Fill(tp.Y(),tp.Z());
