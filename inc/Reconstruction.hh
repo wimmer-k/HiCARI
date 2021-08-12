@@ -43,6 +43,15 @@ public:
   //!  gate on changing charge state in ZeroDegree
   bool ChargeChangeZD(double delta2, double delta3);
 
+  void SetGammaPositions(HiCARICalc* hi);    
+  
+  TVector3 GammaPosition(int cl, int cr, int se){
+    if((cl > -1 && cr > -1 && se > -1) &&
+       (cl < MAXDETPOS && cr < MAXCRYSTALNO && se < MAXSEGS) )
+      return fHiCARIpositions[cl][cr][se];
+    return TVector3(0,0,-1);
+  }
+
   //private:
   
 };

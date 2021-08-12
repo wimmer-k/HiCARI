@@ -252,7 +252,7 @@ int main(int argc, char* argv[]){
   for(int i=0;i<incuts;i++){
     h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
 		 Form("zerodeg_%s",InCut[i]->GetName()),
-		 1000,2.2,2.8,1000,30,50);
+		 1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);
     zerodeg_b.push_back(h);
     hlist->Add(zerodeg_b.back());
     

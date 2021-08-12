@@ -137,7 +137,10 @@ int main(int argc, char* argv[]){
     thetaphi_tr[i] = new TH2F(Form("thetaphi_tr%d",i),Form("thetaphi_tr%d",i),800,-4,4,1500,0,150);hlist->Add(thetaphi_tr[i]);
     thetaphideg_tr[i] = new TH2F(Form("thetaphideg_tr%d",i),Form("thetaphideg_tr%d",i),800,-180,180,1500,0,5);hlist->Add(thetaphideg_tr[i]);
   }
-  
+  TH2F* F8xy[3];
+  for(int i=0;i<3;i++){
+    F8xy[i] = new TH2F(Form("F8_%dxy",i),Form("F8_%dxy",i),100,-50,50,100,-50,50);hlist->Add(F8xy[i]);
+  }  
   TH2F* targetxy = new TH2F("targetxy","targetxy",100,-50,50,100,-50,50);hlist->Add(targetxy);
   TH2F* targetxz = new TH2F("targetxz","targetxz",100,-50,50,100,-50,50);hlist->Add(targetxz);
   TH2F* targetyz = new TH2F("targetyz","targetyz",100,-50,50,100,-50,50);hlist->Add(targetyz);
@@ -145,6 +148,10 @@ int main(int argc, char* argv[]){
   TH2F* h_egamtgamdc = new TH2F("h_egamtgamdc","h_egamtgamdc",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamdc);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
   TH2F* h_egamdc_theta = new TH2F("h_egamdc_theta","h_egamdc_theta",180,0,180,4000,0,4000);hlist->Add(h_egamdc_theta);
+  TH2F* h_egamdc_summary = new TH2F("h_egamdc_summary","h_egamdc_summary",40,0,40,4000,0,4000);hlist->Add(h_egamdc_summary);
+  TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary",40,0,40,4000,0,4000);hlist->Add(h_tgam_summary);
+
+  
   
   Double_t nentries = tr->GetEntries();
   Int_t nbytes = 0;
@@ -187,9 +194,11 @@ int main(int argc, char* argv[]){
     //align
     rec->AlignPPAC(bz->GetF8PPAC3A(), bz->GetF8PPAC3B());
     TVector3 ppacpos[3];
-    for(int j=0;j<3;j++)
+    for(int j=0;j<3;j++){
       ppacpos[j] = rec->PPACPosition(bz->GetF8PPAC(j,0),bz->GetF8PPAC(j,1));
-
+      bz->SetF8Position(j,ppacpos[j]);
+      F8xy[j]->Fill(ppacpos[j].X(), ppacpos[j].Y());
+    }
     bz->SetIncomingDirection(ppacpos[1]-ppacpos[0]);
     TVector3 inc = bz->GetIncomingDirection();
 
@@ -204,7 +213,26 @@ int main(int argc, char* argv[]){
       sca = bz->GetScatteredDirection();
     }
 
+    //beta
     bz->SetDopplerBeta(set->TargetBeta());
+
+    // //new HiCARI positions
+    // for(int h=0; h<hi->GetMult(); h++){
+    //   HiCARIHitCalc* hit = hi->GetHit(h);
+    //   if(hit->IsBigRIPS()){
+    // 	continue;
+    //   }
+    //   TVector3 pos = hit->GetPosition();
+    //   int cl = hit->GetCluster();
+    //   int cr = hit->GetCrystal();
+    //   int se = hit->GetMaxSegment();
+    //   TVector3 newpos = rec->GammaPosition(cl,cr,se);
+    //   cout << setw(7) << setprecision(5) << pos.Theta()*rad2deg << "\t" << newpos.Theta()*rad2deg << "\t" << pos.Theta()*rad2deg - newpos.Theta()*rad2deg << endl;
+    // }
+    
+    
+    rec->SetGammaPositions(hi);
+
     hi->DopplerCorrect(bz);
 
     // histos
@@ -241,6 +269,8 @@ int main(int argc, char* argv[]){
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	h_egamdc->Fill(hit->GetDCEnergy());
 	h_egamdc_theta->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy());
+	h_egamdc_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetDCEnergy());
+	h_tgam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
       }
     }
 

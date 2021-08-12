@@ -47,6 +47,7 @@ public:
       for(int j=0;j<2;j++){
 	ff8ppac[i][j].Clear();
       }
+      ff8pos[i].Clear();
     }
     
   }
@@ -130,6 +131,9 @@ public:
       return;
     }
     ff8ppac[id][ab] = ppac;
+  }
+  void SetF8Position(int i, TVector3 pos){
+    ff8pos[i] = pos;
   }
 
   
@@ -239,6 +243,9 @@ public:
   SinglePPAC* GetF8PPAC(int id, int ab){
     return &ff8ppac[id][ab];
   }
+  TVector3 GetF8Position(int i){
+    return ff8pos[i];
+  }
    
   //! Get the direction of the incoming beam in lab system
   TVector3 GetIncomingDirection(){
@@ -308,6 +315,8 @@ protected:
   //! ppacs for incoming and outgoing direction
   SinglePPAC ff8ppac[3][2];
 
+  //! position at the 3 F8 ppacs
+  TVector3 ff8pos[3];
   //! target position 
   TVector3 ftargetpos;
   //! incoming direction in lab system

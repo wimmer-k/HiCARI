@@ -236,7 +236,8 @@ double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam){
   PosToTarget.SetX(PosToTarget.X() - tp.X());
   PosToTarget.SetY(PosToTarget.Y() - tp.Y());
   PosToTarget.SetZ(PosToTarget.Z() - tp.Z());
-  double CosDop = cos(PosToTarget.Theta());
+  //double CosDop = cos(PosToTarget.Theta());
+  double CosDop = cos(PosToTarget.Angle(beam->GetOutgoingDirection()));
 
   double beta;
   beta = beam->GetDopplerBeta();

@@ -118,6 +118,8 @@ bool Reconstruction::ChargeChangeBR(double delta0, double delta1){
 
 /*!
   Gate on changing charge states in ZeroDegree
+  \param delta2 deltaBrho in F8-9
+  \param delta3 deltaBrho in F9-11
   \return changes in charge state
 */
 bool Reconstruction::ChargeChangeZD(double delta2, double delta3){
@@ -128,6 +130,29 @@ bool Reconstruction::ChargeChangeZD(double delta2, double delta3){
   return false;
 }
 
+/*!
+  Re-set the gamma positions
+  \param HiCARI event
+*/
+void Reconstruction::SetGammaPositions(HiCARICalc* hi){
+  //new HiCARI positions
+  vector<HiCARIHitCalc*> hits = hi->GetHits();
+  for(vector<HiCARIHitCalc*>::iterator hit=hits.begin(); hit!=hits.end(); hit++){
+    if((*hit)->IsBigRIPS()){
+      continue;
+    }
+    int cl = (*hit)->GetCluster();
+    int cr = (*hit)->GetCrystal();
+    int se = (*hit)->GetMaxSegment();
+    //TVector3 pos = (*hit)->GetPosition();
+    //TVector3 newpos = GammaPosition(cl,cr,se);
+    //cout << setw(7) << setprecision(5) << pos.Theta() << "\t" << newpos.Theta() << "\t" << pos.Theta()- newpos.Theta() << endl;
+    (*hit)->SetPosition(GammaPosition(cl,cr,se));
+  }
+
+
+  return;
+}
 
 
 
