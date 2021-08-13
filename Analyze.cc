@@ -145,12 +145,15 @@ int main(int argc, char* argv[]){
   TH2F* targetxz = new TH2F("targetxz","targetxz",100,-50,50,100,-50,50);hlist->Add(targetxz);
   TH2F* targetyz = new TH2F("targetyz","targetyz",100,-50,50,100,-50,50);hlist->Add(targetyz);
   
+  TH2F* h_egamtgam = new TH2F("h_egamtgam","h_egamtgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgam);
   TH2F* h_egamtgamdc = new TH2F("h_egamtgamdc","h_egamtgamdc",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamdc);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
   TH2F* h_egamdc_theta = new TH2F("h_egamdc_theta","h_egamdc_theta",180,0,180,4000,0,4000);hlist->Add(h_egamdc_theta);
-  TH2F* h_egamdc_summary = new TH2F("h_egamdc_summary","h_egamdc_summary",40,0,40,4000,0,4000);hlist->Add(h_egamdc_summary);
-  TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary",40,0,40,4000,0,4000);hlist->Add(h_tgam_summary);
-
+  TH2F* h_egamdc_summary = new TH2F("h_egamdc_summary","h_egamdc_summary",60,0,60,4000,0,4000);hlist->Add(h_egamdc_summary);
+  TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary",60,0,60,2000,-1000,1000);hlist->Add(h_tgam_summary);
+  TH2F* h_tgam_summary_HE = new TH2F("h_tgam_summary_HE","h_tgam_summary_HE",60,0,60,2000,-1000,1000);hlist->Add(h_tgam_summary_HE);
+  TH2F* h_tgam_trigbit = new TH2F("h_tgam_trigbit","h_tgam_trigbit",10,0,10,2000,-1000,1000);hlist->Add(h_tgam_trigbit);
+  
   
   
   Double_t nentries = tr->GetEntries();
@@ -262,15 +265,20 @@ int main(int argc, char* argv[]){
 
     for(int h=0; h<hi->GetMult(); h++){
       HiCARIHitCalc* hit = hi->GetHit(h);
-      if(hit->IsBigRIPS()){
+      if(hit->IsBigRIPS())
 	continue;
-      }
+      if(hit->IsTracking())
+	continue;
+      h_egamtgam->Fill(hit->GetTime(),hit->GetEnergy());
       h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	h_egamdc->Fill(hit->GetDCEnergy());
 	h_egamdc_theta->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy());
 	h_egamdc_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetDCEnergy());
 	h_tgam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
+	if(hit->GetEnergy()>2000)
+	  h_tgam_summary_HE->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
+	h_tgam_trigbit->Fill(trigbit, hit->GetTime());
       }
     }
 

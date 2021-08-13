@@ -213,6 +213,10 @@ int main(int argc, char* argv[]){
   TH2F* h_egamtgamABdc = new TH2F("h_egamtgamABdc","h_egamtgamABdc",1000,-500,500,nbins,0,erange);hlist->Add(h_egamtgamABdc);
   TH2F* g_egamtgamABdc = new TH2F("g_egamtgamABdc","g_egamtgamABdc",1000,-500,500,nbins,0,erange);hlist->Add(g_egamtgamABdc);
 
+  TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary", 48,0,48,1000,-500,500);hlist->Add(h_tgam_summary);
+  TH2F* h_tgam_summary_HE = new TH2F("h_tgam_summary_HE","h_tgam_summary_HE", 48,0,48,1000,-500,500);hlist->Add(h_tgam_summary_HE);
+    
+
   TH2F* target = new TH2F("target","target",1000,-50,50,1000,-50,50);hlist->Add(target);
   TH2F* target_hit = new TH2F("target_hit","target_hit",1000,-50,50,1000,-50,50);hlist->Add(target_hit);
   TH2F* target_frame = new TH2F("target_frame","target_frame",1000,-50,50,1000,-50,50);hlist->Add(target_frame);
@@ -626,8 +630,10 @@ int main(int argc, char* argv[]){
 	continue;
       }
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
-	h_egamtgam->Fill(hit->GetTime(),hit->GetEnergy());
 	h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
+	h_tgam_summary->Fill(hit->GetCluster()*4+hit->GetCrystal(),hit->GetTime());
+	if(hit->GetEnergy()>2000)
+	  h_tgam_summary_HE->Fill(hit->GetCluster()*4+hit->GetCrystal(),hit->GetTime());
 	if(TimeCut[0] && TimeCut[0]->IsInside(hit->GetTime(),hit->GetDCEnergy()))
 	  h_egamdc->Fill(hit->GetDCEnergy());
 	else if(TimeCut[0]==NULL)
