@@ -42,6 +42,7 @@ void Settings::ReadSettings(TEnv* set){
   fRawThresh = set->GetValue("HiCARI.Raw.Thresh",0);
   ReadHiCARIMappingTable();
   fHiCARIcalfile = set->GetValue("HiCARI.Calibration.File",defaultfile);
+  fHiCARItoffsetfile = set->GetValue("HiCARI.TimeOffset.File",defaultfile);
   fBaselineLength = set->GetValue("BaseLine.Length",60);
   fTracePlots = set->GetValue("Trace.Plots",0);
   fMode3Histos = set->GetValue("Mode3.Histos",0);
@@ -66,7 +67,7 @@ void Settings::ReadSettings(TEnv* set){
   fppac3align[1] = set->GetValue("PPAC3.Align.Y0",0.0);
   fppac3align[2] = set->GetValue("PPAC3.Align.X1",0.0);
   fppac3align[3] = set->GetValue("PPAC3.Align.Y1",0.0);
-  ftargetposition = set->GetValue("Target.Position",186.5);
+  ftargetposition = set->GetValue("Target.Position",129.5);
   ff5xgate[0] = set->GetValue("F5X.Gate.Low", -200.);
   ff5xgate[1] = set->GetValue("F5X.Gate.High", 200.);
   fdeltagate[2] = set->GetValue("Delta.Gate.Low", -999.);
@@ -89,30 +90,18 @@ void Settings::ReadSettings(TEnv* set){
 
   faoq_corr[0][0][0] = set->GetValue("BigRIPS.AoQCorr_F3X",0.0);
   faoq_corr[0][0][1] = set->GetValue("BigRIPS.AoQCorr_F3A",0.0);
-  faoq_corr[0][0][2] = set->GetValue("BigRIPS.AoQCorr_F3Q",0.0);
   faoq_corr[0][1][0] = set->GetValue("BigRIPS.AoQCorr_F5X",0.0);
   faoq_corr[0][1][1] = set->GetValue("BigRIPS.AoQCorr_F5A",0.0);
-  faoq_corr[0][1][2] = set->GetValue("BigRIPS.AoQCorr_F5Q",0.0);
   faoq_corr[0][2][0] = set->GetValue("BigRIPS.AoQCorr_F7X",0.0);
   faoq_corr[0][2][1] = set->GetValue("BigRIPS.AoQCorr_F7A",0.0);
-  faoq_corr[0][2][2] = set->GetValue("BigRIPS.AoQCorr_F7Q",0.0);
   
   faoq_corr[1][0][0] = set->GetValue("ZeroDeg.AoQCorr_F8X",0.0);
   faoq_corr[1][0][1] = set->GetValue("ZeroDeg.AoQCorr_F8A",0.0);
-  faoq_corr[1][0][2] = set->GetValue("ZeroDeg.AoQCorr_F8Q",0.0);
   faoq_corr[1][1][0] = set->GetValue("ZeroDeg.AoQCorr_F9X",0.0);
   faoq_corr[1][1][1] = set->GetValue("ZeroDeg.AoQCorr_F9A",0.0);
-  faoq_corr[1][1][2] = set->GetValue("ZeroDeg.AoQCorr_F9Q",0.0);
   faoq_corr[1][2][0] = set->GetValue("ZeroDeg.AoQCorr_F11X",0.0);
   faoq_corr[1][2][1] = set->GetValue("ZeroDeg.AoQCorr_F11A",0.0);
-  faoq_corr[1][2][2] = set->GetValue("ZeroDeg.AoQCorr_F11Q",0.0);
 
-  faoq_lin[0][0] = set->GetValue("BigRIPS.AoQCorr_Gain",1.0);
-  faoq_lin[0][1] = set->GetValue("BigRIPS.AoQCorr_Offs",0.0);
-  
-  faoq_lin[1][0] = set->GetValue("ZeroDeg.AoQCorr_Gain",1.0);
-  faoq_lin[1][1] = set->GetValue("ZeroDeg.AoQCorr_Offs",0.0);
-  
 }
 
 /*
@@ -155,6 +144,7 @@ void Settings::PrintSettings(){
   PrintHiCARIMappingTable();
   cout << "HiCARI.Raw.Thresh\t"<< fRawThresh << endl;
   cout << "HiCARI.Calibration.File\t"<< fHiCARIcalfile << endl;
+  cout << "HiCARI.TOffset.File\t"<< fHiCARItoffsetfile << endl;
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
   cout << "Trace.Plots\t"<< fTracePlots << endl;
   cout << "Mode3.Histos\t"<< fMode3Histos << endl;
