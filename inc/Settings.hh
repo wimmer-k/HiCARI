@@ -61,6 +61,7 @@ public:
   int HiCARICrystal(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
+  const char* HiCARITimeOffsetFile(){return fHiCARItoffsetfile.c_str();}
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
   bool Mode3Histos(){return fMode3Histos;}
@@ -175,6 +176,7 @@ protected:
   map<int, map<int, map<int, int> > > fHiCARImap;
   int fRawThresh;
   string fHiCARIcalfile;
+  string fHiCARItoffsetfile;
   int fBaselineLength;
   bool fTracePlots;
   bool fMode3Histos;

@@ -21,6 +21,7 @@ Calibration::Calibration(Settings* setting, int event){
   fRand = new TRandom();
   ReadHiCARIPositions(fSett->HiCARIPos());
   ReadHiCARICalibration(fSett->HiCARICalibrationFile());
+  ReadHiCARITimeOffset(fSett->HiCARITimeOffsetFile());
   ReadMatrix(fSett->MatrixFile());
   
 }
@@ -58,6 +59,15 @@ void Calibration::ReadHiCARICalibration(const char* filename){
 	fSegOffs[m][c][s] = calF->GetValue(Form("Clu.%02d.Cry.%02d.Seg.%02d.Offset",m,c,s),0.0);
       }
       //cout << fCoreGain[m][c] << "\t" << fCoreOffs[m][c] << endl;
+    }
+  }
+}
+void Calibration::ReadHiCARITimeOffset(const char* filename){
+  cout << "filename " << filename << endl;
+  TEnv *calF = new TEnv(filename);
+  for(int m=0;m<12;m++){
+    for(int c=0;c<4;c++){
+      fCoreTimeOffset[m][c] = calF->GetValue(Form("Core.Clu.%02d.Cry.%02d.Toffset",m,c),0.0);
     }
   }
 }
@@ -303,8 +313,10 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     Short_t clu = (*hit)->GetCluster();
     Short_t cry = (*hit)->GetCrystal();
     long long int ts = (*hit)->GetTS();
+    ts -= fCoreTimeOffset[clu][cry];
     Float_t en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
     en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
+    
     //Short_t seg = (*hit)->GetMaxSegNr();
     if(fverbose)
       cout << "calibrating hit clu = " << clu << ", cry " << cry << ", en " << en << ", ts " << ts << endl;

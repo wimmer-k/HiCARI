@@ -41,6 +41,8 @@ public:
   void ReadHiCARIPositions(const char* filename);
   //! Read the HiCARI calibration parameters
   void ReadHiCARICalibration(const char* filename);
+  //! Read the HiCARI time offsets
+  void ReadHiCARITimeOffset(const char* filename);
   //! Read the matrix file for the position transformation for mode2 data
   void ReadMatrix(const char* filename);
   
@@ -90,6 +92,7 @@ private:
   double fCoreOffs[MAXDETPOS][MAXCRYSTALNO];
   double fSegGain[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];
   double fSegOffs[MAXDETPOS][MAXCRYSTALNO][MAXSEGS];
+  double fCoreTimeOffset[MAXDETPOS][MAXCRYSTALNO];
   float fcrmat[MAXDETPOS][MAXCRYSTALNO][4][4];
 
   int fAddBackType;
