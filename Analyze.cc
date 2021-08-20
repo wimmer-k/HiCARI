@@ -153,6 +153,7 @@ int main(int argc, char* argv[]){
   TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary",60,0,60,2000,-1000,1000);hlist->Add(h_tgam_summary);
   TH2F* h_tgam_summary_HE = new TH2F("h_tgam_summary_HE","h_tgam_summary_HE",60,0,60,2000,-1000,1000);hlist->Add(h_tgam_summary_HE);
   TH2F* h_tgam_trigbit = new TH2F("h_tgam_trigbit","h_tgam_trigbit",10,0,10,2000,-1000,1000);hlist->Add(h_tgam_trigbit);
+  TH2F* h_egamegamdc = new TH2F("h_egamegamdc","h_egamegamdc",1000,0,4000,1000,0,4000);hlist->Add(h_egamegamdc);
   
   
   
@@ -217,7 +218,8 @@ int main(int argc, char* argv[]){
     }
 
     //beta
-    bz->SetDopplerBeta(set->TargetBeta());
+    //bz->SetDopplerBeta(set->TargetBeta());
+    bz->SetDopplerBeta(bz->GetRIPSBeta(3));
 
     // //new HiCARI positions
     // for(int h=0; h<hi->GetMult(); h++){
@@ -279,8 +281,15 @@ int main(int argc, char* argv[]){
 	if(hit->GetEnergy()>2000)
 	  h_tgam_summary_HE->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
 	h_tgam_trigbit->Fill(trigbit, hit->GetTime());
-      }
-    }
+	for(int h2=0; h2<hi->GetMult(); h2++){
+	  if(h==h2)
+	    continue;
+	  HiCARIHitCalc* hit2 = hi->GetHit(h2);
+	  h_egamegamdc->Fill(hit->GetDCEnergy(),hit2->GetDCEnergy());
+	  h_egamegamdc->Fill(hit2->GetDCEnergy(),hit->GetDCEnergy());
+	}
+      }//valid hit with position
+    }//hits
 
     if(writeTree>0)
       rtr->Fill();

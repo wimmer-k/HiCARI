@@ -245,16 +245,54 @@ int main(int argc, char* argv[]){
   position_b.resize(NFPLANES);
   position_b_z.resize(NFPLANES);
 
+  vector<TH1F*> beta_tof;
+  vector<vector<TH1F*> > beta_tof_b;
+  vector<vector<TH1F*> > beta_tof_b_z;
+  beta_tof.resize(2);
+  beta_tof_b.resize(2);
+  beta_tof_b_z.resize(2);
+
+  for(unsigned short i=0;i<2;i++){
+    beta_tof.at(i) = new TH1F(Form("beta%d_tof",i),Form("beta%d_tof",i),1000,0.55,0.65);
+  }
+    
+  vector<TH1F*> beta_rips;
+  vector<vector<TH1F*> > beta_rips_b;
+  vector<vector<TH1F*> > beta_rips_b_z;
+  beta_rips.resize(6);
+  beta_rips_b.resize(6);
+  beta_rips_b_z.resize(6);
+
+  for(unsigned short i=0;i<6;i++){
+    beta_rips.at(i) = new TH1F(Form("beta%d_rips",i),Form("beta%d_rips",i),1000,0.55,0.65);
+  }
 
   vector<TH2F*> MatchF7IC_b;
   vector<TH2F*> MatchF11IC_z;
   TH2F* h;
+  TH1F* hs;
   for(int i=0;i<incuts;i++){
     h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
 		 Form("zerodeg_%s",InCut[i]->GetName()),
 		 1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);
     zerodeg_b.push_back(h);
     hlist->Add(zerodeg_b.back());
+
+    for(unsigned short j=0;j<2;j++){
+      hs = new TH1F(Form("beta%d_tof_%s",j,InCut[i]->GetName()),
+		    Form("beta%d_tof_%s",j,InCut[i]->GetName()),
+		    1000,0.55,0.65);
+      beta_tof_b[j].push_back(hs);
+      hlist->Add(beta_tof_b[j].back());
+    }
+    
+    for(unsigned short j=0;j<6;j++){
+      hs = new TH1F(Form("beta%d_rips_%s",j,InCut[i]->GetName()),
+		    Form("beta%d_rips_%s",j,InCut[i]->GetName()),
+		    1000,0.55,0.65);
+      beta_rips_b[j].push_back(hs);
+      hlist->Add(beta_rips_b[j].back());
+    }
     
     h = new TH2F(Form("MatchF7IC_%s",InCut[i]->GetName()),
 		 Form("MatchF7IC_%s",InCut[i]->GetName()),
@@ -274,6 +312,22 @@ int main(int argc, char* argv[]){
   }
 
   for(int o=0;o<outcuts;o++){
+    for(unsigned short j=0;j<2;j++){
+      hs = new TH1F(Form("beta%d_tof_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    Form("beta%d_tof_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    1000,0.55,0.65);
+      beta_tof_b_z[j].push_back(hs);
+      hlist->Add(beta_tof_b_z[j].back());
+    }
+
+    for(unsigned short j=0;j<6;j++){
+      hs = new TH1F(Form("beta%d_rips_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    Form("beta%d_rips_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    1000,0.55,0.65);
+      beta_rips_b_z[j].push_back(hs);
+      hlist->Add(beta_rips_b_z[j].back());
+    }
+
     h = new TH2F(Form("MatchF11IC_%s",OutCut[o]->GetName()),
 		 Form("MatchF11IC_%s",OutCut[o]->GetName()),
 		 6,0,6,4096,0,4096);
@@ -292,6 +346,8 @@ int main(int argc, char* argv[]){
     }
     
   }
+
+  
   
   Int_t nbytes = 0;
   Int_t status;
@@ -420,6 +476,13 @@ int main(int argc, char* argv[]){
     }
 
     
+    for(unsigned short j=0;j<2;j++){
+      beta_tof[j]->Fill(bz->GetBeta(j));
+    }
+    for(unsigned short j=0;j<6;j++){
+      beta_rips[j]->Fill(bz->GetRIPSBeta(j));
+    }
+    
     // gated
     for(int in=0;in<incuts;in++){
       if( (!useCorrected && InCut[in]->IsInside(bz->GetAQ(2),bz->GetZ(2))) ||
@@ -430,7 +493,12 @@ int main(int argc, char* argv[]){
 	for(ushort i=0; i<f7ic->GetChan().size();i++){
 	  MatchF7IC_b[in]->Fill(f7ic->GetChan().at(i), f7ic->GetGainMatchADC().at(i));
 	}
-	
+	for(unsigned short j=0;j<2;j++){
+	  beta_tof_b[j][in]->Fill(bz->GetBeta(j));
+	}
+	for(unsigned short j=0;j<6;j++){
+	  beta_rips_b[j][in]->Fill(bz->GetRIPSBeta(j));
+	}
 	for(unsigned short f=0;f<NFPLANES;f++){
 	  position_b[f][in]->Fill(fp[f]->GetTrack()->GetX(), fp[f]->GetTrack()->GetY());
 	}
@@ -442,6 +510,12 @@ int main(int argc, char* argv[]){
 
 	for(ushort i=0; i<f11ic->GetChan().size();i++){
 	  MatchF11IC_z[o]->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
+	}
+	for(unsigned short j=0;j<2;j++){
+	  beta_tof_b_z[j][o]->Fill(bz->GetBeta(j));
+	}
+	for(unsigned short j=0;j<6;j++){
+	  beta_rips_b_z[j][o]->Fill(bz->GetRIPSBeta(j));
 	}
 	
     	for(unsigned short f=0;f<NFPLANES;f++){

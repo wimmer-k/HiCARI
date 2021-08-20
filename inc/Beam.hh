@@ -30,6 +30,7 @@ public:
       faoqc[j] = sqrt(-1.);
       fzet[j] = sqrt(-1.);
       fzetc[j] = sqrt(-1.);
+      fripsbeta[j] = sqrt(-1);	  
     }    
     for(unsigned short j=0;j<3;j++){
       ftof[j] = sqrt(-1.);
