@@ -32,6 +32,8 @@ public:
   TVector3 PPACPosition(SinglePPAC* pina, SinglePPAC* pinb);
   //! calculate the target position
   TVector3 TargetPosition(TVector3 inc, TVector3 ppac);
+  //! calculate the beta event-by-event
+  double EventBeta(Beam *beam);
   
   // gates 
   //!  gate on the F5X position

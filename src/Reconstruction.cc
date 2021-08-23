@@ -71,6 +71,20 @@ TVector3 Reconstruction::TargetPosition(TVector3 inc, TVector3 ppac){
 }
 
 /*!
+  Calculate the event-by-event beta
+  \param beam
+  \return value of beta 
+*/
+double Reconstruction::EventBeta(Beam* beam){
+#ifdef BRHOBETA
+  cout << "here" << endl;
+  return fSett->TargetBeta() * ( 1 + (beam->GetRIPSBeta(3) - fSett->AverageAfterBeta())/fSett->AverageAfterBeta());
+#else
+  return fSett->TargetBeta() * ( 1 + (beam->GetBeta(1) - fSett->AverageAfterBeta())/fSett->AverageAfterBeta());
+#endif
+}
+
+/*!
   Gate on the F5X position
   \return is inside the gate
 */

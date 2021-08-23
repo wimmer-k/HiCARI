@@ -145,16 +145,19 @@ int main(int argc, char* argv[]){
   TH2F* targetxz = new TH2F("targetxz","targetxz",100,-50,50,100,-50,50);hlist->Add(targetxz);
   TH2F* targetyz = new TH2F("targetyz","targetyz",100,-50,50,100,-50,50);hlist->Add(targetyz);
   
-  TH2F* h_egamtgam = new TH2F("h_egamtgam","h_egamtgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgam);
-  TH2F* h_egamtgamdc = new TH2F("h_egamtgamdc","h_egamtgamdc",1000,-500,500,4000,0,4000);hlist->Add(h_egamtgamdc);
+  TH2F* h_egam_tgam = new TH2F("h_egam_tgam","h_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egam_tgam);
+  TH2F* h_egamdc_tgam = new TH2F("h_egamdc_tgam","h_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamdc_tgam);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
   TH2F* h_egamdc_theta = new TH2F("h_egamdc_theta","h_egamdc_theta",180,0,180,4000,0,4000);hlist->Add(h_egamdc_theta);
+  TH2F* h_egam_beta = new TH2F("h_egam_beta","h_egam_beta",1000,0.55,0.65,4000,0,4000);hlist->Add(h_egam_beta);
+  TH2F* h_egamdc_beta = new TH2F("h_egamdc_beta","h_egamdc_beta",1000,0.55,0.65,4000,0,4000);hlist->Add(h_egamdc_beta);
   TH2F* h_egamdc_summary = new TH2F("h_egamdc_summary","h_egamdc_summary",60,0,60,4000,0,4000);hlist->Add(h_egamdc_summary);
   TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary",60,0,60,2000,-1000,1000);hlist->Add(h_tgam_summary);
   TH2F* h_tgam_summary_HE = new TH2F("h_tgam_summary_HE","h_tgam_summary_HE",60,0,60,2000,-1000,1000);hlist->Add(h_tgam_summary_HE);
   TH2F* h_tgam_trigbit = new TH2F("h_tgam_trigbit","h_tgam_trigbit",10,0,10,2000,-1000,1000);hlist->Add(h_tgam_trigbit);
-  TH2F* h_egamegamdc = new TH2F("h_egamegamdc","h_egamegamdc",1000,0,4000,1000,0,4000);hlist->Add(h_egamegamdc);
+  TH2F* h_egamdc_egamdc = new TH2F("h_egamdc_egamdc","h_egamdc_egamdc",1000,0,4000,1000,0,4000);hlist->Add(h_egamdc_egamdc);
   
+  TH2F* h_egamdc_segsummary = new TH2F("h_egamdc_segsummary","h_egamdc_segsummary",400,0,400,4000,0,4000);hlist->Add(h_egamdc_segsummary);
   
   
   Double_t nentries = tr->GetEntries();
@@ -219,8 +222,10 @@ int main(int argc, char* argv[]){
 
     //beta
     //bz->SetDopplerBeta(set->TargetBeta());
-    bz->SetDopplerBeta(bz->GetRIPSBeta(3));
+    //bz->SetDopplerBeta(bz->GetRIPSBeta(3));
+    bz->SetDopplerBeta(rec->EventBeta(bz));
 
+    
     // //new HiCARI positions
     // for(int h=0; h<hi->GetMult(); h++){
     //   HiCARIHitCalc* hit = hi->GetHit(h);
@@ -271,12 +276,16 @@ int main(int argc, char* argv[]){
 	continue;
       if(hit->IsTracking())
 	continue;
-      h_egamtgam->Fill(hit->GetTime(),hit->GetEnergy());
-      h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
+      h_egam_tgam->Fill(hit->GetTime(),hit->GetEnergy());
+      h_egamdc_tgam->Fill(hit->GetTime(),hit->GetDCEnergy());
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
 	h_egamdc->Fill(hit->GetDCEnergy());
+	h_egam_beta->Fill(bz->GetDopplerBeta(), hit->GetEnergy());
+	h_egamdc_beta->Fill(bz->GetDopplerBeta(), hit->GetDCEnergy());
 	h_egamdc_theta->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy());
 	h_egamdc_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetDCEnergy());
+	if(hit->GetMaxSegment()>-1)
+	  h_egamdc_segsummary->Fill((4*hit->GetCluster()+hit->GetCrystal())*6+hit->GetMaxSegment(), hit->GetDCEnergy());
 	h_tgam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
 	if(hit->GetEnergy()>2000)
 	  h_tgam_summary_HE->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
@@ -285,8 +294,8 @@ int main(int argc, char* argv[]){
 	  if(h==h2)
 	    continue;
 	  HiCARIHitCalc* hit2 = hi->GetHit(h2);
-	  h_egamegamdc->Fill(hit->GetDCEnergy(),hit2->GetDCEnergy());
-	  h_egamegamdc->Fill(hit2->GetDCEnergy(),hit->GetDCEnergy());
+	  h_egamdc_egamdc->Fill(hit->GetDCEnergy(),hit2->GetDCEnergy());
+	  h_egamdc_egamdc->Fill(hit2->GetDCEnergy(),hit->GetDCEnergy());
 	}
       }//valid hit with position
     }//hits

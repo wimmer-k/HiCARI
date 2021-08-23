@@ -60,6 +60,7 @@ public:
   int HiCARICluster(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]/10;}
   int HiCARICrystal(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
+  int RawOverflow(){return fRawOverflow;}
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
   const char* HiCARITimeOffsetFile(){return fHiCARItoffsetfile.c_str();}
   int BaselineLength(){return fBaselineLength;}
@@ -184,6 +185,7 @@ protected:
   string fHiCARImapping;
   map<int, map<int, map<int, int> > > fHiCARImap;
   int fRawThresh;
+  int fRawOverflow;
   string fHiCARIcalfile;
   string fHiCARItoffsetfile;
   int fBaselineLength;

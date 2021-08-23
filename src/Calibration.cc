@@ -315,6 +315,8 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     long long int ts = (*hit)->GetTS();
     ts -= fCoreTimeOffset[clu][cry];
     Float_t en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
+    if(en < fSett->RawThresh() || en > fSett->RawOverflow())
+      continue;
     en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
     
     //Short_t seg = (*hit)->GetMaxSegNr();
@@ -329,6 +331,8 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     for(UShort_t s=0;s<(*hit)->GetSegmentNr().size();s++){
       Short_t segnr = (*hit)->GetSegmentNr().at(s);
       Float_t segen = (*hit)->GetSegmentEn().at(s) + fRand->Uniform(0,1);
+      if(segen < fSett->RawThresh() || segen > fSett->RawOverflow())
+	continue;
       segen = segen*fSegGain[clu][cry][segnr] + fSegOffs[clu][cry][segnr];
       if(fverbose)
 	cout << "segment " << segnr << " energy " << (*hit)->GetSegmentEn().at(s) << " cal " << segen<< endl;

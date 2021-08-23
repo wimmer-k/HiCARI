@@ -55,11 +55,21 @@ void CalHistograms::FillHistograms(HiCARICalc* hi){
     Fill("h_crystal",4,0,4,hit->GetCrystal());
     Fill("h_crystal_vs_cluster",12,0,12,hit->GetCluster(),4,0,4,hit->GetCrystal());
     Fill("h_en_summary",48,0,48,hit->GetCluster()*4+hit->GetCrystal(),4000,0,4000,hit->GetEnergy());
+    Fill("h_en_summary_LR",48,0,48,hit->GetCluster()*4+hit->GetCrystal(),4000,0,40000,hit->GetEnergy());
     Fill("h_en_summary_fine",48,0,48,hit->GetCluster()*4+hit->GetCrystal(),16000,0,4000,hit->GetEnergy());
     Fill(Form("h_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),16000,0,4000,hit->GetEnergy());
     Fill("h_segsum_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetSegSum());
     Fill(Form("h_segsum_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),1000,0,4000,hit->GetSegSum());
+    Fill(Form("h_segsum_vs_en_LR_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,40000,hit->GetEnergy(),1000,0,40000,hit->GetSegSum());
+    if(hit->GetEnergy()<4000){
+      Fill(Form("h_segsum_ratio_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),500,0,4,hit->GetSegSum()/hit->GetEnergy());
+      Fill(Form("h_segsum_difference_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,-4000,4000,hit->GetEnergy()-hit->GetSegSum());
+      Fill(Form("h_segsum_ratio_vs_mult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs+1,0,segs+1,hit->GetSegmentNr().size(),500,0,4,hit->GetSegSum()/hit->GetEnergy());
+      Fill(Form("h_segsum_difference_vs_mult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs+1,0,segs+1,hit->GetSegmentNr().size(),1000,-4000,4000,hit->GetEnergy()-hit->GetSegSum());
+
+    }
     Fill(Form("h_segmult_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs+1,0,segs+1,hit->GetSegmentNr().size());
+    Fill(Form("h_segmult_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),segs+1,0,segs+1,hit->GetSegmentNr().size());
     
     for(UShort_t j=0; j<hit->GetSegmentNr().size(); j++){
       Fill(Form("h_segen_vs_nr_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),segs,0,segs,hit->GetSegmentNr().at(j),4000,0,4000,hit->GetSegmentEn().at(j));

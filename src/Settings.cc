@@ -40,6 +40,8 @@ void Settings::ReadSettings(TEnv* set){
   fHiCARIPos = set->GetValue("HiCARI.Positions",defaultfile);
   fHiCARImapping = set->GetValue("HiCARI.Mapping.Table",defaultfile);
   fRawThresh = set->GetValue("HiCARI.Raw.Thresh",0);
+  fRawOverflow = set->GetValue("HiCARI.Raw.Overflow",30000);
+  
   ReadHiCARIMappingTable();
   fHiCARIcalfile = set->GetValue("HiCARI.Calibration.File",defaultfile);
   fHiCARItoffsetfile = set->GetValue("HiCARI.TimeOffset.File",defaultfile);
@@ -155,6 +157,7 @@ void Settings::PrintSettings(){
   cout << "HiCARI.Mapping.Table\t"<< fHiCARImapping << endl;
   PrintHiCARIMappingTable();
   cout << "HiCARI.Raw.Thresh\t"<< fRawThresh << endl;
+  cout << "HiCARI.Raw.Overflow\t"<< fRawOverflow << endl;
   cout << "HiCARI.Calibration.File\t"<< fHiCARIcalfile << endl;
   cout << "HiCARI.TOffset.File\t"<< fHiCARItoffsetfile << endl;
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
