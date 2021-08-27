@@ -163,7 +163,7 @@ void Settings::PrintSettings(){
   cout << "HiCARI.Calibration.File\t"<< fHiCARIcalfile << endl;
   cout << "HiCARI.TOffset.File\t"<< fHiCARItoffsetfile << endl;
   cout << "HiCARI.BadSegment.File\t"<< fHiCARIbadsegfile << endl;
-  
+
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
   cout << "Trace.Plots\t"<< fTracePlots << endl;
   cout << "Mode3.Histos\t"<< fMode3Histos << endl;
