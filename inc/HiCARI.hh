@@ -135,13 +135,17 @@ public:
   void AddBackHiCARIHitCalc(HiCARIHitCalc* hit);
   void SetDCEnergy(float dcen){fDCen = dcen;}
   void SetPosition(TVector3 in){fposition = in;}
-
+  void AddSegment(Short_t nr, Float_t en);
+  
   // ! which cluster
   Short_t GetCluster(){return fcluster;}
   //! The number of the crystal, ranging from 0-3.
   Short_t GetCrystal(){return fcrystal;}
   //! The number of the max segment
   Short_t GetMaxSegment(){return fmaxseg;}
+  Float_t GetMaxSegmentEnergy(){
+    return *max_element(fsegen.begin(), fsegen.end());
+  }
   //! The energy of the hit (keV).
   Float_t GetEnergy(){return fen;}
   //! The sum of the segment energies of the hit (keV).
@@ -151,7 +155,9 @@ public:
   Float_t GetTime(){return ftime;}
 
   void CorrectTime(long long int BRTS){
+    //cout << "correct " << ftimestamp << "\t" << BRTS << "\t";
     ftime += ftimestamp - BRTS;
+    //cout << ftimestamp << endl;
   }
  
   //! The Doppler-corrected energy of the hit.

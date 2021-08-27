@@ -19,11 +19,10 @@ public:
   };
   //! acces the settings
   Settings* GetSettings(){return fSett;}
-  /////! sort by energy highest first
-  ///vector<DALIHit*> Sort(vector<DALIHit*> dali);
-  /////! sort by energy lowest first
-  ///vector<DALIHit*> Revert(vector<DALIHit*> dali);
 
+  //! read the file with the list of broken segments
+  void ReadBadSegments(const char* filename);
+  
   // ! Align the PPAC3 position
   void AlignPPAC(SinglePPAC* pin0, SinglePPAC* pin1);
   
@@ -45,6 +44,8 @@ public:
   //!  gate on changing charge state in ZeroDegree
   bool ChargeChangeZD(double delta2, double delta3);
 
+  void FindMaxSeg(HiCARICalc* hi);
+  
   void SetGammaPositions(HiCARICalc* hi);    
   
   TVector3 GammaPosition(int cl, int cr, int se){
@@ -54,7 +55,8 @@ public:
     return TVector3(0,0,-1);
   }
 
-  //private:
-  
+private:
+  int fNofBadSegs;
+  int fbadseg[MAXDETPOS][MAXCRYSTALNO];
 };
 #endif

@@ -9,7 +9,27 @@ Reconstruction::Reconstruction(Settings* setting){
   fSett = setting;
   ReadHiCARIPositions(fSett->HiCARIPos());
   ReadMatrix(fSett->MatrixFile());
-  
+  ReadBadSegments(fSett->HiCARIBadSegmentsFile());
+}
+
+/*!
+  Reads the file with the bad segment list
+  \param char* with the file name
+*/
+void Reconstruction::ReadBadSegments(const char* filename){
+  for(int m=0;m<12;m++){
+    for(int c=0;c<4;c++){
+      fbadseg[m][c] = -1;
+    }
+  }
+  TEnv *badsegs = new TEnv(filename);
+  fNofBadSegs = badsegs->GetValue("Number.Of.BadSegments",0);
+  for(int i=0;i<fNofBadSegs;i++){
+    int clu = badsegs->GetValue(Form("Bad.Cluster.%d",i),-1);
+    int cry = badsegs->GetValue(Form("Bad.Crystal.%d",i),-1);
+    int seg = badsegs->GetValue(Form("Bad.Segment.%d",i),-1);
+    fbadseg[clu][cry] = seg;
+  }
 }
 
 /*!
@@ -77,7 +97,6 @@ TVector3 Reconstruction::TargetPosition(TVector3 inc, TVector3 ppac){
 */
 double Reconstruction::EventBeta(Beam* beam){
 #ifdef BRHOBETA
-  cout << "here" << endl;
   return fSett->TargetBeta() * ( 1 + (beam->GetRIPSBeta(3) - fSett->AverageAfterBeta())/fSett->AverageAfterBeta());
 #else
   return fSett->TargetBeta() * ( 1 + (beam->GetBeta(1) - fSett->AverageAfterBeta())/fSett->AverageAfterBeta());
@@ -142,6 +161,40 @@ bool Reconstruction::ChargeChangeZD(double delta2, double delta3){
   if((delta2-delta3) < fSett->DeltaGate(2) || (delta2-delta3) > fSett->DeltaGate(3))
       return true;
   return false;
+}
+
+/*!
+  Re-calculate the max segment for the Doppler correction, taking into account the broken segments
+  \param HiCARI event
+*/
+void Reconstruction::FindMaxSeg(HiCARICalc* hi){
+  vector<HiCARIHitCalc*> hits = hi->GetHits();
+  for(vector<HiCARIHitCalc*>::iterator hit=hits.begin(); hit!=hits.end(); hit++){
+    if((*hit)->IsBigRIPS()){
+      continue;
+    }
+    int cl = (*hit)->GetCluster();
+    int cr = (*hit)->GetCrystal();
+    int se = (*hit)->GetMaxSegment();
+    if(fbadseg[cl][cr]>0){
+      if(fSett->VLevel()>1){
+	cout << "this hit is in a crystals with a bad segment:--------------------------------------------------" << endl;
+	cout << "cl " << cl << ",cr " << cr << ",max segment " << se << ", bad seg " << fbadseg[cl][cr] << endl;
+	cout << "energy " << (*hit)->GetEnergy() << ", sum of segments " << (*hit)->GetSegSum() << endl; 
+      }
+      //(*hit)->Print();
+      if((*hit)->GetSegSum() < (*hit)->GetEnergy())
+	(*hit)->AddSegment(fbadseg[cl][cr], (*hit)->GetEnergy() - (*hit)->GetSegSum());
+
+	
+      //cout << "reconstructed  bad segment:" << endl;
+      //(*hit)->Print();
+      //cout << " max seg " << (*hit)->GetMaxSegmentEnergy() << endl;
+    }
+  }
+
+
+  return;
 }
 
 /*!

@@ -161,6 +161,9 @@ int main(int argc, char* argv[]){
   
   
   Double_t nentries = tr->GetEntries();
+  if(nmax>0){
+    nentries = nmax;
+  }
   Int_t nbytes = 0;
   Int_t status;
   for(int i=0; i<nentries;i++){
@@ -240,7 +243,8 @@ int main(int argc, char* argv[]){
     //   cout << setw(7) << setprecision(5) << pos.Theta()*rad2deg << "\t" << newpos.Theta()*rad2deg << "\t" << pos.Theta()*rad2deg - newpos.Theta()*rad2deg << endl;
     // }
     
-    
+    rec->FindMaxSeg(hi);
+
     rec->SetGammaPositions(hi);
 
     hi->DopplerCorrect(bz);

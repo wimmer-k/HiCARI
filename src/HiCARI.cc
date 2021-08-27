@@ -184,6 +184,18 @@ void HiCARIHitCalc::SetSegments(vector<Short_t>nr, vector<Float_t> en){
   fsegnr = nr;
   fsegen = en;
 }
+void HiCARIHitCalc::AddSegment(Short_t nr, Float_t en){
+  int savemaxseg = fmaxseg;
+  if(fmaxseg<0 || en>GetMaxSegmentEnergy())
+    fmaxseg = nr;
+  fsegnr.push_back(nr);
+  fsegen.push_back(en);
+  fsegsum += en;
+
+  // if(fmaxseg!=savemaxseg)
+  //   Print();
+  
+}
 
 void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
   if(!isnan(fmaxhit) && hit->GetEnergy() > fmaxhit){
@@ -230,6 +242,7 @@ void HiCARICalc::DopplerCorrect(Settings* set){
 }
 
 // event by event beta and position
+// this is the function that is actually used right now
 double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam){
   TVector3 tp = beam->GetTargetPosition();
   

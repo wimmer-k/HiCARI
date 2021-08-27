@@ -339,7 +339,7 @@ void BuildEvents::CloseEvent(){
   // // bool printme = false;
   // if(fBRts>0 && fHIts >0){
   //   //printme = true;
-  //   cout << "fBRentry = " << fBRentry << "\tfBRts = " << fBRts << ", fHIentry = " << fHIentry << "\tfHIts = " << fHIts << "\tmult = " << fhicari->GetMult()<< endl;
+  // cout << "fBRentry = " << fBRentry << "\tfBRts = " << fBRts << ", fHIentry = " << fHIentry << "\tfHIts = " << fHIts << "\tmult = " << fhicari->GetMult()<< endl;
   //   cout << "BR AoQ = " << fbeam->GetAQ(1) << " Z = " << fbeam->GetZ(1) << endl;
   //   fhicari->Print();
   // }
