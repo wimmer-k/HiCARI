@@ -4,7 +4,6 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-<<<<<<< HEAD
 #TARTSYS=/usr/share/anaroot_hicari
 
 
@@ -96,19 +95,10 @@ TreeSplitter: TreeSplitter.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 99971d5b6c8325ed234740736bd5d988658daee5
 Analyze: Analyze.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so $(RO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(RO_FILES) -o $(BIN_DIR)/$@ 
 
-<<<<<<< HEAD
-=======
->>>>>>> master
-=======
->>>>>>> 99971d5b6c8325ed234740736bd5d988658daee5
 HFC:
 	@cd hfc; $(MAKE)
 	@echo "GEB_HFC compiled"
