@@ -1,0 +1,32 @@
+Number.Of.BadSegments:	8
+Bad.Cluster.0:	2
+Bad.Crystal.0:	1
+Bad.Segment.0:	2
+
+Bad.Cluster.1:	3
+Bad.Crystal.1:	0
+Bad.Segment.1:	1
+
+Bad.Cluster.2:	3
+Bad.Crystal.2:	1
+Bad.Segment.2:	4
+
+Bad.Cluster.3:	4
+Bad.Crystal.3:	2
+Bad.Segment.3:	3
+
+Bad.Cluster.4:	5
+Bad.Crystal.4:	2
+Bad.Segment.4:	4
+
+Bad.Cluster.5:	0
+Bad.Crystal.5:	3
+Bad.Segment.5:	3
+
+Bad.Cluster.6:	0
+Bad.Crystal.6:	2
+Bad.Segment.6:	2
+
+Bad.Cluster.7:	0
+Bad.Crystal.7:	3
+Bad.Segment.7:	2
