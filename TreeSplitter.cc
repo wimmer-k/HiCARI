@@ -67,8 +67,6 @@ int main(int argc, char* argv[]){
   //check what the contents of the input file were
   Settings* inset = (Settings*)infile->Get("settings");
   
-
-  
   HiCARICalc* hi = new HiCARICalc;
   tr->SetBranchAddress("hicari",&hi);
   unsigned long long int hits;
@@ -175,7 +173,6 @@ int main(int argc, char* argv[]){
   }//settings present
 
 
-  
   TFile* ofile = new TFile(OutFile,"recreate");
   ofile->cd();
   InTree.resize(InCut.size());
@@ -254,6 +251,7 @@ int main(int argc, char* argv[]){
     for(int f=0;f<NFPLANES;f++){
       fp[f]->Clear();
     }
+<<<<<<< HEAD
     beam->Clear();
     if(inset->BigRIPSDetail()>0){
       for(int f=0;f<NFPLANES;f++){
@@ -262,6 +260,8 @@ int main(int argc, char* argv[]){
     }
     if(inset->BigRIPSDetail()>1)
       ppacs->Clear();
+    ppac->Clear();
+    beam->Clear();
 
     if(Verbose>2)
       cout << "getting entry " << i << endl;

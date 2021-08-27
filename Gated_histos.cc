@@ -215,7 +215,6 @@ int main(int argc, char* argv[]){
 
   TH2F* h_tgam_summary = new TH2F("h_tgam_summary","h_tgam_summary", 48,0,48,1000,-500,500);hlist->Add(h_tgam_summary);
   TH2F* h_tgam_summary_HE = new TH2F("h_tgam_summary_HE","h_tgam_summary_HE", 48,0,48,1000,-500,500);hlist->Add(h_tgam_summary_HE);
-    
 
   TH2F* target = new TH2F("target","target",1000,-50,50,1000,-50,50);hlist->Add(target);
   TH2F* target_hit = new TH2F("target_hit","target_hit",1000,-50,50,1000,-50,50);hlist->Add(target_hit);

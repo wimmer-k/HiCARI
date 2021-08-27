@@ -46,6 +46,7 @@ void Settings::ReadSettings(TEnv* set){
   fHiCARIcalfile = set->GetValue("HiCARI.Calibration.File",defaultfile);
   fHiCARItoffsetfile = set->GetValue("HiCARI.TimeOffset.File",defaultfile);
   fHiCARIbadsegfile = set->GetValue("HiCARI.BadSegment.File",defaultfile);
+
   fBaselineLength = set->GetValue("BaseLine.Length",60);
   fTracePlots = set->GetValue("Trace.Plots",0);
   fMode3Histos = set->GetValue("Mode3.Histos",0);

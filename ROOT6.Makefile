@@ -6,8 +6,6 @@ BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
 #TARTSYS=/usr/share/anaroot_hicari
 #/home/gamma20/packages/anaroot_v4.5.38
-#TARTSYS=/home/gamma20/exp/anaroot
-#TARTSYS=/home/wimmer/mercurius/anaroot
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs)
@@ -97,10 +95,13 @@ TreeSplitter: TreeSplitter.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(MO_FILES) -o $(BIN_DIR)/$@ 
 
+<<<<<<< HEAD
 Analyze: Analyze.cc $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libHiCARI.so $(RO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(RO_FILES) -o $(BIN_DIR)/$@ 
 
+=======
+>>>>>>> master
 HFC:
 	@cd hfc; $(MAKE)
 	@echo "GEB_HFC compiled"
