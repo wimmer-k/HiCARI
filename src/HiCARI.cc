@@ -184,6 +184,18 @@ void HiCARIHitCalc::SetSegments(vector<Short_t>nr, vector<Float_t> en){
   fsegnr = nr;
   fsegen = en;
 }
+void HiCARIHitCalc::AddSegment(Short_t nr, Float_t en){
+  int savemaxseg = fmaxseg;
+  if(fmaxseg<0 || en>GetMaxSegmentEnergy())
+    fmaxseg = nr;
+  fsegnr.push_back(nr);
+  fsegen.push_back(en);
+  fsegsum += en;
+
+  // if(fmaxseg!=savemaxseg)
+  //   Print();
+  
+}
 
 void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
   if(!isnan(fmaxhit) && hit->GetEnergy() > fmaxhit){
@@ -202,6 +214,9 @@ void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
   fHitsAdded += hit->GetHitsAdded();
  
 }
+
+
+// fixed beta
 double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 
   PosToTarget.SetX(PosToTarget.X() - set->TargetX());
@@ -215,7 +230,6 @@ double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* se
   return gamma*(1-beta*CosDop);
 
 }
-
 void HiCARICalc::DopplerCorrect(Settings* set){
   for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
     if((*hit)->IsHiCARI() )
@@ -224,6 +238,34 @@ void HiCARICalc::DopplerCorrect(Settings* set){
   for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
     if((*hit)->IsHiCARI() )
       (*hit)->DopplerCorrect(set);
+  }
+}
+
+// event by event beta and position
+// this is the function that is actually used right now
+double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam){
+  TVector3 tp = beam->GetTargetPosition();
+  
+  PosToTarget.SetX(PosToTarget.X() - tp.X());
+  PosToTarget.SetY(PosToTarget.Y() - tp.Y());
+  PosToTarget.SetZ(PosToTarget.Z() - tp.Z());
+  //double CosDop = cos(PosToTarget.Theta());
+  double CosDop = cos(PosToTarget.Angle(beam->GetOutgoingDirection()));
+
+  double beta;
+  beta = beam->GetDopplerBeta();
+  double gamma = 1/sqrt(1.0 - beta*beta);
+  return gamma*(1-beta*CosDop);
+
+}
+void HiCARICalc::DopplerCorrect(Beam* beam){
+  for(vector<HiCARIHitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
+    if((*hit)->IsHiCARI() )
+      (*hit)->DopplerCorrect(beam);
+  }
+  for(vector<HiCARIHitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
+    if((*hit)->IsHiCARI() )
+      (*hit)->DopplerCorrect(beam);
   }
 }
   

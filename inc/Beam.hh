@@ -9,6 +9,8 @@
 #include "TVector3.h"
 #include "TRotation.h"
 
+#include "PPAC.hh"
+
 using namespace std;
 
 
@@ -28,6 +30,7 @@ public:
       faoqc[j] = sqrt(-1.);
       fzet[j] = sqrt(-1.);
       fzetc[j] = sqrt(-1.);
+      fripsbeta[j] = sqrt(-1);	  
     }    
     for(unsigned short j=0;j<3;j++){
       ftof[j] = sqrt(-1.);
@@ -41,10 +44,13 @@ public:
     fincdir.SetXYZ(0,0,-99999);
     foutdir.SetXYZ(0,0,-99999);
     fscadir.SetXYZ(0,0,-99999);
-    TVector3 X(1,0,0);
-    TVector3 Y(0,1,0);
-    TVector3 Z(0,0,1);
-    //fincrot.RotateAxes(X,Y,Z);
+    for(int i=0;i<3;i++){
+      for(int j=0;j<2;j++){
+	ff8ppac[i][j].Clear();
+      }
+      ff8pos[i].Clear();
+    }
+    
   }
   //! Set the A/Q ratio
   void SetAQ(unsigned short j, double aoq){
@@ -88,7 +94,50 @@ public:
     if(j<0 || j>3) return;
     fbrho[j] = brho;
   }
+  //! Set the beta
+  void SetRIPSBeta(unsigned short j, double beta){    
+    if(j<0 || j>5) return;
+    fripsbeta[j] = beta;
+  }
 
+  //! Set the PPACS
+  void SetF8PPACS(SinglePPAC ppac[6]){
+    for(int i=0;i<3;i++){
+      for(int j=0;j<2;j++){
+	ff8ppac[i][j] = ppac[i*2+j];
+      }
+    }
+  }
+  void SetF8PPAC1A(SinglePPAC ppac){
+    ff8ppac[0][0] = ppac;
+  }
+  void SetF8PPAC1B(SinglePPAC ppac){
+    ff8ppac[0][1] = ppac;
+  }
+  void SetF8PPAC2A(SinglePPAC ppac){
+    ff8ppac[1][0] = ppac;
+  }
+  void SetF8PPAC2B(SinglePPAC ppac){
+    ff8ppac[1][1] = ppac;
+  }
+  void SetF8PPAC3A(SinglePPAC ppac){
+    ff8ppac[2][0] = ppac;
+  }
+  void SetF8PPAC3B(SinglePPAC ppac){
+    ff8ppac[2][1] = ppac;
+  }
+  void SetF8PPAC(int id, int ab, SinglePPAC ppac){
+    if(id<0 || id>2 || ab<0 || ab>1){
+      cout << "trying to set invalid PPAC" << endl;
+      return;
+    }
+    ff8ppac[id][ab] = ppac;
+  }
+  void SetF8Position(int i, TVector3 pos){
+    ff8pos[i] = pos;
+  }
+
+  
   //! Set the target position 
   void SetTargetPosition(TVector3 pos){
     ftargetpos = pos;
@@ -114,12 +163,22 @@ public:
       fscadir = dir;
       fscadir.Transform(fincrot);
     }
+  }  
+  void SetDopplerBeta(double beta){
+    fdopplerbeta = beta;
   }
+  
 
-  //! Correct the A/Q ratio based on position
+  
+  //! Correct the A/Q ratio based on position and plastic charge
   void CorrectAQ(unsigned short j, double corr){
     if(j<0 || j>5) return;
     faoqc[j] = faoq[j] + corr;
+  }
+  //! Scale and shift A/Q
+  void ScaleAQ(unsigned short j, double gain, double offs){
+    if(j<0 || j>5) return;
+    faoqc[j] = gain*faoqc[j] + offs;
   }
 
   //! Get the A/Q ratio
@@ -157,6 +216,38 @@ public:
     if(j<0 || j>3) return sqrt(-1.);
     return fbrho[j];
   }
+  //! Get beta
+  double GetRIPSBeta(unsigned short j){
+    if(j<0 || j>5) return sqrt(-1.);
+    return fripsbeta[j];
+  }
+
+  //! Get the PPACS
+  SinglePPAC* GetF8PPAC1A(){
+    return &ff8ppac[0][0];
+  }
+  SinglePPAC* GetF8PPAC1B(){
+    return &ff8ppac[0][1];
+  }
+  SinglePPAC* GetF8PPAC2A(){
+    return &ff8ppac[1][0];
+  }
+  SinglePPAC* GetF8PPAC2B(){
+    return &ff8ppac[1][1];
+  }
+  SinglePPAC* GetF8PPAC3A(){
+    return &ff8ppac[2][0];
+  }
+  SinglePPAC* GetF8PPAC3B(){
+    return &ff8ppac[2][1];
+  }
+  SinglePPAC* GetF8PPAC(int id, int ab){
+    return &ff8ppac[id][ab];
+  }
+  TVector3 GetF8Position(int i){
+    return ff8pos[i];
+  }
+   
   //! Get the direction of the incoming beam in lab system
   TVector3 GetIncomingDirection(){
     return fincdir;
@@ -195,6 +286,11 @@ public:
     return sqrt(-1.);
   }
 
+  double GetDopplerBeta(){
+    return fdopplerbeta;
+  }
+
+  
 protected:
   //! A/Q for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11
   double faoq[6];
@@ -207,14 +303,21 @@ protected:
 
   //! time-of-flight for 3-7, 8-11, 7-8
   double ftof[3];
-  //! beta for 3-7, 8-11, 7-8
+  //! tof beta for 3-7, 8-11, 7-8
   double fbeta[3];
+  //! rips beta for 3-5, 5-7, 3-7,  8-9, 9-11, 8-11  
+  double fripsbeta[6];
 
   //! delta momentum 3-5, 5-7, 8-9, 9-11
   double fdelta[4];
   //! brho 3-5, 5-7, 8-9, 9-11
   double fbrho[4];
 
+  //! ppacs for incoming and outgoing direction
+  SinglePPAC ff8ppac[3][2];
+
+  //! position at the 3 F8 ppacs
+  TVector3 ff8pos[3];
   //! target position 
   TVector3 ftargetpos;
   //! incoming direction in lab system
@@ -226,6 +329,9 @@ protected:
   //! ejectile vector in beam coordinate system
   TVector3 fscadir;
 
+  //! velocity beta to be used for Doppler correction
+  double fdopplerbeta;
+  
   /// \cond CLASSIMP
   ClassDef(Beam,1);
   /// \endcond

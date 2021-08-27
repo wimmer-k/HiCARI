@@ -60,8 +60,12 @@ public:
   int HiCARICluster(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]/10;}
   int HiCARICrystal(int hole, int cry, int slot){return fHiCARImap[hole][cry][slot]%10;}
   int RawThresh(){return fRawThresh;}
+  int RawOverflow(){return fRawOverflow;}
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
   const char* HiCARITimeOffsetFile(){return fHiCARItoffsetfile.c_str();}
+
+  const char* HiCARIBadSegmentsFile(){return fHiCARIbadsegfile.c_str();}
+
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
   bool Mode3Histos(){return fMode3Histos;}
@@ -133,18 +137,27 @@ public:
   double GetAoQCorrection(int sp, int fp, int tr){return faoq_corr[sp][fp][tr];}
   double GetBRAoQCorrection_F3X(){return faoq_corr[0][0][0];}
   double GetBRAoQCorrection_F3A(){return faoq_corr[0][0][1];}
+  double GetBRAoQCorrection_F3Q(){return faoq_corr[0][0][2];}
   double GetBRAoQCorrection_F5X(){return faoq_corr[0][1][0];}
   double GetBRAoQCorrection_F5A(){return faoq_corr[0][1][1];}
+  double GetBRAoQCorrection_F5Q(){return faoq_corr[0][1][2];}
   double GetBRAoQCorrection_F7X(){return faoq_corr[0][2][0];}
   double GetBRAoQCorrection_F7A(){return faoq_corr[0][2][1];}
+  double GetBRAoQCorrection_F7Q(){return faoq_corr[0][2][2];}
   double GetZDAoQCorrection_F8X(){return faoq_corr[1][0][0];}
   double GetZDAoQCorrection_F8A(){return faoq_corr[1][0][1];}
+  double GetZDAoQCorrection_F8Q(){return faoq_corr[1][0][2];}
   double GetZDAoQCorrection_F9X(){return faoq_corr[1][1][0];}
   double GetZDAoQCorrection_F9A(){return faoq_corr[1][1][1];}
+  double GetZDAoQCorrection_F9Q(){return faoq_corr[1][1][2];}
   double GetZDAoQCorrection_F11X(){return faoq_corr[1][2][0];}
   double GetZDAoQCorrection_F11A(){return faoq_corr[1][2][1];}
+  double GetZDAoQCorrection_F11Q(){return faoq_corr[1][2][2];}
 
-  
+  double GetBRAoQCorrection_gain(){return faoq_lin[0][0];}
+  double GetBRAoQCorrection_offs(){return faoq_lin[0][1];}
+  double GetZDAoQCorrection_gain(){return faoq_lin[1][0];}
+  double GetZDAoQCorrection_offs(){return faoq_lin[1][1];}
 protected:
   int fEventTimeDiff;
   vector<string> fInputFiles;
@@ -175,8 +188,11 @@ protected:
   string fHiCARImapping;
   map<int, map<int, map<int, int> > > fHiCARImap;
   int fRawThresh;
+  int fRawOverflow;
   string fHiCARIcalfile;
   string fHiCARItoffsetfile;
+  string fHiCARIbadsegfile;
+
   int fBaselineLength;
   bool fTracePlots;
   bool fMode3Histos;
@@ -224,7 +240,9 @@ protected:
   //! Event numbers
   string fEvtNrFile;
 
-  double faoq_corr[2][3][2];  // BR/ZD, focal plane, x,angle
+  double faoq_corr[2][3][3];  // BR/ZD, focal plane, x,angle,q
+
+  double faoq_lin[2][2]; // BR/ZD, gain,off
 
   ClassDef(Settings, 1)
 };

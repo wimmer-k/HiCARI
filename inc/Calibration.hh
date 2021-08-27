@@ -77,7 +77,7 @@ public:
   long long int GetGretinaHitCtr(){return fGretinaHitctr;}
   long long int GetGretinaHitABCtr(){return fGretinaHitABctr;}
   
-private:
+protected:
   void ResetCtrs();
 
   Settings* fSett;

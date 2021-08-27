@@ -1,0 +1,95 @@
+VerboseLevel:			0
+EventTimeDiff:			1000
+BigRIPS.Detail:			2
+
+HiCARI.Mapping.Table:		/home/wimmer/progs/HiCARI/settings/mapping.dat
+HiCARI.Calibration.File:	/home/wimmer/ribf173/settings/afterexp_Co_Eu_Ba_20210527.cal
+HiCARI.TimeOffset.File:		/home/wimmer/ribf173/settings/timeoffsets_3mmBe.cal
+HiCARI.Raw.Thresh:		10
+HiCARI.Raw.Overflow:		30000
+HiCARI.BadSegment.File:		/home/wimmer/ribf173/settings/basegments.dat
+BaseLine.Length:		60
+TracePlots:	   		0
+
+HiCARI.IgnoreTrace:		1
+
+HiCARI.Positions:		/home/wimmer/ribf173/settings/HiCARIpos_0826.dat
+Matrix.File:			/home/wimmer/progs/HiCARI/settings/quadmatrix.dat
+
+
+AddBackType:			1
+
+## correlation mode: 0 = any, 1 force coinc
+Correlation.Mode:		0
+## correlation with ADC copy of one Ge signal
+Correlation.Cluster:		3
+Correlation.Crystal:		1
+
+## channel used for digitizing the BigRIPS trigger
+BigRIPS.Cluster:		9
+BigRIPS.Crystal:		9
+BigRIPS.Channel:		9
+
+## for histograms
+Trace.Plots:			0
+Mode3.Histos:			0
+
+
+
+BigRIPS.PPAC.File:	/home/wimmer/ribf173/settings/db/PPAC/BigRIPSPPAC_Be_20120531.xml
+BigRIPS.Plastic.File:	/home/wimmer/ribf173/settings/db/BigRIPSPlastic.xml
+BigRIPS.IC.File:	/home/wimmer/ribf173/settings/db/IC/BigRIPSIC_3mmBe_20210811.xml
+BigRIPS.Focal.File:	/home/wimmer/ribf173/settings/db/FocalPlane.xml
+Matrix.35.File:		/home/wimmer/ribf173/settings/matrix/mat1.mat
+Matrix.57.File:		/home/wimmer/ribf173/settings/matrix/mat2.mat
+Matrix.89.File:		/home/wimmer/ribf173/settings/matrix/F8F9_LargeAccAchr.mat
+Matrix.911.File:	/home/wimmer/ribf173/settings/matrix/F9F11_LargeAccAchr.mat
+
+TOF.Offset.0:	297.056 	
+TOF.Offset.1:	303.127 	
+TOF.Offset.2:	300.093 	
+TOF.Offset.3:	-134.997	
+TOF.Offset.4:	-134.596	
+TOF.Offset.5:	-134.722	
+
+Target.X:	0.0
+Target.Y:	0.0
+Target.Z:	3.5    #2 mm plastic + half target thickness
+Target.Beta:		0.60242   #82Ge after
+Average.Beta.After:	0.60242
+
+Time.Corrections.File:	/home/wimmer/ribf173/settings/timedependence_3mmBe.root
+Event.Number.File:	/home/wimmer/ribf173/settings/EventNumbers.dat
+
+##SGD from run 44
+BigRIPS.AoQCorr_F3A:	7.53741166e-05 
+BigRIPS.AoQCorr_F3X:	8.90946878e-05 
+BigRIPS.AoQCorr_F3Q:	-1.92018425e-05
+BigRIPS.AoQCorr_F5A:	-1.40640644e-04
+BigRIPS.AoQCorr_F5X:	-1.01819891e-04
+BigRIPS.AoQCorr_F7A:	-1.92802833e-04
+BigRIPS.AoQCorr_F7X:	-2.35148496e-04
+BigRIPS.AoQCorr_F7Q:	2.07680714e-05 
+
+BigRIPS.AoQCorr_Gain:	9.99786213e-01
+BigRIPS.AoQCorr_Offs:	-0.008297127239987401
+
+
+ZeroDeg.AoQCorr_F8A:	-3.24956177e-04
+ZeroDeg.AoQCorr_F8X:	7.15182812e-04 
+ZeroDeg.AoQCorr_F8Q:	-7.70268748e-05
+ZeroDeg.AoQCorr_F9A:	-4.70054186e-05
+ZeroDeg.AoQCorr_F9X:	3.42737248e-05 
+ZeroDeg.AoQCorr_F11A:	-1.57938785e-04
+ZeroDeg.AoQCorr_F11X:	-4.18037662e-04
+ZeroDeg.AoQCorr_F11Q:	5.62930913e-05 
+
+ZeroDeg.AoQCorr_Gain:	9.99083760e-01
+ZeroDeg.AoQCorr_Offs:	0.004329128164090423
+
+
+
+Target.Position:	186.5
+
+Delta.Gate.Low:		-2.27
+Delta.Gate.High:	1.43

@@ -8,3 +8,4 @@ scripts/FitWindow
 scripts/*.pcm
 hfc/*.o
 settings/*.bak
+scripts/*.dat

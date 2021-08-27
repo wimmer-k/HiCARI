@@ -339,6 +339,7 @@ int main(int argc, char* argv[]){
       TMatrixD yvec(2,1); yvec.Zero();
       TMatrixD xmat(2,2); xmat.Zero();
       TMatrixD ymat(2,2); ymat.Zero();
+
       int first = firstPPAC(fpID[f]);
       if(first>-1){
    
@@ -489,24 +490,32 @@ int main(int argc, char* argv[]){
       //cout << z << "\t" << event << "\t" << o << "\t" << g << "\t" << z*g+o << endl;
       
       beam->SetAQZ(b,a,z);
+      beam->SetRIPSBeta(b,recobeam[b]->GetBeta());
     }
  
     for(unsigned short b=0;b<3;b++){
-      beam->CorrectAQ(b,
-		      set->GetBRAoQCorrection_F3X()*fp[fpNr(3)]->GetTrack()->GetX() +
-		      set->GetBRAoQCorrection_F3A()*fp[fpNr(3)]->GetTrack()->GetA() +
-		      set->GetBRAoQCorrection_F5X()*fp[fpNr(5)]->GetTrack()->GetX() +
-		      set->GetBRAoQCorrection_F5A()*fp[fpNr(5)]->GetTrack()->GetA() +
-		      set->GetBRAoQCorrection_F7X()*fp[fpNr(7)]->GetTrack()->GetX() +
-		      set->GetBRAoQCorrection_F7A()*fp[fpNr(7)]->GetTrack()->GetA()); 
-      beam->CorrectAQ(b+3,
-		      set->GetZDAoQCorrection_F8X()*fp[fpNr(8)]->GetTrack()->GetX() + 
-		      set->GetZDAoQCorrection_F8A()*fp[fpNr(8)]->GetTrack()->GetA() +
-		      set->GetZDAoQCorrection_F9X()*fp[fpNr(9)]->GetTrack()->GetX() + 
-		      set->GetZDAoQCorrection_F9A()*fp[fpNr(9)]->GetTrack()->GetA() +
-		      set->GetZDAoQCorrection_F11X()*fp[fpNr(11)]->GetTrack()->GetX() +
-		      set->GetZDAoQCorrection_F11A()*fp[fpNr(11)]->GetTrack()->GetA()); 
-
+      double corr = 0;
+      corr = set->GetBRAoQCorrection_F3X()*fp[fpNr(3)]->GetTrack()->GetX() +
+	     set->GetBRAoQCorrection_F3A()*fp[fpNr(3)]->GetTrack()->GetA() +
+	     set->GetBRAoQCorrection_F3Q()*sqrt(fp[fpNr(3)]->GetPlastic()->GetChargeL() * fp[fpNr(3)]->GetPlastic()->GetChargeR()) +
+	     set->GetBRAoQCorrection_F5X()*fp[fpNr(5)]->GetTrack()->GetX() +
+	     set->GetBRAoQCorrection_F5A()*fp[fpNr(5)]->GetTrack()->GetA() +
+	     set->GetBRAoQCorrection_F7X()*fp[fpNr(7)]->GetTrack()->GetX() +
+	     set->GetBRAoQCorrection_F7A()*fp[fpNr(7)]->GetTrack()->GetA() +
+	     set->GetBRAoQCorrection_F7Q()*sqrt(fp[fpNr(7)]->GetPlastic()->GetChargeL() * fp[fpNr(7)]->GetPlastic()->GetChargeR());      
+      beam->CorrectAQ(b,corr);
+      beam->ScaleAQ(b,set->GetBRAoQCorrection_gain(),set->GetBRAoQCorrection_offs());
+      
+      corr = set->GetZDAoQCorrection_F8X()*fp[fpNr(8)]->GetTrack()->GetX() +
+	     set->GetZDAoQCorrection_F8A()*fp[fpNr(8)]->GetTrack()->GetA() +
+	     set->GetZDAoQCorrection_F8Q()*sqrt(fp[fpNr(8)]->GetPlastic()->GetChargeL() * fp[fpNr(8)]->GetPlastic()->GetChargeR()) +
+	     set->GetZDAoQCorrection_F9X()*fp[fpNr(9)]->GetTrack()->GetX() +
+	     set->GetZDAoQCorrection_F9A()*fp[fpNr(9)]->GetTrack()->GetA() +
+	     set->GetZDAoQCorrection_F11X()*fp[fpNr(11)]->GetTrack()->GetX() +
+	     set->GetZDAoQCorrection_F11A()*fp[fpNr(11)]->GetTrack()->GetA() +
+	     set->GetZDAoQCorrection_F11Q()*sqrt(fp[fpNr(11)]->GetPlastic()->GetChargeL() * fp[fpNr(11)]->GetPlastic()->GetChargeR()); 
+      beam->CorrectAQ(b+3,corr);
+      beam->ScaleAQ(b+3,set->GetZDAoQCorrection_gain(),set->GetZDAoQCorrection_offs());
     }
     
     for(unsigned short b=0;b<4;b++){
@@ -514,6 +523,23 @@ int main(int argc, char* argv[]){
       beam->SetBrho(b ,recorips[b]->GetBrho());
     }
 
+    //F8 ppacs
+    beam->SetF8PPAC1A((*ppacs->GetPPACID(19)));
+    beam->SetF8PPAC1B((*ppacs->GetPPACID(20)));
+    beam->SetF8PPAC2A((*ppacs->GetPPACID(21)));
+    beam->SetF8PPAC2B((*ppacs->GetPPACID(22)));
+    beam->SetF8PPAC3A((*ppacs->GetPPACID(35)));
+    beam->SetF8PPAC3B((*ppacs->GetPPACID(36)));
+
+
+    // // calculate Z directly:
+    // TArtIC* F7ic = iccalib->FindIC("F7IC");
+    // double adc[6];
+    // for(int i=0;i<6;i++){
+    //   adc[i] = F7ic->GetRawADC(i);
+    // }
+    
+    
     //fill the tree
     tr->Fill();
 

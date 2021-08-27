@@ -39,13 +39,15 @@ int main(int argc, char* argv[]){
   int nmax =0;
   int vl =0;
   double targetz = 0;
+  char* tname = "BRZDtr";
+  
   CommandLineInterface* interface = new CommandLineInterface();
-
   interface->Add("-i", "inputfiles", &InputFiles);
   interface->Add("-o", "outputfile", &OutputFile);
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-n", "nmax", &nmax);
   interface->Add("-v", "verbose", &vl);
+  interface->Add("-t", "name of the tree, default \"tr\"", &tname);
   interface->CheckFlags(argc, argv);
 
   if(InputFiles.size() == 0 || OutputFile == NULL){
@@ -134,7 +136,7 @@ int main(int argc, char* argv[]){
   }//settings present
   
   TChain* tr;
-  tr = new TChain("BRZDtr");
+  tr = new TChain(tname);
   for(unsigned int i=0; i<InputFiles.size(); i++){
     tr->Add(InputFiles[i]);
   }
@@ -185,7 +187,7 @@ int main(int argc, char* argv[]){
 				    timerange/10000,0,timerange,1000,aoqrange[0],aoqrange[1]);hlist->Add(zerodeg_AoQ_time);
   
   
-  //ppacs
+  // ppacs
   TH2F* tsumx_id = new TH2F("tsumx_id","tsumx_id",NPPACS,0,NPPACS,2500,0,250);hlist->Add(tsumx_id);
   TH2F* tsumy_id = new TH2F("tsumy_id","tsumy_id",NPPACS,0,NPPACS,2500,0,250);hlist->Add(tsumy_id);
   TH1F* tsumx[NPPACS];
@@ -194,23 +196,103 @@ int main(int argc, char* argv[]){
     tsumx[p] = new TH1F(Form("tsumx_%d",p),Form("tsumx_%d",p),1000,-200,800);hlist->Add(tsumx[p]);
     tsumy[p] = new TH1F(Form("tsumy_%d",p),Form("tsumy_%d",p),1000,-200,800);hlist->Add(tsumy[p]);
   }
+  
+  // check F8 and beam directions
+  TH1F* f8ppacX[6];
+  TH1F* f8ppacY[6];
+  TH2F* f8ppacXY[6];
+  for(int p=0;p<6;p++){
+    f8ppacX[p] = new TH1F(Form("f8ppacX_%d",p),Form("f8ppacX_%d",p),200,-100,100);hlist->Add(f8ppacX[p]);
+    f8ppacY[p] = new TH1F(Form("f8ppacY_%d",p),Form("f8ppacY_%d",p),200,-100,100);hlist->Add(f8ppacY[p]);
+    f8ppacXY[p] = new TH2F(Form("f8ppacXY_%d",p),Form("f8ppacXY_%d",p),200,-100,100,200,-100,100);hlist->Add(f8ppacXY[p]);
+  }
+  TH2F* compareX[2];
+  TH2F* compareY[2];
+  TH1F* compare1dX[2];
+  TH1F* compare1dY[2];
+  for(int p=0;p<2;p++){
+    compareX[p] = new TH2F(Form("compareX_%d",p),Form("compareX_%d",p),200,-100,100,200,-100,100);hlist->Add(compareX[p]);
+    compareY[p] = new TH2F(Form("compareY_%d",p),Form("compareY_%d",p),200,-100,100,200,-100,100);hlist->Add(compareY[p]);
+    compare1dX[p] = new TH1F(Form("compare1dX_%d",p),Form("compare1dX_%d",p),1000,-100,100);hlist->Add(compare1dX[p]);
+    compare1dY[p] = new TH1F(Form("compare1dY_%d",p),Form("compare1dY_%d",p),1000,-100,100);hlist->Add(compare1dY[p]);
+  }
+  TH2F* ppacZpos = new TH2F("ppacZpos","ppacZpos",40,0,40,3000,-1500,1500);hlist->Add(ppacZpos);
 
+  //background inspection
+  TH2F* PL3PPAC3   = new TH2F("PL3PPAC3","PL3PPAC3",    200,  0, 5, 200, -50, 50);hlist->Add(PL3PPAC3);
+  TH2F* PL7PPAC7   = new TH2F("PL7PPAC7","PL7PPAC7",    200,  0, 5, 200, -50, 50);hlist->Add(PL7PPAC7);
+  TH2F* PL8PPAC8   = new TH2F("PL8PPAC8","PL8PPAC8",    200,-10,10, 200,-100,100);hlist->Add(PL8PPAC8);
+  TH2F* PL11PPAC11 = new TH2F("PL11PPAC11","PL11PPAC11",200,  0,15, 200, -50, 50);hlist->Add(PL11PPAC11);
+  TH2F* PL3PL3     = new TH2F("PL3PL3","PL3PL3",        200,  0, 5, 200,-2,2);hlist->Add(PL3PL3);
+  TH2F* PL7PL7     = new TH2F("PL7PL7","PL7PL7",        200,  0, 5, 200,-2,2);hlist->Add(PL7PL7);
+  TH2F* PL8PL8     = new TH2F("PL8PL8","PL8PL8",        200,-10,10, 200,-2,2);hlist->Add(PL8PL8);
+  TH2F* PL11PL11   = new TH2F("PL11PL11","PL11PL11",    200,  0,15, 200,-5,2);hlist->Add(PL11PL11);
+
+    
+  TH1F* deltadiff[2];
+  for(unsigned short b=0;b<2;b++){
+    deltadiff[b] = new TH1F(Form("deltadiff_%d",b),Form("deltadiff_%d",b),1000,-10,10);hlist->Add(deltadiff[b]);
+  }
+  TH1F* delta[4];
+  for(unsigned short b=0;b<4;b++){
+    delta[b] = new TH1F(Form("delta_%d",b),Form("delta_%d",b),1000,-10,10);hlist->Add(delta[b]);
+  }
+
+  // PID stuff
   vector<TH2F*> zerodeg_b;
   vector<vector<TH2F*> > position_b_z;
   vector<vector<TH2F*> > position_b;
   position_b.resize(NFPLANES);
   position_b_z.resize(NFPLANES);
 
+  vector<TH1F*> beta_tof;
+  vector<vector<TH1F*> > beta_tof_b;
+  vector<vector<TH1F*> > beta_tof_b_z;
+  beta_tof.resize(2);
+  beta_tof_b.resize(2);
+  beta_tof_b_z.resize(2);
+
+  for(unsigned short i=0;i<2;i++){
+    beta_tof.at(i) = new TH1F(Form("beta%d_tof",i),Form("beta%d_tof",i),1000,0.55,0.65);
+  }
+    
+  vector<TH1F*> beta_rips;
+  vector<vector<TH1F*> > beta_rips_b;
+  vector<vector<TH1F*> > beta_rips_b_z;
+  beta_rips.resize(6);
+  beta_rips_b.resize(6);
+  beta_rips_b_z.resize(6);
+
+  for(unsigned short i=0;i<6;i++){
+    beta_rips.at(i) = new TH1F(Form("beta%d_rips",i),Form("beta%d_rips",i),1000,0.55,0.65);
+  }
 
   vector<TH2F*> MatchF7IC_b;
   vector<TH2F*> MatchF11IC_z;
   TH2F* h;
+  TH1F* hs;
   for(int i=0;i<incuts;i++){
     h = new TH2F(Form("zerodeg_%s",InCut[i]->GetName()),
 		 Form("zerodeg_%s",InCut[i]->GetName()),
-		 1000,2.2,2.8,1000,30,50);
+		 1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);
     zerodeg_b.push_back(h);
     hlist->Add(zerodeg_b.back());
+
+    for(unsigned short j=0;j<2;j++){
+      hs = new TH1F(Form("beta%d_tof_%s",j,InCut[i]->GetName()),
+		    Form("beta%d_tof_%s",j,InCut[i]->GetName()),
+		    1000,0.55,0.65);
+      beta_tof_b[j].push_back(hs);
+      hlist->Add(beta_tof_b[j].back());
+    }
+    
+    for(unsigned short j=0;j<6;j++){
+      hs = new TH1F(Form("beta%d_rips_%s",j,InCut[i]->GetName()),
+		    Form("beta%d_rips_%s",j,InCut[i]->GetName()),
+		    1000,0.55,0.65);
+      beta_rips_b[j].push_back(hs);
+      hlist->Add(beta_rips_b[j].back());
+    }
     
     h = new TH2F(Form("MatchF7IC_%s",InCut[i]->GetName()),
 		 Form("MatchF7IC_%s",InCut[i]->GetName()),
@@ -230,6 +312,22 @@ int main(int argc, char* argv[]){
   }
 
   for(int o=0;o<outcuts;o++){
+    for(unsigned short j=0;j<2;j++){
+      hs = new TH1F(Form("beta%d_tof_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    Form("beta%d_tof_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    1000,0.55,0.65);
+      beta_tof_b_z[j].push_back(hs);
+      hlist->Add(beta_tof_b_z[j].back());
+    }
+
+    for(unsigned short j=0;j<6;j++){
+      hs = new TH1F(Form("beta%d_rips_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    Form("beta%d_rips_%s_%s",j,InCut[InCut_sel[o]]->GetName(),OutCut[o]->GetName()),
+                    1000,0.55,0.65);
+      beta_rips_b_z[j].push_back(hs);
+      hlist->Add(beta_rips_b_z[j].back());
+    }
+
     h = new TH2F(Form("MatchF11IC_%s",OutCut[o]->GetName()),
 		 Form("MatchF11IC_%s",OutCut[o]->GetName()),
 		 6,0,6,4096,0,4096);
@@ -248,6 +346,8 @@ int main(int argc, char* argv[]){
     }
     
   }
+
+  
   
   Int_t nbytes = 0;
   Int_t status;
@@ -287,8 +387,22 @@ int main(int argc, char* argv[]){
     zerodeg_Z_time->Fill(i,bz->GetZ(5));
     zerodeg_AoQ_time->Fill(i,bz->GetAQ(2));
   
-    
-    //ppacs
+
+    // plastics
+    Plastic *pl3 = fp[fpNr(3)]->GetPlastic();
+    PL3PPAC3->Fill(pl3->GetTimeL() - pl3->GetTimeR(), fp[fpNr(3)]->GetTrack()->GetX());
+    PL3PL3->Fill(pl3->GetTimeL() - pl3->GetTimeR(), log(pl3->GetChargeL()/pl3->GetChargeR()));
+    Plastic *pl7 = fp[fpNr(7)]->GetPlastic();
+    PL7PPAC7->Fill(pl7->GetTimeL() - pl7->GetTimeR(), fp[fpNr(7)]->GetTrack()->GetX());
+    PL7PL7->Fill(pl7->GetTimeL() - pl7->GetTimeR(), log(pl7->GetChargeL()/pl7->GetChargeR()));
+    Plastic *pl8 = fp[fpNr(8)]->GetPlastic();
+    PL8PPAC8->Fill(pl8->GetTimeL() - pl8->GetTimeR(), fp[fpNr(8)]->GetTrack()->GetX());
+    PL8PL8->Fill(pl8->GetTimeL() - pl8->GetTimeR(), log(pl8->GetChargeL()/pl8->GetChargeR()));
+    Plastic *pl11 = fp[fpNr(11)]->GetPlastic();
+    PL11PPAC11->Fill(pl11->GetTimeL() - pl11->GetTimeR(), fp[fpNr(11)]->GetTrack()->GetX());
+    PL11PL11->Fill(pl11->GetTimeL() - pl11->GetTimeR(), log(pl11->GetChargeL()/pl11->GetChargeR()));
+     
+    // ppacs
     for(unsigned short p=0;p<ppac->GetN();p++){
       SinglePPAC *sp = ppac->GetPPAC(p);
       tsumx_id->Fill(sp->GetID(),sp->GetTsumX());
@@ -298,6 +412,51 @@ int main(int argc, char* argv[]){
 	tsumy[sp->GetID()]->Fill(sp->GetTsumY());
       }
     }
+    TVector3 ppacpos[3];
+    ppacpos[0] = ppac->PPACPosition(ppac->GetPPACID(19),ppac->GetPPACID(20));
+    ppacpos[1] = ppac->PPACPosition(ppac->GetPPACID(21),ppac->GetPPACID(22));
+    ppacpos[2] = ppac->PPACPosition(ppac->GetPPACID(35),ppac->GetPPACID(36));
+
+    bz->SetIncomingDirection(ppacpos[1]-ppacpos[0]);
+    TVector3 inc = bz->GetIncomingDirection();
+    double a = inc.X()/inc.Z();
+    double b = inc.Y()/inc.Z();
+
+
+    double x = ppacpos[1].X() + a * (ppac->GetPPACID(35)->GetZ()-ppacpos[1].Z());
+    double y = ppacpos[1].Y() + b * (ppac->GetPPACID(35)->GetZ()-ppacpos[1].Z());
+    compareX[0]->Fill(ppac->GetPPACID(35)->GetX(),x);
+    compareY[0]->Fill(ppac->GetPPACID(35)->GetY(),y);
+    compare1dX[0]->Fill(ppac->GetPPACID(35)->GetX()-x);
+    compare1dY[0]->Fill(ppac->GetPPACID(35)->GetY()-y);
+
+    x = ppacpos[1].X() + a * (ppac->GetPPACID(36)->GetZ()-ppacpos[1].Z());
+    y = ppacpos[1].Y() + b * (ppac->GetPPACID(36)->GetZ()-ppacpos[1].Z());
+    compareX[1]->Fill(ppac->GetPPACID(36)->GetX(),x);
+    compareY[1]->Fill(ppac->GetPPACID(36)->GetY(),y);
+    compare1dX[1]->Fill(ppac->GetPPACID(36)->GetX()-x);
+    compare1dY[1]->Fill(ppac->GetPPACID(36)->GetY()-y);
+
+    // PPACs
+    for(unsigned short p=0;p<ppac->GetN();p++){
+      SinglePPAC *sp = ppac->GetPPAC(p);
+      ppacZpos->Fill(sp->GetID(),sp->GetZ());
+      if(sp->GetID()>=19 && sp->GetID()<=22){
+	f8ppacX[sp->GetID()-19]->Fill(sp->GetX());
+	f8ppacY[sp->GetID()-19]->Fill(sp->GetY());
+	if(sp->Fired())
+	  f8ppacXY[sp->GetID()-19]->Fill(sp->GetX(),sp->GetY());
+      }
+      if(sp->GetID()>=35 && sp->GetID()<=36){
+	f8ppacX[sp->GetID()-35+4]->Fill(sp->GetX());
+	f8ppacY[sp->GetID()-35+4]->Fill(sp->GetY());
+	if(sp->Fired())
+	  f8ppacXY[sp->GetID()-35+4]->Fill(sp->GetX(),sp->GetY());
+      }
+    
+    }
+    
+    // musics
     MUSIC* f7ic = fp[fpNr(7)]->GetMUSIC();
     for(ushort i=0; i<f7ic->GetChan().size();i++){
       RawF7IC->Fill(f7ic->GetChan().at(i), f7ic->GetADC().at(i));
@@ -309,7 +468,22 @@ int main(int argc, char* argv[]){
       MatchF11IC->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
     }
 
-    //gated
+    // charge state change
+    deltadiff[0]->Fill(bz->GetDelta(1) - bz->GetDelta(0));
+    deltadiff[1]->Fill(bz->GetDelta(3) - bz->GetDelta(2));
+    for(unsigned short b=0;b<4;b++){
+      delta[b]->Fill(bz->GetDelta(b));
+    }
+
+    
+    for(unsigned short j=0;j<2;j++){
+      beta_tof[j]->Fill(bz->GetBeta(j));
+    }
+    for(unsigned short j=0;j<6;j++){
+      beta_rips[j]->Fill(bz->GetRIPSBeta(j));
+    }
+    
+    // gated
     for(int in=0;in<incuts;in++){
       if( (!useCorrected && InCut[in]->IsInside(bz->GetAQ(2),bz->GetZ(2))) ||
 	  (useCorrected && InCut[in]->IsInside(bz->GetCorrAQ(2),bz->GetZ(2))) ){
@@ -319,7 +493,12 @@ int main(int argc, char* argv[]){
 	for(ushort i=0; i<f7ic->GetChan().size();i++){
 	  MatchF7IC_b[in]->Fill(f7ic->GetChan().at(i), f7ic->GetGainMatchADC().at(i));
 	}
-	
+	for(unsigned short j=0;j<2;j++){
+	  beta_tof_b[j][in]->Fill(bz->GetBeta(j));
+	}
+	for(unsigned short j=0;j<6;j++){
+	  beta_rips_b[j][in]->Fill(bz->GetRIPSBeta(j));
+	}
 	for(unsigned short f=0;f<NFPLANES;f++){
 	  position_b[f][in]->Fill(fp[f]->GetTrack()->GetX(), fp[f]->GetTrack()->GetY());
 	}
@@ -331,6 +510,12 @@ int main(int argc, char* argv[]){
 
 	for(ushort i=0; i<f11ic->GetChan().size();i++){
 	  MatchF11IC_z[o]->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
+	}
+	for(unsigned short j=0;j<2;j++){
+	  beta_tof_b_z[j][o]->Fill(bz->GetBeta(j));
+	}
+	for(unsigned short j=0;j<6;j++){
+	  beta_rips_b_z[j][o]->Fill(bz->GetRIPSBeta(j));
 	}
 	
     	for(unsigned short f=0;f<NFPLANES;f++){

@@ -17,9 +17,9 @@
 #include "CommandLineInterface.hh"
 #include "RunInfo.hh"
 #include "Beam.hh"
+#include "FocalPlane.hh"
 #include "HiCARI.hh"
 #include "Gretina.hh"
-#include "FocalPlane.hh"
 
 #include "Globaldefs.h"
 using namespace TMath;
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]){
   TStopwatch timer;
   timer.Start();
   signal(SIGINT,signalhandler);
-  vector<char*> InputFiles;char* BigRIPSFile = NULL;
+  vector<char*> InputFiles;
   char* OutputFile = NULL;
   char* SettingFile = NULL;
   int nmax =0;
@@ -196,6 +196,10 @@ int main(int argc, char* argv[]){
   TH2F* bigrips_TB1 = new TH2F("bigrips_TB1","bigrips_TB1",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips_TB1);
   TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
   TH2F* bigrips_Pl = new TH2F("bigrips_Pl","bigrips_Pl",1000,aoqrange[0],aoqrange[1],2000,0,2000);hlist->Add(bigrips_Pl);
+  TH2F* bigripsC = new TH2F("bigripsC","bigripsC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigripsC);
+  TH2F* bigripsC_TB1 = new TH2F("bigripsC_TB1","bigripsC_TB1",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigripsC_TB1);
+  TH2F* zerodegC = new TH2F("zerodegC","zerodegC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodegC);
+  TH2F* bigripsC_Pl = new TH2F("bigripsC_Pl","bigripsC_Pl",1000,aoqrange[0],aoqrange[1],2000,0,2000);hlist->Add(bigripsC_Pl);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",nbins,0,erange);hlist->Add(h_egamdc);
   TH1F* g_egamdc = new TH1F("g_egamdc","g_egamdc",nbins,0,erange);hlist->Add(g_egamdc);
   TH1F* h_egamABdc = new TH1F("h_egamABdc","h_egamABdc",nbins,0,erange);hlist->Add(h_egamABdc);
@@ -563,21 +567,20 @@ int main(int argc, char* argv[]){
     nbytes += status;
 
     trigger->Fill(trigbit);
-    if(!useCorrected){
-      bigrips->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
-      zerodeg->Fill(bz->GetAQ(ZD_AoQ),bz->GetZ(ZD_AoQ));
-      bigrips_Pl->Fill(bz->GetAQ(BR_AoQ),fp[fpNr(7)]->GetPlastic()->GetCharge());
-      if((trigbit&1)==1)
-	bigrips_TB1->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
-      
-    }
-    else{
-      bigrips->Fill(bz->GetCorrAQ(BR_AoQ),bz->GetZ(BR_AoQ));
-      zerodeg->Fill(bz->GetCorrAQ(ZD_AoQ),bz->GetZ(ZD_AoQ));
-      bigrips_Pl->Fill(bz->GetCorrAQ(BR_AoQ),fp[fpNr(7)]->GetPlastic()->GetCharge());
-      if((trigbit&1)==1)
-	bigrips_TB1->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
-    }
+
+    // PID
+    bigrips->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
+    zerodeg->Fill(bz->GetAQ(ZD_AoQ),bz->GetZ(ZD_AoQ));
+    bigrips_Pl->Fill(bz->GetAQ(BR_AoQ),fp[fpNr(7)]->GetPlastic()->GetCharge());
+    if((trigbit&1)==1)
+      bigrips_TB1->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
+    // corrected PID
+    bigripsC->Fill(bz->GetCorrAQ(BR_AoQ),bz->GetZ(BR_AoQ));
+    zerodegC->Fill(bz->GetCorrAQ(ZD_AoQ),bz->GetZ(ZD_AoQ));
+    bigripsC_Pl->Fill(bz->GetCorrAQ(BR_AoQ),fp[fpNr(7)]->GetPlastic()->GetCharge());
+    if((trigbit&1)==1)
+      bigripsC_TB1->Fill(bz->GetAQ(BR_AoQ),bz->GetZ(BR_AoQ));
+    
     bool ingood = false;
     bool outgood = false;
     for(int in=0;in<incuts;in++){
@@ -626,7 +629,6 @@ int main(int argc, char* argv[]){
 	continue;
       }
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
-	h_egamtgam->Fill(hit->GetTime(),hit->GetEnergy());
 	h_egamtgamdc->Fill(hit->GetTime(),hit->GetDCEnergy());
 	h_tgam_summary->Fill(hit->GetCluster()*4+hit->GetCrystal(),hit->GetTime());
 	if(hit->GetEnergy()>2000)

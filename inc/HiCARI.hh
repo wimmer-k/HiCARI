@@ -8,6 +8,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 #include "Settings.hh"
+#include "Beam.hh"
 
 using namespace std;
 
@@ -134,13 +135,17 @@ public:
   void AddBackHiCARIHitCalc(HiCARIHitCalc* hit);
   void SetDCEnergy(float dcen){fDCen = dcen;}
   void SetPosition(TVector3 in){fposition = in;}
-
+  void AddSegment(Short_t nr, Float_t en);
+  
   // ! which cluster
   Short_t GetCluster(){return fcluster;}
   //! The number of the crystal, ranging from 0-3.
   Short_t GetCrystal(){return fcrystal;}
   //! The number of the max segment
   Short_t GetMaxSegment(){return fmaxseg;}
+  Float_t GetMaxSegmentEnergy(){
+    return *max_element(fsegen.begin(), fsegen.end());
+  }
   //! The energy of the hit (keV).
   Float_t GetEnergy(){return fen;}
   //! The sum of the segment energies of the hit (keV).
@@ -150,7 +155,9 @@ public:
   Float_t GetTime(){return ftime;}
 
   void CorrectTime(long long int BRTS){
+    //cout << "correct " << ftimestamp << "\t" << BRTS << "\t";
     ftime += ftimestamp - BRTS;
+    //cout << ftimestamp << endl;
   }
  
   //! The Doppler-corrected energy of the hit.
@@ -178,6 +185,14 @@ public:
   }
   //! Returns the Doppler-correction factor to correct the energy.
   double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
+
+  void DopplerCorrect(Beam* beam){
+    fDCen = fen*DopplerCorrectionFactor(GetPosition(),beam);
+  }
+  //! Returns the Doppler-correction factor to correct the energy.
+  double DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam);
+
+
   
   bool IsMiniball(){return (fcluster>-1 && fcluster<6);}
   bool IsSuperClo(){return (fcluster> 5 && fcluster<10 && fcrystal<4);}
@@ -269,6 +284,7 @@ public:
   bool HadBigRIPS(){return fhadBigRIPS;}
   
   void DopplerCorrect(Settings* set);
+  void DopplerCorrect(Beam* beam);
   void CorrectTime(long long int br_TS);
 
   void Print(){

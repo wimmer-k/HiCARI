@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "TObject.h"
+#include "TVector3.h"
 #include "PPACdefs.h"
 using namespace std;
 
@@ -181,6 +182,14 @@ public:
     return new SinglePPAC;
   }
 
+  //! reconstruct the position for a double PPAC
+  TVector3 PPACPosition(SinglePPAC* pina, SinglePPAC* pinb);
+  ////! align F8 PPAC
+  // needs settings
+  //void AlignPPAC(SinglePPAC* pin0, SinglePPAC* pin1);
+
+
+  
 protected:
   //! number of ppacs hit
   unsigned short fnppacs;

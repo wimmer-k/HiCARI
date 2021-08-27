@@ -48,6 +48,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
       ffp[f] = new FocalPlane;
     }
   }
+  if(fSett->BigRIPSDetail()>1)
+    fppacs = new PPAC;
   fHIts = 0;
   fhicari = new HiCARICalc;
   fM2ts = 0;
@@ -63,6 +65,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
       flocalfp[f] = new FocalPlane;
     }
   }
+  if(fSett->BigRIPSDetail()>1)
+    flocalppacs = new PPAC;
   flocalHIts = 0;
   flocalhicari = new HiCARICalc;
   flocalM2ts = 0;
@@ -73,6 +77,7 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
     fBRtr->SetBranchAddress("checkADC",&flocalcheckADC);
     fBRtr->SetBranchAddress("trigbit",&flocaltrigbit);
     fBRtr->SetBranchAddress("beam",&flocalbeam);
+    fBRtr->SetBranchAddress("ppacs",&flocalppacs);
     if(fSett->BigRIPSDetail()>0){
       for(unsigned short f=0;f<NFPLANES;f++){
 	fBRtr->SetBranchAddress(Form("fp%d",fpID[f]),&flocalfp[f]);
@@ -99,6 +104,8 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
       fmtr->Branch(Form("fp%d",fpID[f]),&ffp[f],320000);
     }
   }
+  if(fSett->BigRIPSDetail()>1)
+    fmtr->Branch("ppacs",&fppacs,320000);
   fmtr->Branch("checkADC",&fcheckADC,320000);
   fmtr->Branch("trigbit",&ftrigbit,320000);
   fmtr->Branch("brTS",&fBRts,320000);
@@ -332,7 +339,7 @@ void BuildEvents::CloseEvent(){
   // // bool printme = false;
   // if(fBRts>0 && fHIts >0){
   //   //printme = true;
-  //   cout << "fBRentry = " << fBRentry << "\tfBRts = " << fBRts << ", fHIentry = " << fHIentry << "\tfHIts = " << fHIts << "\tmult = " << fhicari->GetMult()<< endl;
+  // cout << "fBRentry = " << fBRentry << "\tfBRts = " << fBRts << ", fHIentry = " << fHIentry << "\tfHIts = " << fHIts << "\tmult = " << fhicari->GetMult()<< endl;
   //   cout << "BR AoQ = " << fbeam->GetAQ(1) << " Z = " << fbeam->GetZ(1) << endl;
   //   fhicari->Print();
   // }
@@ -370,6 +377,9 @@ void BuildEvents::CloseEvent(){
     for(unsigned short f=0;f<NFPLANES;f++){
       ffp[f]->Clear();
     }
+  }
+  if(fSett->BigRIPSDetail()>1){
+    fppacs->Clear();
   }
   fHIts = 0;
   fhicari->Clear();
@@ -420,8 +430,11 @@ bool BuildEvents::Merge(){
     fbeam = (Beam*)flocalbeam->Clone();
     if(fSett->BigRIPSDetail()>0){
       for(unsigned short f=0;f<NFPLANES;f++){
-	ffp[f] = (FocalPlane*)flocalfp[f]->Clone(Form("fp_%d",f));
+	ffp[f] = (FocalPlane*)flocalfp[f]->Clone(Form("fp%d",f));
       }
+    }
+    if(fSett->BigRIPSDetail()>1){
+      fppacs = (PPAC*)flocalppacs->Clone();
     }
     fcurrentts = fBRts;
     fdetectors.erase(fdetectors.begin());

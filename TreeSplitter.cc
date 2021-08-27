@@ -14,7 +14,7 @@
 #include "RunInfo.hh"
 #include "Beam.hh"
 #include "FocalPlane.hh"
-#include "PPAC.hh"
+
 #include "HiCARI.hh"
 #include "Gretina.hh"
 
@@ -59,11 +59,17 @@ int main(int argc, char* argv[]){
     return 2;
   }
   TFile* infile = new TFile(InputFile);
-  TTree* tr = (TTree*) infile->Get(tname);
+
+  TTree* tr = (TTree*)infile->Get(tname);
+
   if(tr == NULL){
     cout << "could not find tree tr in file " << infile->GetName() << endl;
     return 4;
   }
+
+  //check what the contents of the input file were
+  Settings* inset = (Settings*)infile->Get("settings");
+  
   HiCARICalc* hi = new HiCARICalc;
   tr->SetBranchAddress("hicari",&hi);
   unsigned long long int hits;
@@ -92,13 +98,16 @@ int main(int argc, char* argv[]){
   for(unsigned short f=0;f<NFPLANES;f++){
     fp[f] = new FocalPlane;
   }
-  for(unsigned short f=0;f<NFPLANES;f++){
-    tr->SetBranchAddress(Form("fp%d",fpID[f]),&fp[f]);
+
+  if(inset->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      tr->SetBranchAddress(Form("fp%d",fpID[f]),&fp[f]);
+    }
   }
-  PPAC* ppac = new PPAC;
-  tr->SetBranchAddress("ppacs",&ppac);
-
-
+  PPAC* ppacs = new PPAC;
+  if(inset->BigRIPSDetail()>1)
+    tr->SetBranchAddress("ppacs",&ppacs);
+  
   int incuts = 0;
   int outcuts = 0;
   
@@ -166,6 +175,7 @@ int main(int argc, char* argv[]){
     
     cFile->Close();
   }//settings present
+
   TFile* ofile = new TFile(OutFile,"recreate");
   ofile->cd();
   InTree.resize(InCut.size());
@@ -184,9 +194,14 @@ int main(int argc, char* argv[]){
     InTree[in]->Branch("brentry",&brentry,320000);
       
     InTree[in]->Branch("beam",&beam,320000);
-    for(unsigned short f=0;f<NFPLANES;f++)
-      InTree[in]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
-    InTree[in]->Branch("ppacs",&ppac,320000);
+    
+    if(inset->BigRIPSDetail()>0){
+      for(unsigned short f=0;f<NFPLANES;f++)
+	      InTree[in]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
+    }
+    if(inset->BigRIPSDetail()>1)
+      InTree[in]->Branch("ppacs",&ppacs,320000);
+
   }
   
   OutTree.resize(OutCut.size());
@@ -206,9 +221,13 @@ int main(int argc, char* argv[]){
     OutTree[out]->Branch("brentry",&brentry,320000);
       
     OutTree[out]->Branch("beam",&beam,320000);
-    for(unsigned short f=0;f<NFPLANES;f++)
-      OutTree[out]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
-    OutTree[out]->Branch("ppacs",&ppac,320000);
+
+    if(inset->BigRIPSDetail()>0){
+      for(unsigned short f=0;f<NFPLANES;f++)
+	      OutTree[out]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
+    }
+    if(inset->BigRIPSDetail()>1)
+      OutTree[out]->Branch("ppacs",&ppacs,320000);
   }
   
     
@@ -237,8 +256,16 @@ int main(int argc, char* argv[]){
     for(int f=0;f<NFPLANES;f++){
       fp[f]->Clear();
     }
-    ppac->Clear();
+
     beam->Clear();
+    if(inset->BigRIPSDetail()>0){
+      for(int f=0;f<NFPLANES;f++){
+	fp[f]->Clear();
+      }
+    }
+    if(inset->BigRIPSDetail()>1)
+      ppacs->Clear();
+
 
     if(Verbose>2)
       cout << "getting entry " << i << endl;
