@@ -46,6 +46,7 @@ void Settings::ReadSettings(TEnv* set){
   fHiCARIcalfile = set->GetValue("HiCARI.Calibration.File",defaultfile);
   fHiCARItoffsetfile = set->GetValue("HiCARI.TimeOffset.File",defaultfile);
   fHiCARIbadsegfile = set->GetValue("HiCARI.BadSegment.File",defaultfile);
+
   fBaselineLength = set->GetValue("BaseLine.Length",60);
   fTracePlots = set->GetValue("Trace.Plots",0);
   fMode3Histos = set->GetValue("Mode3.Histos",0);
@@ -162,7 +163,7 @@ void Settings::PrintSettings(){
   cout << "HiCARI.Calibration.File\t"<< fHiCARIcalfile << endl;
   cout << "HiCARI.TOffset.File\t"<< fHiCARItoffsetfile << endl;
   cout << "HiCARI.BadSegment.File\t"<< fHiCARIbadsegfile << endl;
-  
+
   cout << "BaseLine.Length\t"<< fBaselineLength << endl;
   cout << "Trace.Plots\t"<< fTracePlots << endl;
   cout << "Mode3.Histos\t"<< fMode3Histos << endl;

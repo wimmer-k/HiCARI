@@ -63,7 +63,9 @@ public:
   int RawOverflow(){return fRawOverflow;}
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
   const char* HiCARITimeOffsetFile(){return fHiCARItoffsetfile.c_str();}
+
   const char* HiCARIBadSegmentsFile(){return fHiCARIbadsegfile.c_str();}
+
   int BaselineLength(){return fBaselineLength;}
   bool TracePlots(){return fTracePlots;}
   bool Mode3Histos(){return fMode3Histos;}
@@ -190,6 +192,7 @@ protected:
   string fHiCARIcalfile;
   string fHiCARItoffsetfile;
   string fHiCARIbadsegfile;
+
   int fBaselineLength;
   bool fTracePlots;
   bool fMode3Histos;

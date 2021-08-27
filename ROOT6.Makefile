@@ -4,10 +4,7 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-#TARTSYS=/usr/share/anaroot_hicari
-#/home/gamma20/packages/anaroot_v4.5.38
-#TARTSYS=/home/gamma20/exp/anaroot
-#TARTSYS=/home/wimmer/mercurius/anaroot
+TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs)
