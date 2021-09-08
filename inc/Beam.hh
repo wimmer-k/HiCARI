@@ -40,6 +40,10 @@ public:
       fdelta[j] = sqrt(-1.);
       fbrho[j] = sqrt(-1.);
     }
+    for(unsigned short j=0;j<2;j++){
+      fzdeg[j] = sqrt(-1.);
+      fzdegc[j] = sqrt(-1.);
+    }
     ftargetpos.SetXYZ(0,0,-99999);
     fincdir.SetXYZ(0,0,-99999);
     foutdir.SetXYZ(0,0,-99999);
@@ -67,6 +71,16 @@ public:
     if(j<0 || j>5) return;
     faoq[j] = aoq;
     fzet[j] = zet;
+  }
+  //! Set the Z number
+  void SetZdeg(unsigned short j, double zet){
+    if(j<0 || j>1) return;
+    fzdeg[j] = zet;
+  }
+  //! Set corrected Zdeg
+  void SetCorrZdeg(unsigned short j, double zet){
+    if(j<0 || j>1) return;
+    fzdegc[j] = zet;
   }
   //! Set the time-of-flight
   void SetTOF(unsigned short j, double tof){    
@@ -196,6 +210,16 @@ public:
     if(j<0 || j>5) return sqrt(-1.);
     return fzet[j];
   }
+  //! Get the Z number
+  double GetZdeg(unsigned short j){
+    if(j<0 || j>1) return sqrt(-1.);
+    return fzdeg[j];
+  }
+  //! Get the corrected Z number
+  double GetCorrZdeg(unsigned short j){
+    if(j<0 || j>1) return sqrt(-1.);
+    return fzdegc[j];
+  }
   //! Get the time-of-flight
   double GetTOF(unsigned short j){
     if(j<0 || j>2) return sqrt(-1.);
@@ -300,6 +324,8 @@ protected:
   double fzet[6];
   //! corrected Z
   double fzetc[6];
+  //! corrected Z
+  double fzdeg[2], fzdegc[2];
 
   //! time-of-flight for 3-7, 8-11, 7-8
   double ftof[3];

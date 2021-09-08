@@ -118,6 +118,18 @@ void Settings::ReadSettings(TEnv* set){
   faoq_lin[1][0] = set->GetValue("ZeroDeg.AoQCorr_Gain",1.0);
   faoq_lin[1][1] = set->GetValue("ZeroDeg.AoQCorr_Offs",0.0);
 
+  fzdeg_corr[0][0] = set->GetValue("BigRIPS.ZdegCorr_F5X",0.0);
+  fzdeg_corr[0][1] = set->GetValue("BigRIPS.ZdegCorr_F5A",0.0);
+
+  fzdeg_corr[1][0] = set->GetValue("ZeroDeg.ZdegCorr_F9X",0.0);
+  fzdeg_corr[1][1] = set->GetValue("ZeroDeg.ZdegCorr_F9A",0.0);
+
+  fzdeg_coef[0][0] = set->GetValue("BigRIPS.Zdeg_Gain",1.0);
+  fzdeg_coef[0][1] = set->GetValue("BigRIPS.Zdeg_Offs",0.0);
+
+  fzdeg_coef[1][0] = set->GetValue("ZeroDeg.Zdeg_Gain",1.0);
+  fzdeg_coef[1][1] = set->GetValue("ZeroDeg.Zdeg_Offs",0.0);
+
 }
 
 /*
@@ -217,6 +229,10 @@ void Settings::PrintSettings(){
   cout << "ZeroDeg.AoQCorr_F11X\t" << faoq_corr[1][2][0] << endl;  
   cout << "ZeroDeg.AoQCorr_F11A\t" << faoq_corr[1][2][1] << endl;  
 
+  cout << "BigRIPS.ZdegCorr_F5X\t" << fzdeg_corr[0][0] << endl;
+  cout << "BigRIPS.ZdegCorr_F5A\t" << fzdeg_corr[0][1] << endl;
+  cout << "ZeroDeg.ZdegCorr_F9X\t" << fzdeg_corr[1][0] << endl;
+  cout << "ZeroDeg.ZdegCorr_F9A\t" << fzdeg_corr[1][1] << endl;
 
 }
 void Settings::ReadHiCARIMappingTable(){
