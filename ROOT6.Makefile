@@ -4,7 +4,7 @@
 
 BIN_DIR = $(HOME)/bin
 LIB_DIR = $(HOME)/lib
-TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
+#TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs)
@@ -18,9 +18,10 @@ INCLUDES    = -I./inc -I$(TARTSYS)/include
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib  -lXMLParser
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lBigRIPS
 
+SWITCH = -DWITHSIM
 
 LFLAGS	    = -g -fPIC -shared
-CFLAGS 	    += -Wl,--no-as-needed
+CFLAGS 	    += -Wl,--no-as-needed $(SWITCH)
 LFLAGS 	    += -Wl,--no-as-needed 
 CFLAGS 	    += -Wno-unused-variable -Wno-unused-but-set-variable -Wno-write-strings
 
@@ -29,22 +30,25 @@ CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed
 
 LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
 BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
+SIMLIB_O_FILES = build/GammaSim.o build/GammaSimDictionary.o
 O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
 MO_FILES = build/BuildEvents.o build/MergeHistograms.o
 HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
 RO_FILES = build/Calibration.o build/Reconstruction.o 
-
+SO_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o build/SimulatedEvent.o
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
 ifeq ($(USING_ROOT_6),1)
-	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
+	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm GammaSimDictionary_rdict.pcm
 endif
 
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libSimulation.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
 
-SimCalculate: SimCalculate.cc $(LIB_DIR)/libHiCARI.so $(O_FILES)
+exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze UnpackSim
+
+UnpackSim: UnpackSim.cc $(LIB_DIR)/libHiCARI.so $(SO_FILES)
 	@echo "Compiling $@"
-	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(O_FILES) -o $(BIN_DIR)/$@ 
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) -lSimulation $(SO_FILES) -o $(BIN_DIR)/$@ 
 
 Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
@@ -110,11 +114,20 @@ $(LIB_DIR)/libBigRIPS.so: $(BRLIB_O_FILES)
 	@echo "Making $@"
 	@$(CPP) $(LFLAGS) -o $@ $^ -lc
 
+$(LIB_DIR)/libSimulation.so: $(SIMLIB_O_FILES)
+	@echo "Making $@"
+	@$(CPP) $(LFLAGS) -o $@ $^ -lc
+
 $(LIB_DIR)/libCommandLineInterface.so: build/CommandLineInterface.o  
 	@echo "Making $@"
 	@$(CPP) $(CLILFLAGS) -o $@ $^ -lc
 
 build/UnpackedEvent.o: src/UnpackedEvent.cc inc/UnpackedEvent.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
+build/SimulatedEvent.o: src/SimulatedEvent.cc inc/SimulatedEvent.hh $(LIB_O_FILES) $(SIMLIB_O_FILES)
 	@echo "Compiling $@"
 	@mkdir -p $(dir $@)
 	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
@@ -153,7 +166,6 @@ build/%Dictionary.cc: inc/%.hh inc/%LinkDef.h
 	@echo "Building $@"
 	@mkdir -p $(dir $@)
 	@rootcint -f $@ -c $(INCLUDES) $(ROOTCFLAGS) $(SWITCH) $(notdir $^)
-#	@rootcint -f $@ -c $(INCLUDES) -pthread -I/usr/local/include/root $(SWITCH) $(notdir $^)
 
 build/%Dictionary_rdict.pcm: build/%Dictionary.cc
 	@echo "Confirming $@"
