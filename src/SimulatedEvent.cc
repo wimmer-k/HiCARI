@@ -1,8 +1,6 @@
 #include "SimulatedEvent.hh"
 
 void SimulatedEvent::Init(){
-  if(fvl>0)
-    cout << __PRETTY_FUNCTION__  << endl;
   UnpackedEvent::Init();
 
   fGammaSim = new GammaSim;
@@ -72,21 +70,21 @@ int SimulatedEvent::DecodeHiCARI(HiCARIHit* hit, long long int gts){
     if(fcurrent_ts>-1){
       if(fvl>2)
         cout << "SimulatedEvent: " << "Closing event due to timestamp in HiCARI." << endl;
+      fMode3Event->SetCounter(fctr);
       fctr = 0;
       this->CloseEvent();
     }
     this->ClearEvent();
   }
-  cout << " da " << endl;
+
   fHiCARI->AddHit(hit);
-  cout << " nicht da" << endl;
   if(fvl>1)
     fHiCARI->PrintEvent();
   //set the current timestamp                                                                                                              
   fcurrent_ts = gts;
 
   if(fvl>2){
-    cout << "SimulatedEvent: " << "HiCAR event found with timestamp " << gts << endl;
+    cout << "SimulatedEvent: " << "Miniball event found with timestamp " << gts << endl;
   }
   return 0;
 }

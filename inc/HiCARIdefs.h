@@ -8,7 +8,7 @@
 #define MBSEGS  6
 #define CLOVERS 4
 #define CLCRYST 4
-#define CLSEGS  4
+#define CLSEGS  8
 
 
 #if MBCRYST > CLCRYST

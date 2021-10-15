@@ -59,6 +59,7 @@ int main(int argc, char* argv[]){
     return 2;
   }
   TFile* infile = new TFile(InputFile);
+
   TTree* tr = (TTree*)infile->Get(tname);
 
   if(tr == NULL){
@@ -193,7 +194,7 @@ int main(int argc, char* argv[]){
     InTree[in]->Branch("brentry",&brentry,320000);
       
     InTree[in]->Branch("beam",&beam,320000);
-
+    
     if(inset->BigRIPSDetail()>0){
       for(unsigned short f=0;f<NFPLANES;f++)
 	      InTree[in]->Branch(Form("fp%d",fpID[f]),&fp[f],320000);
@@ -255,6 +256,7 @@ int main(int argc, char* argv[]){
     for(int f=0;f<NFPLANES;f++){
       fp[f]->Clear();
     }
+
     beam->Clear();
     if(inset->BigRIPSDetail()>0){
       for(int f=0;f<NFPLANES;f++){

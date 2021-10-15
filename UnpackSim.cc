@@ -100,7 +100,6 @@ int main(int argc, char* argv[]){
   int vl = set->VLevel();
   if(vl>1)
     set->PrintSettings();
-  ofile->cd();
   set->Write("settings",TObject::kOverwrite);
   //Initialize the data structures for the event building.
   int buffers = 0;

@@ -63,6 +63,7 @@ public:
   int RawOverflow(){return fRawOverflow;}
   const char* HiCARICalibrationFile(){return fHiCARIcalfile.c_str();}
   const char* HiCARITimeOffsetFile(){return fHiCARItoffsetfile.c_str();}
+
   const char* HiCARIBadSegmentsFile(){return fHiCARIbadsegfile.c_str();}
 
   int BaselineLength(){return fBaselineLength;}
