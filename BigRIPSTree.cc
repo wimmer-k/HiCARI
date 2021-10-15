@@ -463,7 +463,7 @@ int main(int argc, char* argv[]){
 
       fp[f]->SetTrack(track);
       fp[f]->SetPlastic(plastic);
-      if(fpID[f]!=11)
+      if(fpID[f]==11)
 	fp[f]->SetPlastic_Long(plastic_long);
       fp[f]->SetMUSIC(music);
     }
