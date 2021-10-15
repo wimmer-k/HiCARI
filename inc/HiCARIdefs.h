@@ -1,5 +1,5 @@
-#define MINIBALL_ID  7 //miniball identifier
-#define MINIBALL_TAG 0xf005ba11 //type identifier
+#define HICARI_ID  7 //hicari identifier
+#define HICARI_TAG 0xf005ba11 //type identifier
 
 
 #define FIRSTMB 201
