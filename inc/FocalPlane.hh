@@ -293,10 +293,10 @@ public:
   void SetPlastic(Plastic plastic){fplastic = plastic;}
   //! return the plastic
   Plastic* GetPlastic(){return &fplastic;}
-  //! set the plastic2
-  void SetPlastic2(Plastic plastic2){fplastic2 = plastic2;}
-  //! return the plastic2
-  Plastic* GetPlastic2(){return &fplastic2;}
+  //! set the plastic_long
+  void SetPlastic_Long(Plastic plastic_long){fplastic_long = plastic_long;}
+  //! return the plastic_long
+  Plastic* GetPlastic_Long(){return &fplastic_long;}
   //! set the music
   void SetMUSIC(MUSIC music){fmusic = music;}
   //! return the music
@@ -307,7 +307,7 @@ protected:
   Track ftrack;
   //! Plastic for that focal plane
   Plastic fplastic;
-  Plastic fplastic2;
+  Plastic fplastic_long;
   //! Ionchamber for that focal plane
   MUSIC fmusic;
 

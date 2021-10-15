@@ -326,7 +326,7 @@ int main(int argc, char* argv[]){
     TArtIC* tic;
     TVectorD* vec;
     Track track;
-    Plastic plastic, plastic2;
+    Plastic plastic, plastic_long;
     MUSIC music;
 
     for(unsigned short f=0;f<NFPLANES;f++){
@@ -418,7 +418,7 @@ int main(int argc, char* argv[]){
 
       // PLASTICS
       plastic.Clear();
-      plastic2.Clear();
+      plastic_long.Clear();
       if(fpID[f]!=11){
 	tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
 	tpla2= NULL;
@@ -436,11 +436,11 @@ int main(int argc, char* argv[]){
 	plastic.SetQTCCharge(tpla->GetQTCLRaw(), tpla->GetQTCRRaw());
       }
       if(tpla2){
-	plastic2.SetTime(tpla2->GetTimeL(), tpla2->GetTimeR());
-	plastic2.SetCharge(tpla2->GetQLRaw(), tpla2->GetQRRaw());
-	plastic2.SetMult(tpla->GetNHitL(), tpla->GetNHitR());
-	plastic2.SetQTCTime(tpla2->GetQTCLRawStart(), tpla2->GetQTCRRawStart());
-	plastic2.SetQTCCharge(tpla2->GetQTCLRaw(), tpla2->GetQTCRRaw());
+	plastic_long.SetTime(tpla2->GetTimeL(), tpla2->GetTimeR());
+	plastic_long.SetCharge(tpla2->GetQLRaw(), tpla2->GetQRRaw());
+	plastic_long.SetMult(tpla->GetNHitL(), tpla->GetNHitR());
+	plastic_long.SetQTCTime(tpla2->GetQTCLRawStart(), tpla2->GetQTCRRawStart());
+	plastic_long.SetQTCCharge(tpla2->GetQTCLRaw(), tpla2->GetQTCRRaw());
       }
 
       // MUSICS
@@ -463,7 +463,8 @@ int main(int argc, char* argv[]){
 
       fp[f]->SetTrack(track);
       fp[f]->SetPlastic(plastic);
-      fp[f]->SetPlastic2(plastic2);
+      if(fpID[f]!=11)
+	fp[f]->SetPlastic_Long(plastic_long);
       fp[f]->SetMUSIC(music);
     }
     
