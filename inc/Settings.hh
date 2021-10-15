@@ -158,6 +158,16 @@ public:
   double GetBRAoQCorrection_offs(){return faoq_lin[0][1];}
   double GetZDAoQCorrection_gain(){return faoq_lin[1][0];}
   double GetZDAoQCorrection_offs(){return faoq_lin[1][1];}
+
+  double GetBRZdegCorrection_F5X(){return fzdeg_corr[0][0];}
+  double GetBRZdegCorrection_F5A(){return fzdeg_corr[0][1];}
+  double GetZDZdegCorrection_F9X(){return fzdeg_corr[1][0];}
+  double GetZDZdegCorrection_F9A(){return fzdeg_corr[1][1];}
+
+  double GetBRZdeg_gain(){return fzdeg_coef[0][0];}
+  double GetBRZdeg_offs(){return fzdeg_coef[0][1];}
+  double GetZDZdeg_gain(){return fzdeg_coef[1][0];}
+  double GetZDZdeg_offs(){return fzdeg_coef[1][1];}
 protected:
   int fEventTimeDiff;
   vector<string> fInputFiles;
@@ -243,6 +253,8 @@ protected:
   double faoq_corr[2][3][3];  // BR/ZD, focal plane, x,angle,q
 
   double faoq_lin[2][2]; // BR/ZD, gain,off
+
+  double fzdeg_corr[2][2], fzdeg_coef[2][2];
 
   ClassDef(Settings, 1)
 };

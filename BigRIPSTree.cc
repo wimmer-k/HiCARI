@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
   if(detail>-1)
     set->SetBigRIPSDetail(detail);
   cout << "BigRIPSTree Detail Level: " << set->BigRIPSDetail() << endl;
-  
+
   RunInfo* info = new RunInfo();
   info->SetBRRunNumber(run);
   cout << "run number: "<< run << endl;
@@ -322,11 +322,11 @@ int main(int argc, char* argv[]){
 
     //focal plane detector information
     TArtFocalPlane* tfpl;
-    TArtPlastic* tpla;
+    TArtPlastic *tpla, *tpla2;
     TArtIC* tic;
     TVectorD* vec;
     Track track;
-    Plastic plastic;
+    Plastic plastic, plastic2;
     MUSIC music;
 
     for(unsigned short f=0;f<NFPLANES;f++){
@@ -418,16 +418,30 @@ int main(int argc, char* argv[]){
 
       // PLASTICS
       plastic.Clear();
-      tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
-      if(fpID[f]==11)
+      plastic2.Clear();
+      if(fpID[f]!=11){
+	tpla = plasticcalib->FindPlastic(Form("F%dpl",fpID[f]));
+	tpla2= NULL;
+      }else{
 	tpla = plasticcalib->FindPlastic(Form("F%dpl-1",fpID[f]));
+	tpla2= plasticcalib->FindPlastic(Form("F%dlong",fpID[f]));
+      }
       if(tpla){
 	//cout << f << "\t" << fpID[f] << "\t";
 	//cout << tpla->GetTimeL() <<", "<< tpla->GetTimeR() <<", "<< tpla->GetQLRaw() <<", "<< tpla->GetQRRaw() << endl;
 	plastic.SetTime(tpla->GetTimeL(), tpla->GetTimeR());
 	plastic.SetCharge(tpla->GetQLRaw(), tpla->GetQRRaw());
+	plastic.SetMult(tpla->GetNHitL(), tpla->GetNHitR());
+	plastic.SetQTCTime(tpla->GetQTCLRawStart(), tpla->GetQTCRRawStart());
+	plastic.SetQTCCharge(tpla->GetQTCLRaw(), tpla->GetQTCRRaw());
       }
-
+      if(tpla2){
+	plastic2.SetTime(tpla2->GetTimeL(), tpla2->GetTimeR());
+	plastic2.SetCharge(tpla2->GetQLRaw(), tpla2->GetQRRaw());
+	plastic2.SetMult(tpla->GetNHitL(), tpla->GetNHitR());
+	plastic2.SetQTCTime(tpla2->GetQTCLRawStart(), tpla2->GetQTCRRawStart());
+	plastic2.SetQTCCharge(tpla2->GetQTCLRaw(), tpla2->GetQTCRRaw());
+      }
 
       // MUSICS
       music.Clear();
@@ -449,6 +463,7 @@ int main(int argc, char* argv[]){
 
       fp[f]->SetTrack(track);
       fp[f]->SetPlastic(plastic);
+      fp[f]->SetPlastic2(plastic2);
       fp[f]->SetMUSIC(music);
     }
     
@@ -539,7 +554,25 @@ int main(int argc, char* argv[]){
     //   adc[i] = F7ic->GetRawADC(i);
     // }
     
-    
+    //Zdeg: Brho-Brho
+    for(unsigned short b=0;b<2;b++){
+      double brho[2] = {recorips[2*b]->GetBrho(), recorips[2*b + 1]->GetBrho()};
+      double beta[2] = {NAN};
+      double ene_Qc[2] = {NAN}; // K.E. per Qc
+      for(unsigned short c=0;c<2;c++){
+	beta[c] = 1. / sqrt(1. + pow(3.107*beam->GetAQ(3 * b + 2) / brho[c], 2.));
+	ene_Qc[c] = brho[c]/beta[c];
+      }
+      double zdeg_raw = pow(beam->GetBeta(b),2) * (ene_Qc[0]-ene_Qc[1]);
+      beam->SetZdeg(b,zdeg_raw);
+    }
+    beam->SetCorrZdeg(0, beam->GetZdeg(0) * set->GetBRZdeg_gain() + set->GetBRZdeg_offs() +
+		  set->GetBRZdegCorrection_F5X()*fp[fpNr(5)]->GetTrack()->GetX() +
+		  set->GetBRZdegCorrection_F5A()*fp[fpNr(5)]->GetTrack()->GetA());
+    beam->SetCorrZdeg(1, beam->GetZdeg(1) * set->GetZDZdeg_gain() + set->GetZDZdeg_offs() +
+		  set->GetZDZdegCorrection_F9X()*fp[fpNr(9)]->GetTrack()->GetX() +
+		  set->GetZDZdegCorrection_F9A()*fp[fpNr(9)]->GetTrack()->GetA());
+
     //fill the tree
     tr->Fill();
 
