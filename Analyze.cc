@@ -118,14 +118,14 @@ int main(int argc, char* argv[]){
 
   //histograms
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
-  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,1.8,2.3,1000,20,40);hlist->Add(bigrips);
-  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,1.8,2.3,1000,20,40);hlist->Add(zerodeg);
+  TH2F* bigrips = new TH2F("bigrips","bigrips",1000,2.3,2.8,1000,20,40);hlist->Add(bigrips);
+  TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,2.3,2.8,1000,20,40);hlist->Add(zerodeg);
   TH2F* bigrips_tr[10];
   TH2F* zerodeg_tr[10];
   TH1F* f5X_tr[10];
-  for(int i=0;i<10;i++){
-    bigrips_tr[i] = new TH2F(Form("bigrips_tr%d",i),Form("bigrips_tr%d",i),1000,1.8,2.3,1000,20,40);hlist->Add(bigrips_tr[i]);
-    zerodeg_tr[i] = new TH2F(Form("zerodeg_tr%d",i),Form("zerodeg_tr%d",i),1000,1.8,2.3,1000,20,40);hlist->Add(zerodeg_tr[i]);
+  for(int i=0; i<10; i++){
+    bigrips_tr[i] = new TH2F(Form("bigrips_tr%d",i),Form("bigrips_tr%d",i),1000,2.3,2.8,1000,20,40);hlist->Add(bigrips_tr[i]);
+    zerodeg_tr[i] = new TH2F(Form("zerodeg_tr%d",i),Form("zerodeg_tr%d",i),1000,2.3,2.8,1000,20,40);hlist->Add(zerodeg_tr[i]);
     f5X_tr[i] = new TH1F(Form("f5X_tr%d",i),Form("f5X_tr%d",i),3000,-150,150);hlist->Add(f5X_tr[i]);
   }
 
@@ -133,18 +133,36 @@ int main(int argc, char* argv[]){
   TH2F* thetaphideg = new TH2F("thetaphideg","thetaphideg",800,-180,180,1500,0,5);hlist->Add(thetaphideg);
   TH2F* thetaphi_tr[10];
   TH2F* thetaphideg_tr[10];
-  for(int i=0;i<10;i++){
+  for(int i=0; i<10; i++){
     thetaphi_tr[i] = new TH2F(Form("thetaphi_tr%d",i),Form("thetaphi_tr%d",i),800,-4,4,1500,0,150);hlist->Add(thetaphi_tr[i]);
     thetaphideg_tr[i] = new TH2F(Form("thetaphideg_tr%d",i),Form("thetaphideg_tr%d",i),800,-180,180,1500,0,5);hlist->Add(thetaphideg_tr[i]);
   }
   TH2F* F8xy[3];
-  for(int i=0;i<3;i++){
+  for(int i=0; i<3; i++){
     F8xy[i] = new TH2F(Form("F8_%dxy",i),Form("F8_%dxy",i),100,-50,50,100,-50,50);hlist->Add(F8xy[i]);
   }  
   TH2F* targetxy = new TH2F("targetxy","targetxy",100,-50,50,100,-50,50);hlist->Add(targetxy);
   TH2F* targetxz = new TH2F("targetxz","targetxz",100,-50,50,100,-50,50);hlist->Add(targetxz);
   TH2F* targetyz = new TH2F("targetyz","targetyz",100,-50,50,100,-50,50);hlist->Add(targetyz);
+
+  TH2F* focusx = new TH2F("focusx","focusx",750,-1000,500,500,-50,50);hlist->Add(focusx);
+  TH2F* focusy = new TH2F("focusy","focusy",750,-1000,500,500,-50,50);hlist->Add(focusy);
+
+  TH2F* fp8x_fp8a = new TH2F("fp8x_fp8a", "fp8x_fp8a",500,-50,50, 500,-50,50);hlist->Add(fp8x_fp8a);
+  TH2F* fp8y_fp8b = new TH2F("fp8y_fp8b", "fp8y_fp8b",500,-50,50, 500,-50,50);hlist->Add(fp8y_fp8b);
+  TH2F* fp8x_fp11x = new TH2F("fp8x_fp11x", "fp8x_fp11x",500,-50,50, 500,-50,50);hlist->Add(fp8x_fp11x);
+  TH2F* fp8y_fp11y = new TH2F("fp8y_fp11y", "fp8y_fp11y",500,-50,50, 500,-50,50);hlist->Add(fp8y_fp11y);
+
+  TH2F* delta_89_911 = new TH2F("delta_89_911", "delta_89_911", 500,-10,10, 500,-10,10);hlist->Add(delta_89_911);
+  TH2F* delta_diff_fp11x = new TH2F("delta_diff_fp11x", "delta_diff_fp11x", 500,-100,100, 500,-10,10);hlist->Add(delta_diff_fp11x);
+
   
+  TH1F* beta[6];
+  TH1F* beta_event = new TH1F("beta_event","beta_event",600,0.55,0.7);hlist->Add(beta_event);
+  for(int i=0; i<6; i++){
+    beta[i] = new TH1F(Form("beta_%d",i),Form("beta_%d",i),600,0.55,0.7);hlist->Add(beta[i]);
+  }
+
   TH2F* h_egam_tgam = new TH2F("h_egam_tgam","h_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egam_tgam);
   TH2F* h_egamdc_tgam = new TH2F("h_egamdc_tgam","h_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamdc_tgam);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
@@ -223,29 +241,15 @@ int main(int argc, char* argv[]){
       sca = bz->GetScatteredDirection();
     }
 
-    //beta
-    //bz->SetDopplerBeta(set->TargetBeta());
-    //bz->SetDopplerBeta(bz->GetRIPSBeta(3));
-    bz->SetDopplerBeta(rec->EventBeta(bz));
-
-    
-    // //new HiCARI positions
-    // for(int h=0; h<hi->GetMult(); h++){
-    //   HiCARIHitCalc* hit = hi->GetHit(h);
-    //   if(hit->IsBigRIPS()){
-    // 	continue;
-    //   }
-    //   TVector3 pos = hit->GetPosition();
-    //   int cl = hit->GetCluster();
-    //   int cr = hit->GetCrystal();
-    //   int se = hit->GetMaxSegment();
-    //   TVector3 newpos = rec->GammaPosition(cl,cr,se);
-    //   cout << setw(7) << setprecision(5) << pos.Theta()*rad2deg << "\t" << newpos.Theta()*rad2deg << "\t" << pos.Theta()*rad2deg - newpos.Theta()*rad2deg << endl;
-    // }
     
     rec->FindMaxSeg(hi);
 
     rec->SetGammaPositions(hi);
+
+    //beta
+    //bz->SetDopplerBeta(set->TargetBeta());
+    //bz->SetDopplerBeta(bz->GetRIPSBeta(3));
+    bz->SetDopplerBeta(rec->EventBeta(bz));
 
     hi->DopplerCorrect(bz);
 
@@ -267,13 +271,55 @@ int main(int argc, char* argv[]){
       thetaphideg->Fill(bz->GetPhi()*rad2deg,bz->GetTheta()*rad2deg);
     }
 
+    //scaAB->Fill(atan2(sca.X(),sca.Z())*1000,atan2(sca.Y(),sca.Z())*1000);
+
+    
     //tp position with respect to HiCARI center
     TVector3 tp = bz->GetTargetPosition();    
     targetxy->Fill(tp.X(),tp.Y());
     targetxz->Fill(tp.X(),tp.Z());
     targetyz->Fill(tp.Y(),tp.Z());
 
+    //for(int i=0;i<100;i++){
+    //  TVector3  extrapol = ppacpos[1] + inc*(i*5.0/100);
+    //  focusx->Fill(extrapol.Z(),extrapol.X());
+    //  focusy->Fill(extrapol.Z(),extrapol.Y());
+    //}
+    SinglePPAC* ppac2b = bz->GetF8PPAC(1,1);
+    if(!ppac2b->Fired())
+      continue;
+    for(int i=0;i<750;i++){
+      double dz = i*2.;
+      double z = ppac2b->GetZ() + dz;
 
+      double tana = inc.X()/inc.Z();
+      double dx = dz*tana;
+      double x = ppac2b->GetX() + dx;
+
+      focusx->Fill(z,x);
+
+      double tanb = inc.Y()/inc.Z();
+      double dy = dz*tanb;
+      double y = ppac2b->GetY() + dy;
+
+      focusy->Fill(z,y);
+    }
+
+    fp8x_fp8a->Fill(fp[fpNr(8)]->GetTrack()->GetX(),fp[fpNr(8)]->GetTrack()->GetA());
+    fp8y_fp8b->Fill(fp[fpNr(8)]->GetTrack()->GetY(),fp[fpNr(8)]->GetTrack()->GetB());
+    fp8x_fp11x->Fill(fp[fpNr(8)]->GetTrack()->GetX(),fp[fpNr(11)]->GetTrack()->GetX());
+    fp8y_fp11y->Fill(fp[fpNr(8)]->GetTrack()->GetY(),fp[fpNr(11)]->GetTrack()->GetY());
+
+    delta_89_911->Fill(bz->GetDelta(2),bz->GetDelta(3));
+    delta_diff_fp11x->Fill(fp[fpNr(11)]->GetTrack()->GetX(),bz->GetDelta(2) - bz->GetDelta(3));
+    
+
+    
+    
+    for(int i=0;i<6;i++)
+      beta[i]->Fill(bz->GetRIPSBeta(i));
+    beta_event->Fill(rec->EventBeta(bz));
+    
     for(int h=0; h<hi->GetMult(); h++){
       HiCARIHitCalc* hit = hi->GetHit(h);
       if(hit->IsBigRIPS())
