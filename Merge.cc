@@ -8,7 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TStopwatch.h"
-#include "TSystem.h"
+//#include "TSystem.h"
 
 #include "CommandLineInterface.hh"
 #include "BuildEvents.hh"
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]){
   TFile* inhicari = NULL;
   TFile* inmode2 = NULL;
 
-  /// temp KW proc info
-  ProcInfo_t pinfo;
+  //// temp KW proc info
+  //ProcInfo_t pinfo;
   
 
 
