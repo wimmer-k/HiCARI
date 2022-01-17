@@ -10,12 +10,19 @@
 #include "Settings.hh"
 #include "Beam.hh"
 
+#ifdef WITHSIM
+#include "Simdefs.h"
+#endif
+
 using namespace std;
 
 class HiCARIHit : public TObject {
 public:
   HiCARIHit();
   HiCARIHit(int clu, int cry,  Short_t nr, double en,  long long int ts, bool tracking);
+#ifdef WITHSIM
+  HiCARIHit(sim_clust inbuf, long long int ts);
+#endif
   ~HiCARIHit();
   void Clear();
   bool InsertCore(int clu, int cry, double en,  long long int ts);

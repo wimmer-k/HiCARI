@@ -20,6 +20,10 @@ public:
   MUSIC(){
     Clear();
   };
+  //! default destructor
+  ~MUSIC(){
+    Clear();
+  }
   //! Clear the music information
   void Clear(Option_t *option = ""){
     fnumhits = -1.;
@@ -101,6 +105,10 @@ public:
   Plastic(){
     Clear();
   };
+  //! default destructor
+  ~Plastic(){
+    Clear();
+  }
   //! Clear the plastic information
   void Clear(Option_t *option = ""){
     ftime = sqrt(-1.);
@@ -222,6 +230,10 @@ public:
   Track(){
     Clear();
   };
+  //! default destructor
+  ~Track(){
+    Clear();
+  }
   //! Clear the track information
   void Clear(Option_t *option = ""){
     fx = sqrt(-1.);
@@ -279,6 +291,10 @@ public:
   FocalPlane(){
     Clear();
   };
+  //! default destructor
+  ~FocalPlane(){
+    Clear();
+  }
   //! Clear the track information
   void Clear(Option_t *option = ""){
     ftrack.Clear();

@@ -1,9 +1,9 @@
-#define MINIBALL_ID  7 //miniball identifier
-#define MINIBALL_TAG 0xf005ba11 //type identifier
+#define HICARI_ID  7 //hicari identifier
+#define HICARI_TAG 0xf005ba11 //type identifier
 
 
 #define FIRSTMB 201
-#define MBCLUST 8
+#define MBCLUST 6
 #define MBCRYST 3
 #define MBSEGS  6
 #define CLOVERS 4

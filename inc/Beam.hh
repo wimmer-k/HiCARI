@@ -56,6 +56,9 @@ public:
     }
     
   }
+  ~Beam(){
+    Clear();
+  }
   //! Set the A/Q ratio
   void SetAQ(unsigned short j, double aoq){
     if(j<0 || j>5) return;

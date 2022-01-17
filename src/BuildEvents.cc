@@ -118,7 +118,6 @@ void BuildEvents::Init(TTree* brtr, TTree* hitr, TTree* m2tr){
   fmtr->Branch("m2entry",&fM2entry,320000);
   fmtr->BranchRef();
 
-
   fcurrentts = 0;
   Int_t status = 0;
   if(fhasBR){
@@ -198,6 +197,8 @@ bool BuildEvents::ReadBigRIPS(){
       flocalfp[f]->Clear();
     }
   }
+  if(fSett->BigRIPSDetail()>1)
+    flocalppacs->Clear();
   flocalBRts = 0;
   if(fBRentry==fBRentries){
     return false;
@@ -358,11 +359,15 @@ void BuildEvents::CloseEvent(){
   switch(fmode){
   default:
   case 0: //write all events
+    if(fverbose>1)
+      cout << "filling tree and histogram for all events" << endl;
     fmtr->Fill();
     fmhist->FillHistograms(fcheckADC, fhicari, fmode2, fBRts, fHIts, fM2ts);
     break;
   case 1://BR and HI coincidence
     if(fBRts>0 && fHIts >0){
+      if(fverbose>1)
+	cout << "filling tree and histogram for coincidence events" << endl;
       fmtr->Fill();
       fmhist->FillHistograms(fcheckADC, fhicari, fmode2, fBRts, fHIts, fM2ts);
     }
@@ -381,6 +386,7 @@ void BuildEvents::CloseEvent(){
   if(fSett->BigRIPSDetail()>1){
     fppacs->Clear();
   }
+    
   fHIts = 0;
   fhicari->Clear();
   fM2ts = 0;
@@ -389,7 +395,17 @@ void BuildEvents::CloseEvent(){
   //   cout << "after clearing " << endl;
   //   fhicari->Print();
   // }
-
+ 
+  delete fbeam;
+  if(fSett->BigRIPSDetail()>0){
+    for(unsigned short f=0;f<NFPLANES;f++){
+      delete ffp[f];
+    }
+  }
+  if(fSett->BigRIPSDetail()>1){
+    delete fppacs;
+  }
+  
   if(fverbose>0)
     cout << "end "<< __PRETTY_FUNCTION__ << endl;
 }
@@ -435,8 +451,9 @@ bool BuildEvents::Merge(){
     }
     if(fSett->BigRIPSDetail()>1){
       fppacs = (PPAC*)flocalppacs->Clone();
-    }
+    }    
     fcurrentts = fBRts;
+    delete fdetectors.at(0);
     fdetectors.erase(fdetectors.begin());
     if(!ReadBigRIPS()&&fBRtsjump==false)
       cout << endl << MAGENTA << "failed to read BigRIPS, end of file" << DEFCOLOR << endl;
@@ -449,8 +466,9 @@ bool BuildEvents::Merge(){
     }
     fHIts = flocalHIts;
     fhicari = (HiCARICalc*)flocalhicari->Clone();
-    flocalhicari->Clear();
+    //flocalhicari->Clear();
     fcurrentts = fHIts;
+    delete fdetectors.at(0);
     fdetectors.erase(fdetectors.begin());
     if(!ReadHiCARI()&&fHItsjump==false)
       cout << endl << MAGENTA << "failed to read HiCARI, end of file" << DEFCOLOR << endl;
@@ -463,8 +481,9 @@ bool BuildEvents::Merge(){
     }
     fM2ts = flocalM2ts;
     fmode2 = (GretinaCalc*)flocalmode2->Clone();
-    flocalmode2->Clear();
+    //flocalmode2->Clear();
     fcurrentts = fM2ts;
+    delete fdetectors.at(0);
     fdetectors.erase(fdetectors.begin());
     if(!ReadMode2()&&fM2tsjump==false)
       cout << endl << MAGENTA << "failed to read Mode2, end of file" << DEFCOLOR << endl;

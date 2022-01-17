@@ -23,6 +23,25 @@ HiCARIHit::HiCARIHit(int clu, int cry, Short_t nr, double en,  long long int ts,
   }
 }
 
+#ifdef WITHSIM
+HiCARIHit::HiCARIHit(sim_clust inbuf, long long int ts){
+  Clear();
+  if (inbuf.type!=(int)HICARI_TAG){
+    cout << "Error, unexpected mode 2 hicari data format:" << hex << inbuf.type << dec
+         << " in " << __PRETTY_FUNCTION__ << endl;
+  }
+  fcluster = inbuf.crystal_id / 4;
+  fcrystal = inbuf.crystal_id % 4;
+  fen = inbuf.tot_e;
+  fmaxsinglecrystal = fen;
+  //i am here                                                                                                                              
+  for(int i=0; i<inbuf.num; i++){
+    AddSegment(inbuf.seg[i].seg_id, inbuf.seg[i].e);
+  }
+  ftimestamp = ts;
+}
+#endif
+
 bool HiCARIHit::InsertCore(int clu, int cry, double en,  long long int ts){
   if(fcluster != clu || fcrystal != cry){
     cout << "wrong cluster or crystal id! " << fcluster <<"!=" << clu <<"||"<< fcrystal <<"!="<< cry << endl;
@@ -185,7 +204,7 @@ void HiCARIHitCalc::SetSegments(vector<Short_t>nr, vector<Float_t> en){
   fsegen = en;
 }
 void HiCARIHitCalc::AddSegment(Short_t nr, Float_t en){
-  int savemaxseg = fmaxseg;
+  // int savemaxseg = fmaxseg;
   if(fmaxseg<0 || en>GetMaxSegmentEnergy())
     fmaxseg = nr;
   fsegnr.push_back(nr);

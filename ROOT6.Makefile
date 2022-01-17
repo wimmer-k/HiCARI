@@ -18,6 +18,11 @@ INCLUDES    = -I./inc -I$(TARTSYS)/include
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib  -lXMLParser
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lBigRIPS
 
+<<<<<<< HEAD
+SWITCH = -DWITHSIM
+
+=======
+>>>>>>> master
 LFLAGS	    = -g -fPIC -shared
 CFLAGS 	    += -Wl,--no-as-needed $(SWITCH)
 LFLAGS 	    += -Wl,--no-as-needed 
@@ -28,19 +33,38 @@ CLILFLAGS   = -g -fPIC -shared -Wl,--no-as-needed
 
 LIB_O_FILES = build/Gretina.o build/GretinaDictionary.o build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/Trace.o build/TraceDictionary.o build/HiCARI.o build/HiCARIDictionary.o
 BRLIB_O_FILES = build/Settings.o build/SettingsDictionary.o build/RunInfo.o build/RunInfoDictionary.o build/PPAC.o build/PPACDictionary.o build/FocalPlane.o build/FocalPlaneDictionary.o build/Beam.o build/BeamDictionary.o 
+SIMLIB_O_FILES = build/GammaSim.o build/GammaSimDictionary.o
 O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o
 MO_FILES = build/BuildEvents.o build/MergeHistograms.o
 HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
 RO_FILES = build/Calibration.o build/Reconstruction.o 
+<<<<<<< HEAD
+SO_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o build/SimulatedEvent.o
+=======
+>>>>>>> master
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
 ifeq ($(USING_ROOT_6),1)
-	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm
+	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm GammaSimDictionary_rdict.pcm
 endif
 
+<<<<<<< HEAD
+all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libSimulation.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
+
+exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze UnpackSim
+
+UnpackSim: UnpackSim.cc $(LIB_DIR)/libHiCARI.so $(SO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) -lSimulation $(SO_FILES) -o $(BIN_DIR)/$@ 
+
+Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
+	@echo "Compiling $@"
+	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
+=======
 all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
 
 exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
+>>>>>>> master
 
 Unpack: Unpack.cc $(O_FILES)
 	@echo "Compiling $@"
@@ -102,11 +126,20 @@ $(LIB_DIR)/libBigRIPS.so: $(BRLIB_O_FILES)
 	@echo "Making $@"
 	@$(CPP) $(LFLAGS) -o $@ $^ -lc
 
+$(LIB_DIR)/libSimulation.so: $(SIMLIB_O_FILES)
+	@echo "Making $@"
+	@$(CPP) $(LFLAGS) -o $@ $^ -lc
+
 $(LIB_DIR)/libCommandLineInterface.so: build/CommandLineInterface.o  
 	@echo "Making $@"
 	@$(CPP) $(CLILFLAGS) -o $@ $^ -lc
 
 build/UnpackedEvent.o: src/UnpackedEvent.cc inc/UnpackedEvent.hh $(LIB_O_FILES)
+	@echo "Compiling $@"
+	@mkdir -p $(dir $@)
+	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+
+build/SimulatedEvent.o: src/SimulatedEvent.cc inc/SimulatedEvent.hh $(LIB_O_FILES) $(SIMLIB_O_FILES)
 	@echo "Compiling $@"
 	@mkdir -p $(dir $@)
 	@$(CPP) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
