@@ -254,6 +254,7 @@ public:
   }
   //! Manually makes a hit.
   HitCalc(Short_t cluster, Short_t crystal, Float_t energy, long long int timestamp, TVector3 pos, Float_t ipsum, Float_t t0, Float_t chisq,int index=-1){
+    Clear();
     fcluster = cluster;
     fcrystal = crystal;
     fen = energy;

@@ -18,6 +18,10 @@ public:
   SinglePPAC(){
     Clear();
   };
+  //! default destructor
+  ~SinglePPAC(){
+    Clear();
+  }
   //! Clear the ppac information
   void Clear(Option_t *option = ""){
     fID = -1;
@@ -154,6 +158,10 @@ public:
   PPAC(){
     Clear();
   };
+  //! default destructor
+  ~PPAC(){
+    Clear();
+  }
   //! Clear all ppac information
   void Clear(Option_t *option = ""){
     fnppacs = 0;
