@@ -214,7 +214,6 @@ int main(int argc, char* argv[]){
 
     // target position with respect to the nominal focal point
     TVector3 targ = rec->TargetPosition(inc,ppacpos[1]);
-    targ.SetZ(set->TargetZ());
     bz->SetTargetPosition(targ);
     TVector3 out, sca;
     if(trigbit>1){
@@ -223,6 +222,9 @@ int main(int argc, char* argv[]){
       sca = bz->GetScatteredDirection();
     }
 
+    // change target position with respect to HiCARI center
+    targ.SetZ(set->TargetZ());
+    bz->SetTargetPosition(targ);
     //beta
     //bz->SetDopplerBeta(set->TargetBeta());
     //bz->SetDopplerBeta(bz->GetRIPSBeta(3));
