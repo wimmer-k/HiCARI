@@ -117,47 +117,105 @@ public:
     ftimeR = sqrt(-1.);
     fchargeL = sqrt(-1.);
     fchargeR = sqrt(-1.);
+    fmultL = 0;
+    fmultR = 0;
+    fqtctime = sqrt(-1.);
+    fqtccharge = sqrt(-1.);
+    fqtctimeL = sqrt(-1.);
+    fqtctimeR = sqrt(-1.);
+    fqtcchargeL = sqrt(-1.);
+    fqtcchargeR = sqrt(-1.);
   }
   //! Set the time
-  void SetTime(Float_t timeL, Float_t timeR){
+  void SetTime(Double_t timeL, Double_t timeR){
     ftimeL = timeL;
     ftimeR = timeR;
     if( !isnan(timeL) && !isnan(timeR))
       ftime = (timeL + timeR)/2;
   }
   //! Set the charge
-  void SetCharge(double chargeL, double chargeR){
-    fchargeL = chargeL;
-    fchargeR = chargeR;
+  void SetCharge(Int_t chargeL, Int_t chargeR){
+    fchargeL = (Float_t) chargeL;
+    fchargeR = (Float_t) chargeR;
     fcharge = sqrt(chargeL * chargeR);
   }
+  //! Set the multiplicity within the time window
+  void SetMult(Int_t multL, Int_t multR){
+    fmultL = multL;
+    fmultR = multR;
+  }
+  //! Set the time
+  void SetQTCTime(Int_t qtctimeL, Int_t qtctimeR){
+    if(qtctimeL>0) fqtctimeL = (Double_t)qtctimeL;
+    if(qtctimeR>0) fqtctimeR = (Double_t)qtctimeR;
+    if( !isnan(fqtctimeL) && !isnan(fqtctimeR))
+      fqtctime = (fqtctimeL + fqtctimeR)/2.;
+  }
+  //! Set the qtccharge
+  void SetQTCCharge(Int_t qtcchargeL, Int_t qtcchargeR){
+    if(qtcchargeL>0) fqtcchargeL = (Double_t)qtcchargeL;
+    if(qtcchargeR>0) fqtcchargeR = (Double_t)qtcchargeR;
+    if( !isnan(fqtcchargeL) && !isnan(fqtcchargeR))
+      fqtccharge  = sqrt(fqtcchargeL * fqtcchargeR);
+  }
   //! Get the time
-  double GetTime(){return ftime;}
+  Double_t GetTime(){return ftime;}
   //! Get the charge
-  double GetCharge(){return fcharge;}
+  Double_t GetCharge(){return fcharge;}
   //! Get the time left
-  double GetTimeL(){return ftimeL;}
+  Double_t GetTimeL(){return ftimeL;}
   //! Get the charge left
-  double GetChargeL(){return fchargeL;}
+  Double_t GetChargeL(){return fchargeL;}
+  //! Get the mult left
+  Int_t    GetMultL(){return fmultL;}
   //! Get the time right
-  double GetTimeR(){return ftimeR;}
+  Double_t GetTimeR(){return ftimeR;}
   //! Get the charge right
-  double GetChargeR(){return fchargeR;}
+  Double_t GetChargeR(){return fchargeR;}
+  //! Get the mult right
+  Int_t    GetMultR(){return fmultR;}
+  //! Get the time
+  Double_t GetQTCTime(){return fqtctime;}
+  //! Gett the charge
+  Double_t GettQTCCharge(){return fqtccharge;}
+  //! Get the time lefqtct
+  Double_t GettQTCTimeL(){return fqtctimeL;}
+  //! Get the charge lefqtct
+  Double_t GettQTCChargeL(){return fqtcchargeL;}
+  //! Get the time right
+  Double_t GettQTCTimeR(){return fqtctimeR;}
+  //! Get the charge right
+  Double_t GettQTCChargeR(){return fqtcchargeR;}
   
 protected:
   //! timing of the plastic (TL + TR)
-  Float_t ftime;
+  Double_t ftime;
   //! charge deposit in the plastic (sqrt(QL*QR))
   Float_t fcharge;
   //! timing of left PMT
-  Float_t ftimeL;
+  Double_t ftimeL;
   //! timing of right PMT
-  Float_t ftimeR;
+  Double_t ftimeR;
   //! charge of left PMT
   Float_t fchargeL;
   //! charge of right PMT
   Float_t fchargeR;
-
+  //! multiplicity of left PMT
+  Int_t fmultL;
+  //! multiplicity of right PMT
+  Int_t fmultR;
+  //! timing of the plastic (TL + TR) with QTC
+  Double_t fqtctime;
+  //! charge deposit in the plastic ((QL+QR)/2) with QTC
+  Double_t fqtccharge;
+  //! timing of left PMT with QTC
+  Double_t fqtctimeL;
+  //! timing of right PMT with QTC
+  Double_t fqtctimeR;
+  //! charge of left PMT with QTC
+  Double_t fqtcchargeL;
+  //! charge of right PMT with QTC
+  Double_t fqtcchargeR;
   /// \cond CLASSIMP
   ClassDef(Plastic,1);
   /// \endcond
@@ -251,6 +309,10 @@ public:
   void SetPlastic(Plastic plastic){fplastic = plastic;}
   //! return the plastic
   Plastic* GetPlastic(){return &fplastic;}
+  //! set the plastic_long
+  void SetPlastic_Long(Plastic plastic_long){fplastic_long = plastic_long;}
+  //! return the plastic_long
+  Plastic* GetPlastic_Long(){return &fplastic_long;}
   //! set the music
   void SetMUSIC(MUSIC music){fmusic = music;}
   //! return the music
@@ -261,6 +323,7 @@ protected:
   Track ftrack;
   //! Plastic for that focal plane
   Plastic fplastic;
+  Plastic fplastic_long;
   //! Ionchamber for that focal plane
   MUSIC fmusic;
 
