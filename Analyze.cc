@@ -239,7 +239,20 @@ int main(int argc, char* argv[]){
       out = bz->GetOutgoingDirection();
       sca = bz->GetScatteredDirection();
     }
-
+    
+    // //new HiCARI positions
+    // for(int h=0; h<hi->GetMult(); h++){
+    //   HiCARIHitCalc* hit = hi->GetHit(h);
+    //   if(hit->IsBigRIPS()){
+    // 	continue;
+    //   }
+    //   TVector3 pos = hit->GetPosition();
+    //   int cl = hit->GetCluster();
+    //   int cr = hit->GetCrystal();
+    //   int se = hit->GetMaxSegment();
+    //   TVector3 newpos = rec->GammaPosition(cl,cr,se);
+    //   cout << setw(7) << setprecision(5) << pos.Theta()*rad2deg << "\t" << newpos.Theta()*rad2deg << "\t" << pos.Theta()*rad2deg - newpos.Theta()*rad2deg << endl;
+    // }
     
     rec->FindMaxSeg(hi);
 
