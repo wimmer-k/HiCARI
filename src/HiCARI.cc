@@ -1,9 +1,5 @@
 #include "HiCARI.hh"
 
-HiCARIHit::HiCARIHit(){
-  Clear();
-}
-
 HiCARIHit::HiCARIHit(int clu, int cry, Short_t nr, double en,  long long int ts, bool tracking){
   Clear();
   fcluster = clu;
@@ -62,11 +58,6 @@ bool HiCARIHit::InsertSegment(int clu, int cry, Short_t nr, Float_t en){
   return true;
 }
 
-
-HiCARIHit::~HiCARIHit(){
-  Clear();
-}
-
 void HiCARIHit::Clear(){
   fcluster = -1;
   fcrystal = -1;
@@ -121,11 +112,6 @@ void HiCARIHit::PrintEvent(){
   for(UShort_t i=0;i<fsegen.size();i++)
     cout << fsegnr[i] << ": " << fsegen[i] << " keV" << endl;
   cout << "max " << fmaxsegnr << " maxen " << fmaxsegen << endl;
-}
-
-
-HiCARI::HiCARI(){
-  Clear();
 }
 
 void HiCARI::Clear(){

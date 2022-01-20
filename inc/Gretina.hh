@@ -90,10 +90,10 @@ struct crys_ips_abcd6789 {
 
 class IPoint : public TObject {
 public:
-  IPoint();
+  IPoint(){Clear();};
+  ~IPoint(){Clear();};
   IPoint(Float_t en, Float_t x, Float_t y, Float_t z, Int_t seg, Float_t segen);
   IPoint(IPoint* old);
-  ~IPoint(){Clear();}
   void Clear();
   void SetEnergy(Float_t en){fen = en;}
   void SetPosition(Float_t x, Float_t y, Float_t z){fposition.SetXYZ(x,y,z);}
@@ -119,12 +119,12 @@ protected:
 
 class Crystal : public TObject {
 public:
-  Crystal();
+  Crystal(){Clear();};
+  ~Crystal(){Clear();};
   Crystal(crys_ips_abcd1234 inbuf);
   Crystal(crys_ips_abcd5678 inbuf);
   Crystal(crys_ips_abcd6789 inbuf);
   Crystal(Crystal* old);
-  ~Crystal();
   void Clear();
   void AddBackCrystal(Crystal* other);
   void AddIP(IPoint *ip);
@@ -217,8 +217,8 @@ protected:
 
 class Gretina : public TObject {
 public:
-  Gretina();
-  ~Gretina(){Clear();}
+  Gretina(){Clear();};
+  ~Gretina(){Clear();};
   void Clear();
   void AddHit(Crystal* cry);
 
@@ -249,9 +249,9 @@ protected:
 class HitCalc : public TObject {
 public:
   //! Required default constructor.
-  HitCalc(){
-    Clear();
-  }
+  HitCalc(){Clear();};
+  //! Default destructor.
+  ~HitCalc(){Clear();};
   //! Manually makes a hit.
   HitCalc(Short_t cluster, Short_t crystal, Float_t energy, long long int timestamp, TVector3 pos, Float_t ipsum, Float_t t0, Float_t chisq,int index=-1){
     Clear();
@@ -301,9 +301,6 @@ public:
     ftime = hit->GetTime();
     fHitsAdded = 1;
     fIndex = hit->GetIndex();
-  }
-  ~HitCalc(){
-    Clear();
   }
   void Clear(){
     fcluster = -1;
@@ -439,9 +436,8 @@ protected:
  */
 class GretinaCalc : public TObject {
 public:
-  GretinaCalc(){
-    Clear();
-  }
+  GretinaCalc(){Clear();};
+  ~GretinaCalc(){Clear();};
   void Clear(){
     fmult = 0;
     for(vector<HitCalc*>::iterator cry=fhits.begin(); cry!=fhits.end(); cry++){
@@ -595,9 +591,8 @@ public:
  */
 class GretinaTrack : public TObject {
 public:
-  GretinaTrack(){
-    Clear();
-  }
+  GretinaTrack(){Clear();};
+  ~GretinaTrack(){Clear();};
   GretinaTrack(vector<HitCalc*> hits){
     Clear();
     SetHits(hits);
@@ -717,9 +712,8 @@ protected:
 
 class GretinaEvent : public TObject {
 public:
-  GretinaEvent(){
-    Clear();
-  }
+  GretinaEvent(){Clear();};
+  ~GretinaEvent(){Clear();};
   void Clear(){
     fmult = 0;
     fmult_ab = 0;

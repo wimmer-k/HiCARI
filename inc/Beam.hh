@@ -20,9 +20,9 @@ using namespace std;
 class Beam : public TObject {
 public:
   //! default constructor
-  Beam(){
-    Clear();
-  };
+  Beam(){Clear();};
+  //! default destructor
+  ~Beam(){Clear();};
   //! Clear all information
   void Clear(Option_t *option = ""){
     for(unsigned short j=0;j<6;j++){
@@ -55,9 +55,6 @@ public:
       ff8pos[i].Clear();
     }
     
-  }
-  ~Beam(){
-    Clear();
   }
   //! Set the A/Q ratio
   void SetAQ(unsigned short j, double aoq){

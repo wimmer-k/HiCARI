@@ -15,13 +15,9 @@ using namespace std;
 class SinglePPAC : public TObject {
 public:
   //! default constructor
-  SinglePPAC(){
-    Clear();
-  };
+  SinglePPAC(){Clear();};
   //! default destructor
-  ~SinglePPAC(){
-    Clear();
-  }
+  ~SinglePPAC(){Clear();};
   //! Clear the ppac information
   void Clear(Option_t *option = ""){
     fID = -1;
@@ -155,17 +151,14 @@ protected:
 class PPAC : public TObject {
 public:
   //! default constructor
-  PPAC(){
-    Clear();
-  };
+  PPAC(){Clear();};
   //! default destructor
-  ~PPAC(){
-    Clear();
-  }
+  ~PPAC(){Clear();};
   //! Clear all ppac information
   void Clear(Option_t *option = ""){
     fnppacs = 0;
     for(vector<SinglePPAC*>::iterator ppac=fppacs.begin(); ppac!=fppacs.end(); ppac++){
+      (*ppac)->Clear();
       delete *ppac;
     }
     fppacs.clear();
@@ -195,8 +188,6 @@ public:
   ////! align F8 PPAC
   // needs settings
   //void AlignPPAC(SinglePPAC* pin0, SinglePPAC* pin1);
-
-
   
 protected:
   //! number of ppacs hit

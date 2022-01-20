@@ -18,12 +18,12 @@ using namespace std;
 
 class HiCARIHit : public TObject {
 public:
-  HiCARIHit();
+  HiCARIHit(){Clear();};
+  ~HiCARIHit(){Clear();};
   HiCARIHit(int clu, int cry,  Short_t nr, double en,  long long int ts, bool tracking);
 #ifdef WITHSIM
   HiCARIHit(sim_clust inbuf, long long int ts);
 #endif
-  ~HiCARIHit();
   void Clear();
   bool InsertCore(int clu, int cry, double en,  long long int ts);
   bool InsertSegment(int clu, int cry, Short_t nr, Float_t en);
@@ -97,8 +97,8 @@ protected:
 
 class HiCARI : public TObject {
 public:
-  HiCARI();
-  ~HiCARI(){Clear();}
+  HiCARI(){Clear();};
+  ~HiCARI(){Clear();};
   void Clear();
   void AddHit(HiCARIHit* cry);
 
@@ -132,10 +132,10 @@ protected:
 
 class HiCARIHitCalc : public TObject {
 public:
-  HiCARIHitCalc(){Clear();}
+  HiCARIHitCalc(){Clear();};
+  ~HiCARIHitCalc(){Clear();};
   HiCARIHitCalc(Short_t clu, Short_t cry, Short_t maxseg, Float_t segsum, TVector3 pos, Float_t en, long long int ts);
   HiCARIHitCalc(HiCARIHitCalc* hit);
-  ~HiCARIHitCalc(){Clear();}
   void Clear();
   void SetSegments(vector<Short_t> nr, vector<Float_t> en);
 
@@ -246,9 +246,8 @@ protected:
  */
 class HiCARICalc : public TObject {
 public:
-  HiCARICalc(){
-    Clear();
-  }
+  HiCARICalc(){Clear();};
+  ~HiCARICalc(){Clear();};
   void Clear(){
     ftimestamp = -1;
     fmult = 0;

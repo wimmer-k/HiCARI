@@ -8,7 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TStopwatch.h"
-//#include "TSystem.h"
+#include "TSystem.h"
 
 #include "CommandLineInterface.hh"
 #include "BuildEvents.hh"
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
   TFile* inmode2 = NULL;
 
   //// temp KW proc info
-  //ProcInfo_t pinfo;
+  ProcInfo_t pinfo;
   
 
 
@@ -163,8 +163,8 @@ int main(int argc, char* argv[]){
       */      
       time_last = time_end;
       if(ctr%100000 == 0){
-	//gSystem->GetProcInfo(&pinfo);
-	//cout << endl << ctr << " memory usage " << pinfo.fMemResident << " " << pinfo.fMemVirtual << endl;
+	gSystem->GetProcInfo(&pinfo);
+	cout << endl << ctr << " memory usage " << pinfo.fMemResident << " " << pinfo.fMemVirtual << endl;
 	//cout << endl << "autosaving!" << endl;
 	evts->GetTree()->AutoSave();
       }

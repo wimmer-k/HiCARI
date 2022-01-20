@@ -17,13 +17,9 @@ int firstPPAC(int id);
 class MUSIC : public TObject {
 public:
   //! default constructor
-  MUSIC(){
-    Clear();
-  };
+  MUSIC(){Clear();};
   //! default destructor
-  ~MUSIC(){
-    Clear();
-  }
+  ~MUSIC(){Clear();};
   //! Clear the music information
   void Clear(Option_t *option = ""){
     fnumhits = -1.;
@@ -102,13 +98,9 @@ protected:
 class Plastic : public TObject {
 public:
   //! default constructor
-  Plastic(){
-    Clear();
-  };
+  Plastic(){Clear();};
   //! default destructor
-  ~Plastic(){
-    Clear();
-  }
+  ~Plastic(){Clear();};
   //! Clear the plastic information
   void Clear(Option_t *option = ""){
     ftime = sqrt(-1.);
@@ -227,13 +219,9 @@ protected:
 class Track : public TObject {
 public:
   //! default constructor
-  Track(){
-    Clear();
-  };
+  Track(){Clear();};
   //! default destructor
-  ~Track(){
-    Clear();
-  }
+  ~Track(){Clear();};
   //! Clear the track information
   void Clear(Option_t *option = ""){
     fx = sqrt(-1.);
@@ -288,13 +276,9 @@ protected:
 class FocalPlane : public TObject {
 public:
   //! default constructor
-  FocalPlane(){
-    Clear();
-  };
+  FocalPlane(){Clear();};
   //! default destructor
-  ~FocalPlane(){
-    Clear();
-  }
+  ~FocalPlane(){Clear();};
   //! Clear the track information
   void Clear(Option_t *option = ""){
     ftrack.Clear();

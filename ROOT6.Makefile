@@ -18,11 +18,8 @@ INCLUDES    = -I./inc -I$(TARTSYS)/include
 BASELIBS    = -lm $(ROOTLIBS) $(ROOTGLIBS) -L$(LIB_DIR) -L$(TARTSYS)/lib  -lXMLParser
 LIBS  	    =  $(BASELIBS) -lCommandLineInterface -lHiCARI -lanaroot -lananadeko -lanacore -lanabrips -lanaloop -lBigRIPS
 
-<<<<<<< HEAD
 SWITCH = -DWITHSIM
 
-=======
->>>>>>> master
 LFLAGS	    = -g -fPIC -shared
 CFLAGS 	    += -Wl,--no-as-needed $(SWITCH)
 LFLAGS 	    += -Wl,--no-as-needed 
@@ -38,17 +35,13 @@ O_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/
 MO_FILES = build/BuildEvents.o build/MergeHistograms.o
 HO_FILES = build/RawHistograms.o build/CalHistograms.o build/MergeHistograms.o
 RO_FILES = build/Calibration.o build/Reconstruction.o 
-<<<<<<< HEAD
 SO_FILES = build/RawHistograms.o build/CalHistograms.o build/Calibration.o build/UnpackedEvent.o build/SimulatedEvent.o
-=======
->>>>>>> master
 
 USING_ROOT_6 = $(shell expr $(shell root-config --version | cut -f1 -d.) \>= 6)
 ifeq ($(USING_ROOT_6),1)
 	EXTRAS =  GretinaDictionary_rdict.pcm HiCARIDictionary_rdict.pcm SettingsDictionary_rdict.pcm RunInfoDictionary_rdict.pcm TraceDictionary_rdict.pcm PPACDictionary_rdict.pcm FocalPlaneDictionary_rdict.pcm BeamDictionary_rdict.pcm GammaSimDictionary_rdict.pcm
 endif
 
-<<<<<<< HEAD
 all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libSimulation.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
 
 exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze UnpackSim
@@ -60,11 +53,6 @@ UnpackSim: UnpackSim.cc $(LIB_DIR)/libHiCARI.so $(SO_FILES)
 Sim_histos: Sim_histos.cc $(LIB_DIR)/libHiCARI.so $(HO_FILES)
 	@echo "Compiling $@"
 	@$(CPP) $(CFLAGS) $(INCLUDES) $< $(LIBS) $(HO_FILES) -o $(BIN_DIR)/$@ 
-=======
-all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
-
-exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
->>>>>>> master
 
 Unpack: Unpack.cc $(O_FILES)
 	@echo "Compiling $@"
