@@ -348,14 +348,15 @@ void BuildEvents::CloseEvent(){
     cout << "closing event with local TS = " << flocalBRts << " tof = "<< flocalbeam->GetTOF(0)<< endl;
     cout << "closing event with set TS = " << fBRts << " tof = "<< fbeam->GetTOF(0)<< endl;
   }
-  if(fhicari->HadBigRIPS()){
+  if(fhicari && fhicari->HadBigRIPS()){
     //cout << fhicari->GetBigRIPSHit()->GetTS() << endl;
     long long int br_TS = fhicari->GetBigRIPSHit()->GetTS();
-    fhicari->CorrectTime(br_TS);
-    fmode2->CorrectTime(br_TS);
+    if(fhicari)
+      fhicari->CorrectTime(br_TS);
+    if(fmode2)
+      fmode2->CorrectTime(br_TS);
   }
 
-  
   switch(fmode){
   default:
   case 0: //write all events
@@ -395,16 +396,24 @@ void BuildEvents::CloseEvent(){
   //   cout << "after clearing " << endl;
   //   fhicari->Print();
   // }
- 
+  
   delete fbeam;
+  fbeam = NULL;
   if(fSett->BigRIPSDetail()>0){
     for(unsigned short f=0;f<NFPLANES;f++){
       delete ffp[f];
+      ffp[f] = NULL;
     }
   }
   if(fSett->BigRIPSDetail()>1){
     delete fppacs;
+    fppacs = NULL;
   }
+  delete fhicari;
+  fhicari = NULL;
+  delete fmode2;
+  fmode2 = NULL;
+  
   
   if(fverbose>0)
     cout << "end "<< __PRETTY_FUNCTION__ << endl;

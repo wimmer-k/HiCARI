@@ -2,9 +2,6 @@
 
 #include <map>
 
-IPoint::IPoint(){
-  Clear();
-}
 IPoint::IPoint(Float_t en, Float_t x, Float_t y, Float_t z, Int_t seg,
 	       Float_t segen){
   Clear();
@@ -32,10 +29,6 @@ void IPoint::PrintEvent(){
        << " theta " << fposition.Theta() << " phi " << fposition.Phi() << endl;
 }
 
-
-Crystal::Crystal(){
-  Clear();
-}
 
 Crystal::Crystal(crys_ips_abcd1234 inbuf){
   Clear();
@@ -146,10 +139,6 @@ Crystal::Crystal(Crystal* old){
   }
 }
 
-Crystal::~Crystal(){
-  Clear();
-}
-
 void Crystal::Clear(){
   fcluster = -1;
   fcrystalid = -1;
@@ -235,10 +224,6 @@ void Crystal::PrintEvent(){
   cout << "max " << fmaxip << " maxen " << fmaxen << endl;
 }
 
-
-Gretina::Gretina(){
-  Clear();
-}
 
 void Gretina::Clear(){
   fhitpattern = 0;
