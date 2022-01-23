@@ -8,7 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TStopwatch.h"
-#include "TSystem.h"
+//#include "TSystem.h"
 
 #include "CommandLineInterface.hh"
 #include "BuildEvents.hh"
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
   TFile* inmode2 = NULL;
 
   //// temp KW proc info
-  ProcInfo_t pinfo;
+  //ProcInfo_t pinfo;
   
 
 
@@ -146,7 +146,6 @@ int main(int argc, char* argv[]){
     if(ctr%1000 == 0){
       double time_end = get_time();
       double r = evts->GetHistos()->GetCorrRate();
-      /*
       cout << setw(5) << setiosflags(ios::fixed) << setprecision(1) << (100.*ctr)/total<<" % done\t" << 
 	"correlation rate "; 
       if(r>80)
@@ -160,11 +159,11 @@ int main(int argc, char* argv[]){
       cout << setw(7) <<(Float_t)ctr/(time_end - time_start) << " events/s (average) " <<
 	1000./(time_end - time_last) << " events/s (current)\t" <<
 	(total-ctr)*(time_end - time_start)/(Float_t)ctr << "s to go \r" << flush;
-      */      
+          
       time_last = time_end;
       if(ctr%100000 == 0){
-	gSystem->GetProcInfo(&pinfo);
-	cout << endl << ctr << " memory usage " << pinfo.fMemResident << " " << pinfo.fMemVirtual << endl;
+	//gSystem->GetProcInfo(&pinfo);
+	//cout << endl << ctr << " memory usage " << pinfo.fMemResident << " " << pinfo.fMemVirtual << endl;
 	//cout << endl << "autosaving!" << endl;
 	evts->GetTree()->AutoSave();
       }
