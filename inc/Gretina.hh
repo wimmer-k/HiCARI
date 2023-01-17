@@ -9,6 +9,7 @@
 #include "TMath.h"
 #include "Gretinadefs.h"
 #include "Settings.hh"
+#include "Beam.hh"
 
 using namespace std;
 
@@ -378,10 +379,18 @@ public:
     Apply the Doppler correction using the given settings.
     Uses the beta and the target position from the settings file.
    */
+
+  
   void DopplerCorrect(Settings* set);
   //! Returns the Doppler-correction factor to correct the energy.
   static double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
+ 
   
+  void DopplerCorrect(Beam* beam){
+    fDCen = fen*DopplerCorrectionFactor(GetPosition(),beam);
+  }
+  //! Returns the Doppler-correction factor to correct the energy.
+  double DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam);
 
   void Print(){
     cout << "cluster " << fcluster << "\tcrystal " << fcrystal << "\ten " << fen << "\tmax hit " << fMaxSingleHit << endl;//"\tipoints " << fipoints.size()<< endl;
@@ -491,6 +500,7 @@ public:
     fhits_cl[c].push_back(cry);
   }
   void DopplerCorrect(Settings* set);
+  void DopplerCorrect(Beam* beam);
   void CorrectTime(long long int br_TS);
   void Print(){
     cout << " singles mult " <<fmult << endl;
@@ -632,9 +642,11 @@ public:
     fmult++;
     fhits.push_back(hit);
   }
+  
   void DopplerCorrect(Settings* set){
     fDCen = fesum * HitCalc::DopplerCorrectionFactor(fhits[0]->GetPosition(),set);
   }
+  
   void SetFOM(Double_t fom){ fFOM = fom; }
   void SetPermutation(Int_t perm){ fperm = perm; }
   void SetPermutation(vector<int> perm){ fpermlist = perm; }

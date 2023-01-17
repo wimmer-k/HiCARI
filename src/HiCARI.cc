@@ -220,7 +220,6 @@ void HiCARIHitCalc::AddBackHiCARIHitCalc(HiCARIHitCalc* hit){
  
 }
 
-
 // fixed beta
 double HiCARIHitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 

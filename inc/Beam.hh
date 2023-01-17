@@ -324,8 +324,10 @@ protected:
   double fzet[6];
   //! corrected Z
   double fzetc[6];
-  //! corrected Z
-  double fzdeg[2], fzdegc[2];
+  //! degrader Z
+  double fzdeg[2];
+  //! corrected degrader Z
+  double fzdegc[2]; 
 
   //! time-of-flight for 3-7, 8-11, 7-8
   double ftof[3];

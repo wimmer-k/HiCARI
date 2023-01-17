@@ -268,6 +268,32 @@ double HitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set){
 
 }
 
+// event by event beta and position
+// this is the function that is actually used right now
+double HitCalc::DopplerCorrectionFactor(TVector3 PosToTarget, Beam* beam){
+  TVector3 tp = beam->GetTargetPosition();
+  
+  PosToTarget.SetX(PosToTarget.X() - tp.X());
+  PosToTarget.SetY(PosToTarget.Y() - tp.Y());
+  PosToTarget.SetZ(PosToTarget.Z() - tp.Z());
+  //double CosDop = cos(PosToTarget.Theta());
+  double CosDop = cos(PosToTarget.Angle(beam->GetOutgoingDirection()));
+
+  double beta;
+  beta = beam->GetDopplerBeta();
+  double gamma = 1/sqrt(1.0 - beta*beta);
+  return gamma*(1-beta*CosDop);
+
+}
+void GretinaCalc::DopplerCorrect(Beam* beam){
+  for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
+    (*hit)->DopplerCorrect(beam);
+  }
+  for(vector<HitCalc*>::iterator hit=fhits_ab.begin(); hit!=fhits_ab.end(); hit++){
+    (*hit)->DopplerCorrect(beam);
+  }
+}
+
 void GretinaCalc::DopplerCorrect(Settings* set){
   for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
     (*hit)->DopplerCorrect(set);
@@ -276,6 +302,7 @@ void GretinaCalc::DopplerCorrect(Settings* set){
     (*hit)->DopplerCorrect(set);
   }
 }
+
 void GretinaCalc::CorrectTime(long long int br_TS){
   for(vector<HitCalc*>::iterator hit=fhits.begin(); hit!=fhits.end(); hit++){
     (*hit)->CorrectTime(br_TS);

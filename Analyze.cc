@@ -163,6 +163,11 @@ int main(int argc, char* argv[]){
     beta[i] = new TH1F(Form("beta_%d",i),Form("beta_%d",i),600,0.55,0.7);hlist->Add(beta[i]);
   }
 
+  TH2F* h_gamma_theta_phi = new TH2F("h_gamma_theta_phi","h_gamma_theta_phi",180,0,180,360,-360,360);hlist->Add(h_gamma_theta_phi);
+  TH2F* h_gamma_x_y = new TH2F("h_gamma_x_y","h_gamma_x_y",300,-300,300,300,-300,300);hlist->Add(h_gamma_x_y);
+  TH2F* h_gamma_z_x = new TH2F("h_gamma_z_x","h_gamma_z_x",300,0,300,300,-300,300);hlist->Add(h_gamma_z_x);
+  TH2F* h_gamma_z_y = new TH2F("h_gamma_z_y","h_gamma_z_y",300,0,300,300,-300,300);hlist->Add(h_gamma_z_y);
+  
   TH2F* h_egam_tgam = new TH2F("h_egam_tgam","h_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egam_tgam);
   TH2F* h_egamdc_tgam = new TH2F("h_egamdc_tgam","h_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamdc_tgam);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
@@ -177,6 +182,23 @@ int main(int argc, char* argv[]){
   
   TH2F* h_egamdc_segsummary = new TH2F("h_egamdc_segsummary","h_egamdc_segsummary",400,0,400,4000,0,4000);hlist->Add(h_egamdc_segsummary);
   
+  TH2F* g_gamma_theta_phi = new TH2F("g_gamma_theta_phi","g_gamma_theta_phi",180,0,180,360,-360,360);hlist->Add(g_gamma_theta_phi);
+  TH2F* g_gamma_x_y = new TH2F("g_gamma_x_y","g_gamma_x_y",300,-300,300,300,-300,300);hlist->Add(g_gamma_x_y);
+  TH2F* g_gamma_z_x = new TH2F("g_gamma_z_x","g_gamma_z_x",300,0,300,300,-300,300);hlist->Add(g_gamma_z_x);
+  TH2F* g_gamma_z_y = new TH2F("g_gamma_z_y","g_gamma_z_y",300,0,300,300,-300,300);hlist->Add(g_gamma_z_y);
+  
+  TH2F* g_egam_tgam = new TH2F("g_egam_tgam","g_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(g_egam_tgam);
+  TH2F* g_egamdc_tgam = new TH2F("g_egamdc_tgam","g_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(g_egamdc_tgam);
+  TH1F* g_egamdc = new TH1F("g_egamdc","g_egamdc",4000,0,4000);hlist->Add(g_egamdc);
+  TH2F* g_egamdc_theta = new TH2F("g_egamdc_theta","g_egamdc_theta",180,0,180,4000,0,4000);hlist->Add(g_egamdc_theta);
+  TH2F* g_egam_beta = new TH2F("g_egam_beta","g_egam_beta",1000,0.55,0.65,4000,0,4000);hlist->Add(g_egam_beta);
+  TH2F* g_egamdc_beta = new TH2F("g_egamdc_beta","g_egamdc_beta",1000,0.55,0.65,4000,0,4000);hlist->Add(g_egamdc_beta);
+  TH2F* g_egamdc_summary = new TH2F("g_egamdc_summary","g_egamdc_summary",60,0,60,4000,0,4000);hlist->Add(g_egamdc_summary);
+  TH2F* g_tgam_summary = new TH2F("g_tgam_summary","g_tgam_summary",60,0,60,2000,-1000,1000);hlist->Add(g_tgam_summary);
+  TH2F* g_tgam_summary_HE = new TH2F("g_tgam_summary_HE","g_tgam_summary_HE",60,0,60,2000,-1000,1000);hlist->Add(g_tgam_summary_HE);
+  TH2F* g_tgam_trigbit = new TH2F("g_tgam_trigbit","g_tgam_trigbit",10,0,10,2000,-1000,1000);hlist->Add(g_tgam_trigbit);
+  TH2F* g_egamdc_egamdc = new TH2F("g_egamdc_egamdc","g_egamdc_egamdc",1000,0,4000,1000,0,4000);hlist->Add(g_egamdc_egamdc);
+    
   
   Double_t nentries = tr->GetEntries();
   if(nmax>0){
@@ -267,6 +289,7 @@ int main(int argc, char* argv[]){
     bz->SetDopplerBeta(rec->EventBeta(bz));
 
     hi->DopplerCorrect(bz);
+    gr->DopplerCorrect(bz);
 
     // histos
     // BEAM
@@ -349,6 +372,10 @@ int main(int argc, char* argv[]){
 	h_egamdc_beta->Fill(bz->GetDopplerBeta(), hit->GetDCEnergy());
 	h_egamdc_theta->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy());
 	h_egamdc_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetDCEnergy());
+	h_gamma_theta_phi->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetPosition().Phi()*180./3.1415);
+	h_gamma_x_y->Fill(hit->GetPosition().X(), hit->GetPosition().Y());
+	h_gamma_z_x->Fill(hit->GetPosition().Z(), hit->GetPosition().X());
+	h_gamma_z_y->Fill(hit->GetPosition().Z(), hit->GetPosition().Y());
 	if(hit->GetMaxSegment()>-1)
 	  h_egamdc_segsummary->Fill((4*hit->GetCluster()+hit->GetCrystal())*6+hit->GetMaxSegment(), hit->GetDCEnergy());
 	h_tgam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
@@ -361,6 +388,33 @@ int main(int argc, char* argv[]){
 	  HiCARIHitCalc* hit2 = hi->GetHit(h2);
 	  h_egamdc_egamdc->Fill(hit->GetDCEnergy(),hit2->GetDCEnergy());
 	  h_egamdc_egamdc->Fill(hit2->GetDCEnergy(),hit->GetDCEnergy());
+	}
+      }//valid hit with position
+    }//hits
+    for(int h=0; h<gr->GetMult(); h++){
+      HitCalc* hit = gr->GetHit(h);
+      g_egam_tgam->Fill(hit->GetTime(),hit->GetEnergy());
+      g_egamdc_tgam->Fill(hit->GetTime(),hit->GetDCEnergy());
+      if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
+	g_egamdc->Fill(hit->GetDCEnergy());
+	g_egam_beta->Fill(bz->GetDopplerBeta(), hit->GetEnergy());
+	g_egamdc_beta->Fill(bz->GetDopplerBeta(), hit->GetDCEnergy());
+	g_egamdc_theta->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetDCEnergy());
+	g_egamdc_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetDCEnergy());
+	g_gamma_theta_phi->Fill(hit->GetPosition().Theta()*180./3.1415, hit->GetPosition().Phi()*180./3.1415);
+	g_gamma_x_y->Fill(hit->GetPosition().X(), hit->GetPosition().Y());
+	g_gamma_z_x->Fill(hit->GetPosition().Z(), hit->GetPosition().X());
+	g_gamma_z_y->Fill(hit->GetPosition().Z(), hit->GetPosition().Y());
+	g_tgam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
+	if(hit->GetEnergy()>2000)
+	  g_tgam_summary_HE->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetTime());
+	g_tgam_trigbit->Fill(trigbit, hit->GetTime());
+	for(int h2=0; h2<gr->GetMult(); h2++){
+	  if(h==h2)
+	    continue;
+	  HitCalc* hit2 = gr->GetHit(h2);
+	  g_egamdc_egamdc->Fill(hit->GetDCEnergy(),hit2->GetDCEnergy());
+	  g_egamdc_egamdc->Fill(hit2->GetDCEnergy(),hit->GetDCEnergy());
 	}
       }//valid hit with position
     }//hits

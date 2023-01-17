@@ -355,11 +355,11 @@ int main(int argc, char* argv[]){
     if(signal_received){
       break;
     }
-    bz->Clear();
-    for(unsigned short f=0;f<NFPLANES;f++){
-      fp[f]->Clear();
-    }
-    ppac->Clear();
+    //bz->Clear();
+    //for(unsigned short f=0;f<NFPLANES;f++){
+    //  fp[f]->Clear();
+    //}
+    //ppac->Clear();
     
     if(vl>2)
       cout << "getting entry " << i << endl;
@@ -411,6 +411,9 @@ int main(int argc, char* argv[]){
 	tsumx[sp->GetID()]->Fill(sp->GetTsumX());
 	tsumy[sp->GetID()]->Fill(sp->GetTsumY());
       }
+      sp->Clear();
+      delete sp;
+      sp = NULL;
     }
     TVector3 ppacpos[3];
     ppacpos[0] = ppac->PPACPosition(ppac->GetPPACID(19),ppac->GetPPACID(20));
@@ -453,6 +456,9 @@ int main(int argc, char* argv[]){
 	if(sp->Fired())
 	  f8ppacXY[sp->GetID()-35+4]->Fill(sp->GetX(),sp->GetY());
       }
+      sp->Clear();
+      delete sp;
+      sp = NULL;
     
     }
     
@@ -467,6 +473,12 @@ int main(int argc, char* argv[]){
       RawF11IC->Fill(f11ic->GetChan().at(i), f11ic->GetADC().at(i));
       MatchF11IC->Fill(f11ic->GetChan().at(i), f11ic->GetGainMatchADC().at(i));
     }
+    f7ic->Clear();
+    delete f7ic;
+    f7ic = NULL;
+    f11ic->Clear();
+    delete f11ic;
+    f11ic = NULL;
 
     // charge state change
     deltadiff[0]->Fill(bz->GetDelta(1) - bz->GetDelta(0));
@@ -529,6 +541,17 @@ int main(int argc, char* argv[]){
       cout<<setw(5)<<setiosflags(ios::fixed)<<setprecision(1)<<(100.*i)/nentries<<" % done\t"<<(Float_t)i/(time_end - time_start)<<" events/s " << (nentries-i)*(time_end - time_start)/(Float_t)i<<"s to go \r"<<flush;
     }
 
+    bz->Clear();
+    delete bz;
+    bz = NULL;
+    for(unsigned short f=0;f<NFPLANES;f++){
+      fp[f]->Clear();
+      delete fp[f];
+      fp[f] = NULL;
+    }
+    ppac->Clear();
+    delete ppac;
+    ppac = NULL;
   }
   cout << endl;
 

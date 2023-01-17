@@ -186,13 +186,12 @@ public:
   TVector3 GetPosition(){return fposition;}
   int GetHitsAdded(){return fHitsAdded;}
   unsigned long long int GetTS(){return ftimestamp;}
-
   void DopplerCorrect(Settings* set){
     fDCen = fen*DopplerCorrectionFactor(GetPosition(),set);
   }
   //! Returns the Doppler-correction factor to correct the energy.
   double DopplerCorrectionFactor(TVector3 PosToTarget, Settings* set);
-
+  
   void DopplerCorrect(Beam* beam){
     fDCen = fen*DopplerCorrectionFactor(GetPosition(),beam);
   }

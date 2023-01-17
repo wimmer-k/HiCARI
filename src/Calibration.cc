@@ -142,7 +142,7 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
   if(fSett->StoreAllIPoints())
     AllGretinaHits(out,in);
   
-  out->DopplerCorrect(fSett);
+  //out->DopplerCorrect(fSett);
   fGretinactr++;
 }
 
@@ -157,7 +157,8 @@ TVector3 Calibration::TransformCoordinates(int hole, int cry, TVector3 local){
   // xt*=10.;
   // yt*=10.;
   // zt*=10.; //in mm
-  return TVector3(xt,yt,zt) - fSett->TargetPos();
+  //return TVector3(xt,yt,zt) - fSett->TargetPos();
+  return TVector3(xt,yt,zt);
 }
 
 void Calibration::CalibrateIPoints(Crystal* cry){
@@ -395,7 +396,7 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
   if(fverbose>2 && out->HadBigRIPS())
     cout << out->GetMult() << "\t" << (out->GetHits()).size() << endl;
 
-  out->DopplerCorrect(fSett);
+  //out->DopplerCorrect(fSett);
   
   fevent++;
 }
