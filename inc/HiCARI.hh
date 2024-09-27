@@ -34,6 +34,7 @@ public:
   void SetSegmentEn(int n, Float_t en){
     fsegen[n] = en;
   }
+  void SetCluster(int clu){fcluster = clu;}
 
   Short_t GetID(){return fcluster*4 + fcrystal;}
   Short_t GetCluster(){return fcluster;}
@@ -257,6 +258,7 @@ public:
     fhits.clear();
     fhadBigRIPS = false;
     ClearAddBack();
+    fnBigRIPS = -1;
   }
   void ClearAddBack(){
     fmult_ab = 0;

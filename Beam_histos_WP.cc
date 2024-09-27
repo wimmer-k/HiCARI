@@ -166,10 +166,6 @@ int main(int argc, char* argv[]){
 
   TList *hlist = new TList();
   TH1F* trigger = new TH1F("trigger","trigger",10,0,10);hlist->Add(trigger);
-  TH2F* zvsaoq[6];
-  for(int p=0;p<6;p++){
-    zvsaoq[p]= new TH2F(Form("zvsaoq_%d",p),Form("zvsaoq_%d",p),1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zvsaoq[p]);
-  }
   TH2F* bigrips = new TH2F("bigrips","bigrips",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigrips);
   TH2F* zerodeg = new TH2F("zerodeg","zerodeg",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(zerodeg);
   TH2F* bigripsC = new TH2F("bigripsC","bigripsC",1000,aoqrange[0],aoqrange[1],1000,zrange[0],zrange[1]);hlist->Add(bigripsC);
@@ -355,9 +351,7 @@ int main(int argc, char* argv[]){
   
   Int_t nbytes = 0;
   Int_t status;
-  cout << "start analysis of " << nentries << endl;
-
-  for(int e=0; e<nentries;e++){
+  for(int i=0; i<nentries;i++){
     if(signal_received){
       break;
     }
@@ -368,33 +362,30 @@ int main(int argc, char* argv[]){
     ppac->Clear();
     
     if(vl>2)
-      cout << "getting entry " << e << endl;
-    status = tr->GetEvent(e);
+      cout << "getting entry " << i << endl;
+    status = tr->GetEvent(i);
     if(vl>2)
       cout << "status " << status << endl;
     if(status == -1){
-      cerr<<"Error occured, couldn't read entry "<<e<<" from tree "<<tr->GetName()<<" in file "<<tr->GetFile()->GetName()<<endl;
+      cerr<<"Error occured, couldn't read entry "<<i<<" from tree "<<tr->GetName()<<" in file "<<tr->GetFile()->GetName()<<endl;
       return 5;
     }
     else if(status == 0){
-      cerr<<"Error occured, entry "<<e<<" in tree "<<tr->GetName()<<" in file "<<tr->GetFile()->GetName()<<" doesn't exist"<<endl;
+      cerr<<"Error occured, entry "<<i<<" in tree "<<tr->GetName()<<" in file "<<tr->GetFile()->GetName()<<" doesn't exist"<<endl;
       return 6;
     }
     nbytes += status;
 
     trigger->Fill(trigbit);
-    for(int p=0;p<6;p++)
-      zvsaoq[p]->Fill(bz->GetAQ(p),bz->GetZ(p));
-  
     bigrips->Fill(bz->GetAQ(2),bz->GetZ(2));
     zerodeg->Fill(bz->GetAQ(5),bz->GetZ(5));
     bigripsC->Fill(bz->GetCorrAQ(2),bz->GetZ(2));
     zerodegC->Fill(bz->GetCorrAQ(5),bz->GetZ(5));
 
-    bigrips_Z_time->Fill(e,bz->GetZ(2));
-    bigrips_AoQ_time->Fill(e,bz->GetAQ(2));
-    zerodeg_Z_time->Fill(e,bz->GetZ(5));
-    zerodeg_AoQ_time->Fill(e,bz->GetAQ(2));
+    bigrips_Z_time->Fill(i,bz->GetZ(2));
+    bigrips_AoQ_time->Fill(i,bz->GetAQ(2));
+    zerodeg_Z_time->Fill(i,bz->GetZ(5));
+    zerodeg_AoQ_time->Fill(i,bz->GetAQ(2));
   
 
     // plastics
@@ -462,7 +453,6 @@ int main(int argc, char* argv[]){
 	if(sp->Fired())
 	  f8ppacXY[sp->GetID()-35+4]->Fill(sp->GetX(),sp->GetY());
       }
-    
     }
     
     // musics
@@ -532,10 +522,12 @@ int main(int argc, char* argv[]){
 	}
       }//isinside
     }//outcuts
-    if(e%10000 == 0){
+    
+    if(i%10000 == 0){
       double time_end = get_time();
-      cout<<setw(5)<<setiosflags(ios::fixed)<<setprecision(1)<<(100.*e)/nentries<<" % done\t"<<(Float_t)e/(time_end - time_start)<<" events/s " << (nentries-e)*(time_end - time_start)/(Float_t)e<<"s to go \r"<<flush;
+      cout<<setw(5)<<setiosflags(ios::fixed)<<setprecision(1)<<(100.*i)/nentries<<" % done\t"<<(Float_t)i/(time_end - time_start)<<" events/s " << (nentries-i)*(time_end - time_start)/(Float_t)i<<"s to go \r"<<flush;
     }
+
   }
   cout << endl;
 

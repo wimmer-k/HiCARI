@@ -23,12 +23,16 @@ Calibration::Calibration(Settings* setting, int event){
   ReadHiCARICalibration(fSett->HiCARICalibrationFile());
   ReadHiCARITimeOffset(fSett->HiCARITimeOffsetFile());
   ReadMatrix(fSett->MatrixFile());
+
+  fisSim = fSett->IsSimulation();
   
 }
 
 Calibration::~Calibration(){}
 
 void Calibration::ReadHiCARIPositions(const char* filename){
+  if(fverbose>0)
+    cout << "positions filename " << filename << endl;
   TEnv *positions = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
@@ -42,13 +46,16 @@ void Calibration::ReadHiCARIPositions(const char* filename){
 	x = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.X",m,c,s),0.0);
 	y = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Y",m,c,s),0.0);
 	z = positions->GetValue(Form("HiCARI.Clu%d.Cry%d.Seg%d.Z",m,c,s),0.0);
+	if(fverbose>0 && sqrt(x*x+y*y+z*z) >0)
+	  cout << m << "\t" << c << "\t" << s << "\t" << x << "\t" << y << "\t" << z << endl;
 	fHiCARIpositions[m][c][s].SetXYZ(x,y,z);
       }
     }
   }
 }
 void Calibration::ReadHiCARICalibration(const char* filename){
-  cout << "filename " << filename << endl;
+  if(fverbose>0)
+    cout << "calibration filename " << filename << endl;
   TEnv *calF = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
@@ -63,7 +70,8 @@ void Calibration::ReadHiCARICalibration(const char* filename){
   }
 }
 void Calibration::ReadHiCARITimeOffset(const char* filename){
-  cout << "filename " << filename << endl;
+  if(fverbose>0)
+    cout << "time offset filename " << filename << endl;
   TEnv *calF = new TEnv(filename);
   for(int m=0;m<12;m++){
     for(int c=0;c<4;c++){
@@ -72,7 +80,7 @@ void Calibration::ReadHiCARITimeOffset(const char* filename){
   }
 }
 void Calibration::ReadMatrix(const char* filename){
-  if(fSett->VLevel()>0)
+  if(fSett->VLevel()>1)
     cout <<__PRETTY_FUNCTION__  << " " << filename << endl;
   
   ifstream infile;
@@ -113,6 +121,8 @@ void Calibration::ReadMatrix(const char* filename){
 
 
 void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
+  if(fverbose>1)
+    cout <<__PRETTY_FUNCTION__  << endl;
 
   //For no add-back, we don't need to do anything beyond copying relevant parameters, and calibrate the interaction points
   out->Clear();
@@ -147,6 +157,8 @@ void Calibration::BuildGretinaCalc(Gretina* in, GretinaCalc* out){
 }
 
 TVector3 Calibration::TransformCoordinates(int hole, int cry, TVector3 local){
+  if(fverbose>0)
+    cout << "hole " << hole << " cry " << cry << endl;
   /* Need to convert from mm to cm for this to actually work properly. NOT for Aoi-san's file!*/
   double x = local.X();///10;
   double y = local.Y();///10;
@@ -158,6 +170,11 @@ TVector3 Calibration::TransformCoordinates(int hole, int cry, TVector3 local){
   // yt*=10.;
   // zt*=10.; //in mm
   //return TVector3(xt,yt,zt) - fSett->TargetPos();
+  if(fverbose>0){
+    cout << x << " " << y << " " << z << "  --> " ;
+    cout << xt << " " << yt << " " << zt << endl;
+  }
+  
   return TVector3(xt,yt,zt);
 }
 
@@ -165,7 +182,9 @@ void Calibration::CalibrateIPoints(Crystal* cry){
   double sum =0;
   for(int j=0; j<cry->GetMult(); j++){
     IPoint* ipoint = cry->GetIPoint(j);
-    ipoint->SetPosition(TransformCoordinates(cry->GetCluster(),
+    // apply transformation to lab system for data only
+    if(!fisSim)
+      ipoint->SetPosition(TransformCoordinates(cry->GetCluster(),
 					     cry->GetCrystal(),
 					     ipoint->GetPosition()));
     sum+=ipoint->GetEnergy();
@@ -315,13 +334,17 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     Short_t cry = (*hit)->GetCrystal();
     long long int ts = (*hit)->GetTS();
     ts -= fCoreTimeOffset[clu][cry];
-    Float_t en = (*hit)->GetEnergy() + fRand->Uniform(0,1);
+    Float_t en = (*hit)->GetEnergy();
     if(clu==fSett->BigRIPSCluster() && cry==fSett->BigRIPSCrystal())
       en = 0; 
     else if(en < fSett->RawThresh() || en > fSett->RawOverflow())
       continue;
-    en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
-    
+
+    // apply calibration for data only
+    if(!fisSim){
+      en += fRand->Uniform(0,1);
+      en = en*fCoreGain[clu][cry] + fCoreOffs[clu][cry];
+    }
     //Short_t seg = (*hit)->GetMaxSegNr();
     if(fverbose)
       cout << "calibrating hit clu = " << clu << ", cry " << cry << ", en " << en << ", ts " << ts << endl;
@@ -336,7 +359,9 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
       Float_t segen = (*hit)->GetSegmentEn().at(s) + fRand->Uniform(0,1);
       if(segen < fSett->RawThresh() || segen > fSett->RawOverflow())
 	continue;
-      segen = segen*fSegGain[clu][cry][segnr] + fSegOffs[clu][cry][segnr];
+      // apply calibration for data only
+      if(!fisSim)
+	segen = segen*fSegGain[clu][cry][segnr] + fSegOffs[clu][cry][segnr];
       if(fverbose)
 	cout << "segment " << segnr << " energy " << (*hit)->GetSegmentEn().at(s) << " cal " << segen<< endl;
       if(segen>maxen){
@@ -363,10 +388,13 @@ void Calibration::BuildHiCARICalc(HiCARI* in, HiCARICalc* out){
     }
     else if(en>0 || sumen>0){
       newHit = new HiCARIHitCalc(clu,cry,maxnr,sumen,fHiCARIpositions[clu][cry][maxnr],en,ts);
-      if(fverbose)
+      if(fverbose){
+	cout << "clu = " << clu << ", cry = " << cry << ", maxnr = " << maxnr << ", sumen = " << sumen << ", en = " << en << ", ts = " << ts << endl;
 	cout << "x = "<< fHiCARIpositions[clu][cry][maxnr].X() << ", y = "<< fHiCARIpositions[clu][cry][maxnr].Y()<< ", z = "<< fHiCARIpositions[clu][cry][maxnr].Z() << endl;
+      }
       newHit->SetSegments(nrs,ens);
-
+      
+      
       if(fSett->ExcludeTracking() && newHit->IsTracking())
 	continue;
       

@@ -45,6 +45,9 @@ public:
   void ReadHiCARITimeOffset(const char* filename);
   //! Read the matrix file for the position transformation for mode2 data
   void ReadMatrix(const char* filename);
+  //! Define if the analysis is for simulated data
+  void SetSimulation(bool sim){fisSim = sim;}
+
   
   //! Build the GretinaCalc object, given a raw Gretina object.
   void BuildGretinaCalc(Gretina* in, GretinaCalc* out);
@@ -82,7 +85,9 @@ protected:
 
   Settings* fSett;
   int fverbose;
-
+  
+  bool fisSim;
+  
   int fevent;
 
   TRandom* fRand;

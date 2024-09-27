@@ -96,7 +96,6 @@ protected:
   //! Clears memory of current event.
   void ClearEvent();
 
-  TRandom* fRand;
   TTree *ftr;
   TTree *fcaltr;
 

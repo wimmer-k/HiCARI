@@ -155,7 +155,7 @@ int UnpackedEvent::DecodeMode3(char* cBuf, int len, long long int gts){
 	cout << "UnpackedEvent: " <<__PRETTY_FUNCTION__ << " entry " << fnentries << " s800 is empty " << endl;
       fMode3Event->SetCounter(fctr);
       fctr = 0;
-      this->CloseEvent();
+      CloseEvent();
     }
     //The event is now written to the tree and is cleared if we decided to make a new event.
     //The event, whether newly made or made previously, gets passed a new trace.
@@ -400,9 +400,9 @@ int UnpackedEvent::DecodeGretina(Crystal* cryst, long long int gts){
 	cout << "UnpackedEvent: " << "Closing event due to timestamp in Gretina." << endl;
       fMode3Event->SetCounter(fctr);
       fctr = 0;
-      this->CloseEvent();
+      CloseEvent();
     }
-    this->ClearEvent();
+    ClearEvent();
   }
 
 
@@ -446,8 +446,17 @@ void UnpackedEvent::CloseEvent(){
     //cout << "fMode3Event->GetMult() " << fMode3Event->GetMult() <<"\tfMiniball->GetMult() " << fMiniball->GetMult() << "-----------after " << endl;   
   }
 
+  if(fvl>3){
+    if(fwtree)
+      cout << "fwtree" << endl;
+    if(fwhist)
+      cout << "fwhist" << endl;
+    if(fwcaltree)
+      cout << "fwcaltree" << endl;
+    if(fwcalhist)
+      cout << "fwcalhist" << endl;
+  }
   if(fwtree || fwhist){
-
     if(fwhist){
       frhist->FillHistograms(fMode3Event,fHiCARI,fGretina);
     }
@@ -458,7 +467,6 @@ void UnpackedEvent::CloseEvent(){
     fnentries++;
   }
   if(fwcaltree||fwcalhist){
-    
     if(fHiCARI->GetMult()>0)
       fcal->BuildHiCARICalc(fHiCARI,fHiCARICalc);
     if(fGretina->GetMult()>0)
@@ -468,6 +476,7 @@ void UnpackedEvent::CloseEvent(){
       if(fHiCARICalc->GetMult()>0||fHiCARICalc->HadBigRIPS()||fGretinaCalc->GetMult()>0){
 	fcaltr->Fill();
 	fncalentries++;
+	//cout << "incrementing " << fncalentries<< endl;
       }
     }
     if(fwcalhist){
@@ -476,7 +485,7 @@ void UnpackedEvent::CloseEvent(){
     }
   }
   
-  this->ClearEvent();
+  ClearEvent();
 }
 /*!
   Write the last event to file.
@@ -488,7 +497,7 @@ void UnpackedEvent::WriteLastEvent(){
     cout << "UnpackedEvent: " << "last event " << endl;
   fMode3Event->SetCounter(fctr);
   fctr = 0;
-  this->CloseEvent();
+  CloseEvent();
 
   if(fwhist){
     cout << "Writing raw histograms" << endl;

@@ -35,6 +35,8 @@ public:
 
   const string InputFile(){return fInputFiles[0];}
 
+  void SetSimulation(bool sim){fSimulation = sim;}
+  
   void SetVLevel(int vl){fVerboseLevel = vl;}
   int VLevel(){return fVerboseLevel;}
   int EventTimeDiff(){return fEventTimeDiff;}
@@ -168,12 +170,31 @@ public:
   double GetBRZdeg_offs(){return fzdeg_coef[0][1];}
   double GetZDZdeg_gain(){return fzdeg_coef[1][0];}
   double GetZDZdeg_offs(){return fzdeg_coef[1][1];}
+
+#ifdef WITHSIM
+  //! Check if it is simulated data 
+  bool IsSimulation(){return fSimulation;}
+
+  const char* SimBrokenFile(){return fBrokenFile.c_str();}
+  const char* SimResolutionFile(){return fResFile.c_str();}
+  const char* SimThresholdFile(){return fThreshFile.c_str();}
+  double SimTrackingPositionResolution(){return fTrackingPosRes;}
+  double SimTargetAngleResolution(){return fTargetAngleRes;}
+  double SimTargetPosResolution(){return fTargetPosRes;}
+  double SimTargetBetaResolution(){return fTargetBetaRes;}
+
+  int Clu2Det(int clu);
+  int Det2Clu(int det);
+
+  
+#endif
+
 protected:
   int fEventTimeDiff;
   vector<string> fInputFiles;
 
   int fVerboseLevel;
-
+  
   Float_t ftargetX;
   Float_t ftargetY;
   Float_t ftargetZ;
@@ -185,9 +206,6 @@ protected:
   double fOverflowThreshold;
   string fMatrixFile;
   string fNeighborFile;
-
-  map<int,int> fdet2clu;
-  map<int,int> fclu2det;
 
   double fClusterAngle;
   bool fTracking;
@@ -256,6 +274,24 @@ protected:
 
   double fzdeg_corr[2][2], fzdeg_coef[2][2];
 
+#ifdef WITHSIM
+  bool fSimulation;
+
+  string fBrokenFile;
+
+  string fResFile;
+  string fThreshFile;
+  double fTrackingPosRes;
+
+  double fTargetAngleRes;
+  double fTargetPosRes;
+  double fTargetBetaRes;
+
+  map<int,int> fdet2clu;
+  map<int,int> fclu2det;
+
+#endif
+  
   ClassDef(Settings, 1)
 };
 

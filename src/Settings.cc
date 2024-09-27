@@ -130,9 +130,32 @@ void Settings::ReadSettings(TEnv* set){
   fzdeg_coef[1][0] = set->GetValue("ZeroDeg.Zdeg_Gain",1.0);
   fzdeg_coef[1][1] = set->GetValue("ZeroDeg.Zdeg_Offs",0.0);
 
+#ifdef WITHSIM
+  fSimulation = set->GetValue("Simulation",false);
+  fBrokenFile = set->GetValue("Sim.Broken.File",defaultfile);
+  fResFile = set->GetValue("Sim.Resolution.File",defaultfile);
+  fThreshFile = set->GetValue("Sim.Threshold.File",defaultfile);
+  fTrackingPosRes = set->GetValue("Sim.Tracking.Position.Resolution",0.0);
+
+  fTargetAngleRes = set->GetValue("Sim.Target.Angle.Resolution",0.0);
+  fTargetPosRes   = set->GetValue("Sim.Target.Pos.Resolution",0.0);
+  fTargetBetaRes  = set->GetValue("Sim.Target.Beta.Resolution",0.0);
+
+  fdet2clu.clear();
+  fclu2det.clear();
+
+  for(int det=0; det<20; det++){
+    int clu = set->GetValue(Form("Detector.%d",det),-1);
+    if (clu!=-1){
+      fdet2clu[det] = clu;
+      fclu2det[clu] = det;
+    }
+  }
+
+#endif
 }
 
-/*
+#ifdef WITHSIM
 int Settings::Det2Clu(int det){
   if (fdet2clu.count(det)==1){
     return fdet2clu[det];
@@ -148,10 +171,11 @@ int Settings::Clu2Det(int clu){
     return -1;
   }
 }
-*/
+#endif
 
 void Settings::PrintSettings(){
   //cout << __PRETTY_FUNCTION__ << endl;
+
   cout << "Target.X\t" << ftargetX << endl;
   cout << "Target.Y\t" << ftargetY << endl;
   cout << "Target.Z\t" << ftargetZ << endl;
@@ -180,7 +204,7 @@ void Settings::PrintSettings(){
   cout << "Trace.Plots\t"<< fTracePlots << endl;
   cout << "Mode3.Histos\t"<< fMode3Histos << endl;
   cout << "ExcludeTracking\t"<< fExcludeTracking << endl;
-  cout << "MAtrixFile\t"<< fMatrixfile << endl;
+  cout << "MatrixFile\t"<< fMatrixfile << endl;
 
   for(int i=0;i<6;i++)
     cout << Form("TOF offset.%d\t",i) << ftoffset[i] << endl;
@@ -234,6 +258,27 @@ void Settings::PrintSettings(){
   cout << "ZeroDeg.ZdegCorr_F9X\t" << fzdeg_corr[1][0] << endl;
   cout << "ZeroDeg.ZdegCorr_F9A\t" << fzdeg_corr[1][1] << endl;
 
+#ifdef WITHSIM
+  cout << "Simulation\t" << fSimulation << endl;
+
+  cout << "Sim.Broken.File\t" << fBrokenFile << endl;
+  cout << "Sim.Resolution.File\t" << fResFile << endl;
+  cout << "Sim.Threshold.File\t" << fThreshFile << endl;
+  cout << "Sim.Tracking.Position.Resolution\t" << fTrackingPosRes << endl;
+
+  cout << "Sim.Target.Angle.Resolution\t" << fTargetAngleRes << endl;
+  cout << "Sim.Target.Pos.Resolution\t"   << fTargetPosRes << endl;
+  cout << "Sim.Target.Beta.Resolution\t"   << fTargetBetaRes << endl;
+
+  for(int det=0; det<20; det++){
+    int clu = Det2Clu(det);
+    if(clu>-1){
+      cout << "Simulation Cluster " << clu << " maps to Detector ID " << det << endl;
+      cout << "Detector." << det << "\t" << clu << endl;
+    }
+  }
+#endif
+  
 }
 void Settings::ReadHiCARIMappingTable(){
   TEnv* mapenv = new TEnv(fHiCARImapping.c_str());

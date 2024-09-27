@@ -154,6 +154,7 @@ int main(int argc, char* argv[]){
   set->Write("settings",TObject::kOverwrite);
   //Initialize the data structures for the event building.
   struct crys_ips_abcd6789 inbuf_abcd6789[1];
+  struct crys_ips_abcd5678 inbuf_abcd5678[1];
   int buffers = 0;
   long long int bytes_read = 0;
   bool first_ts = false;
@@ -197,7 +198,7 @@ int main(int argc, char* argv[]){
     if(header[0]==GRETINA_ID){
       if(vl>1){
 	cout << "---------------------starting gretina------------------------------- " << endl;
-	cout << "gret timestamp:\t"<< ts << "\tlength: "<< header[1] << "\thex: " <<(hex) << ts << "\tlength: "<< header[1] <<(dec)<< endl;
+	cout << "gret timestamp:\t"<< ts << "\tlength: "<< header[1] << "\thex: " <<(hex) << ts << "\tlength: "<< header[1] <<(dec)<< "  sizeof(crys_ips_abcd6789) " << sizeof(crys_ips_abcd6789) << "  sizeof(crys_ips_abcd5678) " << sizeof(crys_ips_abcd5678) << endl;
       }
       Crystal* crys;
       if(header[1]==sizeof(crys_ips_abcd6789)){

@@ -54,7 +54,9 @@ int main(int argc, char* argv[]){
   interface->Add("-o", "output file", &RootFile);
   interface->Add("-s", "settingsfile", &SettingFile);
   interface->Add("-rt", "write raw tree", &wrawtree);
+  interface->Add("-ct", "write cal tree", &wcaltree);
   interface->Add("-st", "write sim tree", &wsimtree);
+  interface->Add("-ch", "write cal hist", &wcalhist);
   interface->CheckFlags(argc, argv);
 
   //Complain about missing mandatory arguments
@@ -108,10 +110,13 @@ int main(int argc, char* argv[]){
   sim_clust inbuf_hicari[1];
   G4SIM_EGS inbuf_g4sim_emitted_gammas[1];
   ZD_PHYSICSDATA inbuf_zero_physicsdata[1];
+  BEAM_DATA inbuf_beam_data[1];
   SimulatedEvent *evt = new SimulatedEvent(set);
   evt->SetWrite(wrawtree, wrawhist, wcaltree, wcalhist, wsimtree);
   evt->SetVL(vl);
   Calibration *cal = new Calibration(set);
+  // make sure that this is treated a simulated data
+  cal->SetSimulation(true);
   evt->SetCalibration(cal);
   evt->Init();
 
@@ -187,6 +192,25 @@ int main(int argc, char* argv[]){
 	continue;
       }
     }
+    else if(header[0]==BEAM_PHYSDATA_ID){
+      if(vl>1)
+	cout << "beam timestamp:\t"<< ts << "\tlength: "<< header[1] << "\thex: " <<(hex) << ts << "\tlength: "<< header[1] <<(dec) << "\tsizeof(BEAM_DATA): " << sizeof(BEAM_DATA) << endl;
+      if(header[1]==sizeof(BEAM_DATA)){
+	bsize = fread(&inbuf_beam_data[0], sizeof(BEAM_DATA), 1, infile);
+	bytes_read += sizeof(BEAM_DATA);
+      }
+      else{
+	cout << "Unknown size for BEAM_DATA event" << endl;
+	break;
+      }
+      if(bsize>0)
+	error = evt->DecodeBeamData(&inbuf_beam_data[0], ts);
+      if(error){
+	cout << "An error ("<<error<<") occured in DecodeBeamData() while processing file: " << InputFile << ". Continuing ..." << endl;
+	continue;
+      }
+
+    }
     else if(header[0]==ZERO_PHYSDATA_ID){
       if(vl>0)
 	cout << "zerodeg timestamp:\t"<< ts << "\tlength: "<< header[1] << "\thex: " <<(hex) << ts << "\tlength: "<< header[1] <<(dec) << "\tsizeof(ZERO_PHYSICSDATA): " << sizeof(ZD_PHYSICSDATA) << endl;
@@ -246,7 +270,8 @@ int main(int argc, char* argv[]){
 
   //Finish reading the last event and close it out.
   evt->WriteLastEvent();
-
+  evt->PrintSimCtrs();
+  
   cout << "Total of " << buffers << " data buffers ("<<bytes_read/(1024*1024)<<" MB) and" << endl;
 
   if(wcaltree){

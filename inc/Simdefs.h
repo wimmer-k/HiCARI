@@ -6,6 +6,8 @@
 #define GAMMA_G4SIM_ID          11     /* ID for simulated gamma data */
 #define ZERO_PHYSDATA_ID        13     /* ID for zero deg data */
 #define ZEROPHYSDATA_TYPETAG    0x0de90de9
+#define BEAM_PHYSDATA_ID        14     /* ID for zero deg data */
+#define BEAMPHYSDATA_TYPETAG    0xbeabeabe
 
 #ifdef BACKGROUND
 #define MAX_SIM_GAMMAS 100       /* max. simulated gammas per event */
@@ -72,28 +74,37 @@ typedef struct ZD_physicsdata {
   float betata; /* beta velocity           */
 } ZD_PHYSICSDATA;
 
+typedef struct BEAM_data {
+  int32_t type;       /* defined affec0c0 for indicating this version */
+  float betain;       /* beta velocity before target  */
+  float betata;       /* beta velocity after target  */
+  float tx, ty, tz;   /* position on target  */
+  float ix, iy, iz;   /* incoming direction  */
+  float ox, oy, oz;   /* outgoing direction  */
+} BEAM_DATA;
+/*
 struct simbroken{
   int Detector;
   int Crystal;
   Short_t Segment;
-  bool broken;
 };
 
 struct simresolution{
-  // resolution = A*sqrt(1 + B*Energy)                                                                                                     
+  // resolution = A*sqrt(1 + B*Energy)
   int Detector;
   int Crystal;
+  Short_t Segment;
   double A;
   double B;
   double C;
 };
 
 struct simthreshold{
-  // threshold = 0.5*( 1 + tanh( (Energy - E) / dE ) )                                                                                     
+  // threshold = 0.5*( 1 + tanh( (Energy - E) / dE ) )
   int Detector;
   int Crystal;
   double E;
   double dE;
 };
-
+*/
 #endif

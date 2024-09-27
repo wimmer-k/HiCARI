@@ -80,8 +80,14 @@ int main(int argc, char* argv[]){
     }
     return 3;
   }
+  Settings* set = new Settings(SettingFile);
   HiCARICalc* hi = new HiCARICalc;
-  tr->SetBranchAddress("hicari",&hi);
+  if(!set->IsSimulation()){
+    tr->SetBranchAddress("hicari",&hi);
+  }
+  else{
+    tr->SetBranchAddress("hicaricalc",&hi);
+  }
   GretinaCalc* gr = new GretinaCalc;
   tr->SetBranchAddress("mode2",&gr);
 
@@ -99,7 +105,6 @@ int main(int argc, char* argv[]){
   //PPAC* ppac = new PPAC;
   //tr->SetBranchAddress("ppacs",&ppac);
 
-  Settings* set = new Settings(SettingFile);
   Reconstruction* rec = new Reconstruction(set);
   cout << "creating outputfile " << OutputFile << endl;
   TFile* ofile = new TFile(OutputFile,"recreate");
@@ -158,9 +163,9 @@ int main(int argc, char* argv[]){
 
   
   TH1F* beta[6];
-  TH1F* beta_event = new TH1F("beta_event","beta_event",600,0.55,0.7);hlist->Add(beta_event);
+  TH1F* beta_event = new TH1F("beta_event","beta_event",800,0.57,0.65);hlist->Add(beta_event);
   for(int i=0; i<6; i++){
-    beta[i] = new TH1F(Form("beta_%d",i),Form("beta_%d",i),600,0.55,0.7);hlist->Add(beta[i]);
+    beta[i] = new TH1F(Form("beta_%d",i),Form("beta_%d",i),800,0.57,0.65);hlist->Add(beta[i]);
   }
 
   TH2F* h_gamma_theta_phi = new TH2F("h_gamma_theta_phi","h_gamma_theta_phi",180,0,180,360,-360,360);hlist->Add(h_gamma_theta_phi);
@@ -170,6 +175,8 @@ int main(int argc, char* argv[]){
   
   TH2F* h_egam_tgam = new TH2F("h_egam_tgam","h_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egam_tgam);
   TH2F* h_egamdc_tgam = new TH2F("h_egamdc_tgam","h_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamdc_tgam);
+  TH1F* h_egam = new TH1F("h_egam","h_egam",4000,0,4000);hlist->Add(h_egam);
+  TH2F* h_egam_summary = new TH2F("h_egam_summary","h_egam_summary",60,0,60,4000,0,4000);hlist->Add(h_egam_summary);
   TH1F* h_egamdc = new TH1F("h_egamdc","h_egamdc",4000,0,4000);hlist->Add(h_egamdc);
   TH2F* h_egamdc_theta = new TH2F("h_egamdc_theta","h_egamdc_theta",180,0,180,4000,0,4000);hlist->Add(h_egamdc_theta);
   TH2F* h_egam_beta = new TH2F("h_egam_beta","h_egam_beta",1000,0.55,0.65,4000,0,4000);hlist->Add(h_egam_beta);
@@ -187,6 +194,8 @@ int main(int argc, char* argv[]){
   TH2F* g_gamma_z_x = new TH2F("g_gamma_z_x","g_gamma_z_x",300,0,300,300,-300,300);hlist->Add(g_gamma_z_x);
   TH2F* g_gamma_z_y = new TH2F("g_gamma_z_y","g_gamma_z_y",300,0,300,300,-300,300);hlist->Add(g_gamma_z_y);
   
+  TH1F* g_egam = new TH1F("g_egam","g_egam",4000,0,4000);hlist->Add(g_egam);
+  TH2F* g_egam_summary = new TH2F("g_egam_summary","g_egam_summary",60,0,60,4000,0,4000);hlist->Add(g_egam_summary);
   TH2F* g_egam_tgam = new TH2F("g_egam_tgam","g_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(g_egam_tgam);
   TH2F* g_egamdc_tgam = new TH2F("g_egamdc_tgam","g_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(g_egamdc_tgam);
   TH1F* g_egamdc = new TH1F("g_egamdc","g_egamdc",4000,0,4000);hlist->Add(g_egamdc);
@@ -231,33 +240,39 @@ int main(int argc, char* argv[]){
     }
     nbytes += status;
 
-    //gate on F5X position 
-    if(!isnan(fp[fpNr(5)]->GetTrack()->GetX()) && !rec->F5XGate(fp[fpNr(5)]->GetTrack()->GetX()))
-      continue;
-
-    //gate on charge changes in BigRIPS and Zerodeg
-    if(trigbit>1 && rec->ChargeChange(bz))
-      continue;
-
     
-    //beam direction, scattering angle
-    //align
-    rec->AlignPPAC(bz->GetF8PPAC3A(), bz->GetF8PPAC3B());
     TVector3 ppacpos[3];
-    for(int j=0;j<3;j++){
-      ppacpos[j] = rec->PPACPosition(bz->GetF8PPAC(j,0),bz->GetF8PPAC(j,1));
-      bz->SetF8Position(j,ppacpos[j]);
-      F8xy[j]->Fill(ppacpos[j].X(), ppacpos[j].Y());
+    if(!set->IsSimulation()){
+      //gate on F5X position 
+      if(!isnan(fp[fpNr(5)]->GetTrack()->GetX()) && !rec->F5XGate(fp[fpNr(5)]->GetTrack()->GetX()))
+	continue;
+      
+      //gate on charge changes in BigRIPS and Zerodeg
+      if(trigbit>1 && rec->ChargeChange(bz))
+	continue;
+    
+      //beam direction, scattering angle
+      //align
+      rec->AlignPPAC(bz->GetF8PPAC3A(), bz->GetF8PPAC3B());
+      for(int j=0;j<3;j++){
+	ppacpos[j] = rec->PPACPosition(bz->GetF8PPAC(j,0),bz->GetF8PPAC(j,1));
+	bz->SetF8Position(j,ppacpos[j]);
+	F8xy[j]->Fill(ppacpos[j].X(), ppacpos[j].Y());
+      }
+      bz->SetIncomingDirection(ppacpos[1]-ppacpos[0]);
     }
-    bz->SetIncomingDirection(ppacpos[1]-ppacpos[0]);
     TVector3 inc = bz->GetIncomingDirection();
 
     // target position with respect to the nominal focal point
-    TVector3 targ = rec->TargetPosition(inc,ppacpos[1]);
-    bz->SetTargetPosition(targ);
+    TVector3 targ = bz->GetTargetPosition();
+    if(!set->IsSimulation()){
+      targ = rec->TargetPosition(inc,ppacpos[1]);
+      bz->SetTargetPosition(targ);
+    }
     TVector3 out, sca;
-    if(trigbit>1){
-      bz->SetOutgoingDirection(ppacpos[2]-targ);
+    if(trigbit>1 || set->IsSimulation()){
+      if(!set->IsSimulation())
+	bz->SetOutgoingDirection(ppacpos[2]-targ);
       out = bz->GetOutgoingDirection();
       sca = bz->GetScatteredDirection();
     }
@@ -303,15 +318,13 @@ int main(int argc, char* argv[]){
       thetaphi_tr[trigbit]->Fill(bz->GetPhi(),bz->GetTheta()*1000);
       thetaphideg_tr[trigbit]->Fill(bz->GetPhi()*rad2deg,bz->GetTheta()*rad2deg);
     }
-    if(trigbit>1){
+    if(trigbit>1 || set->IsSimulation()){
       //cout << bz->GetPhi() <<"\t" << sca.Phi() - inc.Phi() << endl;
       thetaphi->Fill(bz->GetPhi(),bz->GetTheta()*1000);
       thetaphideg->Fill(bz->GetPhi()*rad2deg,bz->GetTheta()*rad2deg);
     }
 
     //scaAB->Fill(atan2(sca.X(),sca.Z())*1000,atan2(sca.Y(),sca.Z())*1000);
-
-    
     //tp position with respect to HiCARI center
     TVector3 tp = bz->GetTargetPosition();    
     targetxy->Fill(tp.X(),tp.Y());
@@ -323,42 +336,46 @@ int main(int argc, char* argv[]){
     //  focusx->Fill(extrapol.Z(),extrapol.X());
     //  focusy->Fill(extrapol.Z(),extrapol.Y());
     //}
-    SinglePPAC* ppac2b = bz->GetF8PPAC(1,1);
-    if(!ppac2b->Fired())
-      continue;
-    for(int i=0;i<750;i++){
-      double dz = i*2.;
-      double z = ppac2b->GetZ() + dz;
 
-      double tana = inc.X()/inc.Z();
-      double dx = dz*tana;
-      double x = ppac2b->GetX() + dx;
+    if(!set->IsSimulation()){ 
+      SinglePPAC* ppac2b = bz->GetF8PPAC(1,1);
+      if(!ppac2b->Fired())
+	continue;
+      for(int i=0;i<750;i++){
+	double dz = i*2.;
+	double z = ppac2b->GetZ() + dz;
 
-      focusx->Fill(z,x);
+	double tana = inc.X()/inc.Z();
+	double dx = dz*tana;
+	double x = ppac2b->GetX() + dx;
 
-      double tanb = inc.Y()/inc.Z();
-      double dy = dz*tanb;
-      double y = ppac2b->GetY() + dy;
+	focusx->Fill(z,x);
 
-      focusy->Fill(z,y);
-    }
+	double tanb = inc.Y()/inc.Z();
+	double dy = dz*tanb;
+	double y = ppac2b->GetY() + dy;
 
-    fp8x_fp8a->Fill(fp[fpNr(8)]->GetTrack()->GetX(),fp[fpNr(8)]->GetTrack()->GetA());
-    fp8y_fp8b->Fill(fp[fpNr(8)]->GetTrack()->GetY(),fp[fpNr(8)]->GetTrack()->GetB());
-    fp8x_fp11x->Fill(fp[fpNr(8)]->GetTrack()->GetX(),fp[fpNr(11)]->GetTrack()->GetX());
-    fp8y_fp11y->Fill(fp[fpNr(8)]->GetTrack()->GetY(),fp[fpNr(11)]->GetTrack()->GetY());
+	focusy->Fill(z,y);
+      }
 
-    delta_89_911->Fill(bz->GetDelta(2),bz->GetDelta(3));
-    delta_diff_fp11x->Fill(fp[fpNr(11)]->GetTrack()->GetX(),bz->GetDelta(2) - bz->GetDelta(3));
+      fp8x_fp8a->Fill(fp[fpNr(8)]->GetTrack()->GetX(),fp[fpNr(8)]->GetTrack()->GetA());
+      fp8y_fp8b->Fill(fp[fpNr(8)]->GetTrack()->GetY(),fp[fpNr(8)]->GetTrack()->GetB());
+      fp8x_fp11x->Fill(fp[fpNr(8)]->GetTrack()->GetX(),fp[fpNr(11)]->GetTrack()->GetX());
+      fp8y_fp11y->Fill(fp[fpNr(8)]->GetTrack()->GetY(),fp[fpNr(11)]->GetTrack()->GetY());
+
+      delta_89_911->Fill(bz->GetDelta(2),bz->GetDelta(3));
+      delta_diff_fp11x->Fill(fp[fpNr(11)]->GetTrack()->GetX(),bz->GetDelta(2) - bz->GetDelta(3));
     
-
+    }//simulation
     
     
     for(int i=0;i<6;i++)
       beta[i]->Fill(bz->GetRIPSBeta(i));
     beta_event->Fill(rec->EventBeta(bz));
-    
+
+    //cout << "start gamma " << endl;
     for(int h=0; h<hi->GetMult(); h++){
+      //cout << "h = " << h << endl;
       HiCARIHitCalc* hit = hi->GetHit(h);
       if(hit->IsBigRIPS())
 	continue;
@@ -367,6 +384,8 @@ int main(int argc, char* argv[]){
       h_egam_tgam->Fill(hit->GetTime(),hit->GetEnergy());
       h_egamdc_tgam->Fill(hit->GetTime(),hit->GetDCEnergy());
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
+	h_egam->Fill(hit->GetEnergy());
+	h_egam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetEnergy());
 	h_egamdc->Fill(hit->GetDCEnergy());
 	h_egam_beta->Fill(bz->GetDopplerBeta(), hit->GetEnergy());
 	h_egamdc_beta->Fill(bz->GetDopplerBeta(), hit->GetDCEnergy());
@@ -396,6 +415,8 @@ int main(int argc, char* argv[]){
       g_egam_tgam->Fill(hit->GetTime(),hit->GetEnergy());
       g_egamdc_tgam->Fill(hit->GetTime(),hit->GetDCEnergy());
       if(hit->GetPosition().Theta()>0 && hit->GetEnergy() > 10){
+	g_egam->Fill(hit->GetEnergy());
+	g_egam_summary->Fill(4*hit->GetCluster()+hit->GetCrystal(), hit->GetEnergy());
 	g_egamdc->Fill(hit->GetDCEnergy());
 	g_egam_beta->Fill(bz->GetDopplerBeta(), hit->GetEnergy());
 	g_egamdc_beta->Fill(bz->GetDopplerBeta(), hit->GetDCEnergy());

@@ -7,6 +7,7 @@ LIB_DIR = $(HOME)/lib
 #TARTSYS=/home/gamma20/packages/anaroot_v4.5.38
 
 ROOTCFLAGS  := $(shell root-config --cflags)
+##ROOTCFLAGS = -pthread -I/usr/local/root6.26/include/root
 ROOTLIBS    := $(shell root-config --libs)
 ROOTGLIBS   := $(shell root-config --glibs)
 ROOTINC     := -I$(shell root-config --incdir)
@@ -44,7 +45,7 @@ endif
 
 all: $(LIB_DIR)/libCommandLineInterface.so $(LIB_DIR)/libHiCARI.so $(LIB_DIR)/libBigRIPS.so $(LIB_DIR)/libSimulation.so  $(EXTRAS) HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze
 
-exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze UnpackSim
+exe: HFC Unpack Calibrate MakeMode2 Raw_histos Cal_histos BigRIPSTree Merge Merge_histos Gated_histos Beam_histos TreeSplitter Analyze UnpackSim Sim_histos
 
 UnpackSim: UnpackSim.cc $(LIB_DIR)/libHiCARI.so $(SO_FILES)
 	@echo "Compiling $@"

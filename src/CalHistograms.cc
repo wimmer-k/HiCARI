@@ -195,6 +195,10 @@ void CalHistograms::FillHistograms(GretinaCalc* gr){
     Fill(Form("g_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),16000,0,4000,hit->GetEnergy());
     Fill("g_maxhit_vs_en",2000,0,4000,hit->GetEnergy(),2000,0,4000,hit->GetMaxSingleHit());
     Fill(Form("g_maxhit_vs_en_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),1000,0,4000,hit->GetEnergy(),1000,0,4000,hit->GetMaxSingleHit());
+
+    Fill(Form("g_xy_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),200,-100,100,hit->GetPosition().X(),200,-100,100,hit->GetPosition().Y());
+    Fill(Form("g_xz_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),200,-100,100,hit->GetPosition().X(),200,-100,100,hit->GetPosition().Z());
+    Fill(Form("g_yz_clus%02d_crys%02d",hit->GetCluster(),hit->GetCrystal()),200,-100,100,hit->GetPosition().Y(),200,-100,100,hit->GetPosition().Z());
     
   }//hits
   Fill("g_mult_multAB",30,0,30,gr->GetMult(),30,0,30,gr->GetMultAB());
