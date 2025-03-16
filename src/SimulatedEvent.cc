@@ -568,3 +568,47 @@ void SimulatedEvent::SimSmear(HiCARI* hi){
   }//hits
   return;
 }
+/*!
+  apply all experimental factors, broken detectors, thresholds, resolution
+
+*/
+void SimulatedEvent::SimSmear(Gretina *gr){
+  //cout << __PRETTY_FUNCTION__ << endl;
+  for(int i=0; i<gr->GetMult(); i++){
+    Crystal* hit = gr->GetHit(i);
+    int det = hit->GetCluster();
+    int cry = hit->GetCrystal();
+    double en = hit->GetEnergy();
+    // Broken detectors
+    if(fCoreBroken[det][cry]){
+      hit->SetEnergy(0);
+      for(int j=0; j<hit->GetMult(); j++){
+	IPoint* ipoint = hit->GetIPoint(j);
+	ipoint->SetEnergy(0);
+      }
+    }
+    // Threshods
+    else if(fRand->Uniform(0,1) > 0.5*(1.0 + tanh( (en - fCoreThreshE[det][cry]) / fCoreThreshdE[det][cry] ) ) ){
+      hit->SetEnergy(0);
+      for(int j=0; j<hit->GetMult(); j++){
+	IPoint* ipoint = hit->GetIPoint(j);
+	ipoint->SetEnergy(0);
+      }
+    }
+    // Resolution
+    else{
+      hit->SetEnergy(fRand->Gaus(en,fCoreResoA[det][cry]*sqrt(1.0+en*fCoreResoB[det][cry]) + en*fCoreResoC[det][cry]));
+      for(int j=0; j<hit->GetMult(); j++){
+	IPoint* ipoint = hit->GetIPoint(j);
+	double en = ipoint->GetEnergy();
+	ipoint->SetEnergy(fRand->Gaus(en,fCoreResoA[det][cry]*sqrt(1.0+en*fCoreResoB[det][cry]) + en*fCoreResoC[det][cry]));
+	if(fSett->SimTrackingPositionResolution()>0){
+	  ipoint->SetPosition(fRand->Gaus(ipoint->GetPosition().X(),fSett->SimTrackingPositionResolution()),
+			      fRand->Gaus(ipoint->GetPosition().Y(),fSett->SimTrackingPositionResolution()),
+			      fRand->Gaus(ipoint->GetPosition().Z(),fSett->SimTrackingPositionResolution()));
+	}
+      }
+    }
+  }//hits
+  return;
+}

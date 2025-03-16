@@ -58,6 +58,8 @@ public:
   
   //! Apply experimental factors
   void SimSmear(HiCARI* hi);
+  //! Apply experimental factors
+  void SimSmear(Gretina* gr);
   
 private:
   TTree *fsimtr;

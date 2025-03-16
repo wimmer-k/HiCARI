@@ -89,7 +89,12 @@ int main(int argc, char* argv[]){
     tr->SetBranchAddress("hicaricalc",&hi);
   }
   GretinaCalc* gr = new GretinaCalc;
-  tr->SetBranchAddress("mode2",&gr);
+  if(!set->IsSimulation()){
+    tr->SetBranchAddress("mode2",&gr);
+  }
+  else{
+    tr->SetBranchAddress("gretinacalc",&gr);
+  }
 
   int trigbit = -1;
   tr->SetBranchAddress("trigbit",&trigbit);
@@ -170,8 +175,8 @@ int main(int argc, char* argv[]){
 
   TH2F* h_gamma_theta_phi = new TH2F("h_gamma_theta_phi","h_gamma_theta_phi",180,0,180,360,-360,360);hlist->Add(h_gamma_theta_phi);
   TH2F* h_gamma_x_y = new TH2F("h_gamma_x_y","h_gamma_x_y",300,-300,300,300,-300,300);hlist->Add(h_gamma_x_y);
-  TH2F* h_gamma_z_x = new TH2F("h_gamma_z_x","h_gamma_z_x",300,0,300,300,-300,300);hlist->Add(h_gamma_z_x);
-  TH2F* h_gamma_z_y = new TH2F("h_gamma_z_y","h_gamma_z_y",300,0,300,300,-300,300);hlist->Add(h_gamma_z_y);
+  TH2F* h_gamma_z_x = new TH2F("h_gamma_z_x","h_gamma_z_x",300,-300,300,300,-300,300);hlist->Add(h_gamma_z_x);
+  TH2F* h_gamma_z_y = new TH2F("h_gamma_z_y","h_gamma_z_y",300,-300,300,300,-300,300);hlist->Add(h_gamma_z_y);
   
   TH2F* h_egam_tgam = new TH2F("h_egam_tgam","h_egam_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egam_tgam);
   TH2F* h_egamdc_tgam = new TH2F("h_egamdc_tgam","h_egamdc_tgam",1000,-500,500,4000,0,4000);hlist->Add(h_egamdc_tgam);
@@ -191,8 +196,8 @@ int main(int argc, char* argv[]){
   
   TH2F* g_gamma_theta_phi = new TH2F("g_gamma_theta_phi","g_gamma_theta_phi",180,0,180,360,-360,360);hlist->Add(g_gamma_theta_phi);
   TH2F* g_gamma_x_y = new TH2F("g_gamma_x_y","g_gamma_x_y",300,-300,300,300,-300,300);hlist->Add(g_gamma_x_y);
-  TH2F* g_gamma_z_x = new TH2F("g_gamma_z_x","g_gamma_z_x",300,0,300,300,-300,300);hlist->Add(g_gamma_z_x);
-  TH2F* g_gamma_z_y = new TH2F("g_gamma_z_y","g_gamma_z_y",300,0,300,300,-300,300);hlist->Add(g_gamma_z_y);
+  TH2F* g_gamma_z_x = new TH2F("g_gamma_z_x","g_gamma_z_x",300,-300,300,300,-300,300);hlist->Add(g_gamma_z_x);
+  TH2F* g_gamma_z_y = new TH2F("g_gamma_z_y","g_gamma_z_y",300,-300,300,300,-300,300);hlist->Add(g_gamma_z_y);
   
   TH1F* g_egam = new TH1F("g_egam","g_egam",4000,0,4000);hlist->Add(g_egam);
   TH2F* g_egam_summary = new TH2F("g_egam_summary","g_egam_summary",60,0,60,4000,0,4000);hlist->Add(g_egam_summary);
